@@ -46,6 +46,8 @@ export const baseMetaSchema = z.object({
   license: text("许可证", 1, 80),
   licenseNote: optionalText("版权说明", 300),
   redistribution: z.boolean(),
+  /** "PRO" is the Phase 1 spelling of the first paid tier; the importer maps it to EI */
+  tier: z.enum(["FREE", "PRO", "EI", "SCI"], { message: "会员等级只能是 FREE、EI 或 SCI" }).optional(),
   sourceUrl: z.string().trim().url("来源链接不是有效网址").optional(),
   featured: z.boolean().optional(),
   updatedAt: isoDate("更新日期"),

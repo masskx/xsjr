@@ -9,6 +9,7 @@ import { checkTotp, issueAccountLink } from "@/lib/auth/service";
 import { adminContext, requireRecentReauth } from "@/lib/admin/server";
 import * as prompts from "@/lib/admin/prompts";
 import { auditUserAction } from "@/lib/admin/users";
+import * as members from "@/lib/admin/members";
 
 export interface AdminFormState {
   ok?: boolean;
@@ -108,7 +109,7 @@ export async function issueLinkAction(_: AdminFormState, fd: FormData): Promise<
   const userId = Number(str(fd, "userId"));
   const purpose = str(fd, "purpose") === "PASSWORD_RESET" ? "PASSWORD_RESET" : "EMAIL_VERIFY";
   // a reset link is an account takeover capability: re-authenticate first
-  if (purpose === "PASSWORD_RESET") requireRecentReauth(viewer, `/admin/users/?email=${encodeURIComponent(str(fd, "email"))}`);
+  if (purpose === "PASSWORD_RESET") requireRecentReauth(viewer, `/admin/users/${userId}/`);
   const r = await issueAccountLink(await requestCtx(), userId, purpose, viewer.userId);
   if (!r) return { error: "用户不存在" };
   await auditUserAction(ctx.db, viewer.userId, purpose === "PASSWORD_RESET" ? "user.issue_reset_link" : "user.issue_verify_link", userId);
@@ -127,4 +128,47 @@ export async function reauthAction(_: AdminFormState, fd: FormData): Promise<Adm
   if (!r.ok) return { error: r.error, field: r.field ?? "code" };
   await markViewerSession(viewer, "reauth");
   redirect(safeNextPath(str(fd, "next"), "/admin/"));
+}
+
+// ── memberships ──
+
+const DAY_MS = 24 * 3600_000;
+
+/** Duration choices from the grant form -> expiry instant (null = no expiry). */
+function expiryFrom(fd: FormData, now: Date): Date | null | "invalid" {
+  const choice = str(fd, "duration");
+  if (choice === "forever") return null;
+  if (choice === "date") {
+    const d = str(fd, "until");
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) return "invalid";
+    const end = new Date(`${d}T23:59:59+08:00`); // end of that day, Beijing time
+    return Number.isNaN(end.getTime()) ? "invalid" : end;
+  }
+  const days = Number(choice);
+  if (![30, 90, 180, 365].includes(days)) return "invalid";
+  return new Date(now.getTime() + days * DAY_MS);
+}
+
+export async function grantTierAction(_: AdminFormState, fd: FormData): Promise<AdminFormState> {
+  const { ctx } = await adminContext();
+  const userId = Number(str(fd, "userId"));
+  const endsAt = expiryFrom(fd, new Date());
+  if (endsAt === "invalid") return { error: "请选择有效期", field: "duration" };
+  const r = await members.grantTier(ctx, userId, { tier: str(fd, "tier"), endsAt, note: str(fd, "note") });
+  if (!r.ok) return { error: r.error };
+  redirect(`/admin/users/${userId}/?msg=granted`);
+}
+
+export async function revokeTierAction(fd: FormData): Promise<void> {
+  const { ctx } = await adminContext();
+  const userId = Number(str(fd, "userId"));
+  const r = await members.revokeTier(ctx, userId, str(fd, "note"));
+  redirect(`/admin/users/${userId}/?${r.ok ? "msg=revoked" : `err=${encodeURIComponent(r.error)}`}`);
+}
+
+export async function setModuleTierAction(fd: FormData): Promise<void> {
+  const { ctx } = await adminContext();
+  const id = idOf(fd);
+  const r = await members.setModuleTier(ctx, id, str(fd, "tier"));
+  redirect(`/admin/modules/?${r.ok ? `saved=${id}` : `err=${encodeURIComponent(r.error)}`}#m-${id}`);
 }

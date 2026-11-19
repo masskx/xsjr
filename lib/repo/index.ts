@@ -10,6 +10,8 @@
 import "server-only";
 import { connection } from "next/server";
 import { getDb } from "../db/client";
+import { canAccess, effectiveTier, isExpired, viewerRank } from "../auth/entitlement";
+import { authConfig, getViewer } from "../auth/server";
 import type { Resource, ResourceType } from "../types";
 import { ensureContentListener } from "./listen";
 import { categoriesOf, loadAttachment, loadSnapshot, relatedOf, tagsOf, type Snapshot } from "./store";
@@ -66,14 +68,59 @@ export async function getBody(resource: Resource): Promise<string> {
   return (await snapshot()).bodies.get(resource.slug) ?? "";
 }
 
-/** A single attachment (module code, SKILL.md, template.md). */
+export interface Access {
+  allowed: boolean;
+  /** required tier code and label, e.g. "EI" / "EI 会员" */
+  required: string;
+  requiredLabel: string;
+  signedIn: boolean;
+  /** the viewer's effective tier (FREE when anonymous or expired) */
+  viewerTier: string;
+  viewerTierLabel: string;
+  /** the viewer held a paid tier that has expired */
+  expired: boolean;
+  /** accounts are switched on (otherwise nobody can sign in to unlock) */
+  accountsAvailable: boolean;
+}
+
+/** May the current viewer open this resource's members-only parts? */
+export async function getAccess(resource: Resource): Promise<Access> {
+  const snap = await snapshot();
+  const viewer = resource.tier === "FREE" ? null : await getViewer();
+  const user = viewer?.user ?? null;
+  const tier = effectiveTier(user);
+  return {
+    allowed: canAccess(user, resource.tier, snap.tierRanks),
+    required: resource.tier,
+    requiredLabel: snap.tierLabels.get(resource.tier) ?? resource.tier,
+    signedIn: !!viewer,
+    viewerTier: tier,
+    viewerTierLabel: snap.tierLabels.get(tier) ?? tier,
+    expired: isExpired(user),
+    accountsAvailable: authConfig().available,
+  };
+}
+
+/**
+ * A single attachment (module code, SKILL.md, template.md). Members-only attachments are
+ * returned only to an entitled viewer: the rank check runs here AND in the SQL query
+ * (loadAttachment), so no page can leak gated code by forgetting to ask.
+ */
 export async function getAttachment(resource: Resource, relativePath: string): Promise<string | null> {
   const snap = await snapshot();
-  if (!snap.bySlug.has(resource.slug)) return null;
+  const current = snap.bySlug.get(resource.slug);
+  if (!current) return null;
+  let maxRank = snap.tierRanks.get("FREE") ?? 0;
+  if (current.tier !== "FREE") {
+    const viewer = await getViewer();
+    if (!canAccess(viewer?.user ?? null, current.tier, snap.tierRanks)) return null;
+    maxRank = viewerRank(viewer?.user ?? null, snap.tierRanks);
+  }
   const key = `${resource.slug}\u0000${relativePath}`;
   if (state.attachments.has(key)) return state.attachments.get(key)!;
-  const content = await loadAttachment(getDb(), resource.slug, relativePath);
-  state.attachments.set(key, content);
+  const content = await loadAttachment(getDb(), resource.slug, relativePath, maxRank);
+  // gated content is never cached: a cache hit must not bypass the database rank filter
+  if (current.tier === "FREE") state.attachments.set(key, content);
   return content;
 }
 

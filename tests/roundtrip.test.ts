@@ -63,8 +63,8 @@ describe.skipIf(!TEST_DATABASE_URL)("content round-trip (files -> PostgreSQL -> 
     for (const item of items) {
       expect(snap.bodies.get(item.resource.slug)).toBe(item.body);
       for (const f of item.files) {
-        expect(await loadAttachment(db, item.resource.slug, f.path)).toBe(f.content);
-        expect(await loadAttachment(db, item.resource.slug, `files/${f.path}`)).toBe(f.content);
+        expect(await loadAttachment(db, item.resource.slug, f.path, 0)).toBe(f.content);
+        expect(await loadAttachment(db, item.resource.slug, `files/${f.path}`, 0)).toBe(f.content);
       }
     }
   });
@@ -79,7 +79,7 @@ describe.skipIf(!TEST_DATABASE_URL)("content round-trip (files -> PostgreSQL -> 
 
   it("rejects path traversal in attachment reads", async () => {
     for (const bad of ["../../etc/passwd", "files/../meta.json", "/etc/passwd", "C:/x", "a\\b"]) {
-      expect(await loadAttachment(db, "stat-tests-py", bad)).toBeNull();
+      expect(await loadAttachment(db, "stat-tests-py", bad, 0)).toBeNull();
     }
   });
 
@@ -122,7 +122,7 @@ describe.skipIf(!TEST_DATABASE_URL)("content round-trip (files -> PostgreSQL -> 
     const snap = await loadSnapshot(db);
     expect(snap.bySlug.has("stat-tests-py")).toBe(false);
     expect(snap.all.some((r) => r.slug === "stat-tests-py")).toBe(false);
-    expect(await loadAttachment(db, "stat-tests-py", "stat_tests.py")).toBeNull();
+    expect(await loadAttachment(db, "stat-tests-py", "stat_tests.py", 0)).toBeNull();
   });
 
   it("enforces the business and legal constraints in the database", async () => {

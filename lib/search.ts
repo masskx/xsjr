@@ -10,7 +10,7 @@ export interface SearchDoc {
   summary: string;
   category: string;
   tags: string[];
-  tier: "FREE" | "PRO";
+  tier: string;
   license: string;
   updatedAt: string;
   href: string;

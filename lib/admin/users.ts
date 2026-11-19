@@ -60,6 +60,7 @@ export async function recentAudit(db: Db, limit = 20) {
       createdAt: s.adminAuditLog.createdAt,
       actor: s.users.email,
       slug: s.resources.slug,
+      resourceType: s.resources.type,
     })
     .from(s.adminAuditLog)
     .innerJoin(s.users, eq(s.users.id, s.adminAuditLog.actorId))

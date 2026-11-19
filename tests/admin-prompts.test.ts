@@ -103,7 +103,7 @@ describe.skipIf(!TEST_DATABASE_URL)("admin: prompts", () => {
     expect(r?.type).toBe("PROMPT");
     expect(r && "variables" in r && r.variables[0].key).toBe("topic");
     expect(r?.tags).toEqual(["方法", "论文写作"]);
-    expect(await loadAttachment(db, "methods-writer", "template.md")).toContain("{{topic}}");
+    expect(await loadAttachment(db, "methods-writer", "template.md", 0)).toContain("{{topic}}");
 
     const versions = await db.select().from(s.resourceVersions).where(eq(s.resourceVersions.resourceId, id));
     expect(versions.map((v) => v.version)).toEqual([1]);
@@ -127,7 +127,7 @@ describe.skipIf(!TEST_DATABASE_URL)("admin: prompts", () => {
   it("unpublish hides it; archive removes it from the admin list; restore brings it back as draft", async () => {
     expect((await unpublishPrompt(ctx, id)).ok).toBe(true);
     expect((await loadSnapshot(db)).bySlug.has("methods-writer")).toBe(false);
-    expect(await loadAttachment(db, "methods-writer", "template.md")).toBeNull();
+    expect(await loadAttachment(db, "methods-writer", "template.md", 0)).toBeNull();
 
     expect((await archivePrompt(ctx, id)).ok).toBe(true);
     expect((await listPrompts(db)).some((p) => p.id === id)).toBe(false);

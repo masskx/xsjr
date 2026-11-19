@@ -2,6 +2,31 @@
 
 ## Unreleased
 
+### Phase 2, slice 4: membership tiers and server-side gating
+
+Added
+- Tiers FREE, EI, SCI from the `tiers` table; `lib/auth/entitlement.ts` is the single access
+  rule (rank comparison, expiry evaluated per request, unknown tiers fail closed).
+- Members-only module code is withheld on the server, twice: `lib/repo.getAttachment` checks the
+  signed-in viewer, and the SQL query itself filters by tier rank, so gated code is never even
+  read for an unentitled request. Gated attachments are never cached in memory.
+- Locked state on module pages: title, summary, body, environment stay public and indexable; the
+  code block becomes a lock panel that adapts (accounts off / signed out / wrong or expired tier).
+- `EI` / `SCI` badges on cards, detail pages and search results (replacing the unused PRO badge).
+- Admin: user list (search, effective-tier filter, pagination), user detail with grant (tier +
+  30/90/180/365 days, a date, or no expiry, + note), revoke, membership history, account links;
+  module tier settings with a licence warning; membership distribution on the overview.
+- Grants write the `entitlements` ledger and `users.tier` in one transaction; unverified emails
+  cannot be granted a tier.
+- Tests: 27 tier tests (entitlement matrix + database); `tests/e2e/tiers.mjs` (22 checks: for each
+  viewer the code is checked in BOTH the HTML and the RSC payload with an HTML-safe marker).
+
+Changed
+- `/about/`: the paragraph on the PRO label now describes the EI/SCI badges (parity: expected
+  difference, documented in tools/parity/README.md).
+- File imports set a resource's tier only on first import; afterwards the admin owns it.
+
+
 ### Phase 2, slice 3: admin back office for prompts
 
 Added

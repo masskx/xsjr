@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 const ITEMS = [
   { href: "/admin/", label: "概览", exact: true },
   { href: "/admin/prompts/", label: "提示词" },
+  { href: "/admin/modules/", label: "模块" },
   { href: "/admin/users/", label: "用户" },
 ];
 

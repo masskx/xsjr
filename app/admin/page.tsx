@@ -12,10 +12,19 @@ const ACTION_LABEL: Record<string, string> = {
   "resource.reorder": "调整顺序",
   "user.issue_verify_link": "生成验证链接",
   "user.issue_reset_link": "生成重置链接",
+  "user.grant_tier": "开通会员",
+  "user.revoke_tier": "撤销会员",
+  "resource.set_tier": "设置会员等级",
 };
 
 export default async function AdminHome() {
-  const [counts, held, audit] = await Promise.all([adminData.statusCounts("PROMPT"), adminData.heldMails(), adminData.audit(15)]);
+  const [counts, held, audit, stats, tiers] = await Promise.all([
+    adminData.statusCounts("PROMPT"),
+    adminData.heldMails(),
+    adminData.audit(15),
+    adminData.memberStats(),
+    adminData.tiers(),
+  ]);
 
   return (
     <div className="space-y-8">
@@ -33,8 +42,8 @@ export default async function AdminHome() {
             <div className="mt-1 text-[13.5px] text-zinc-800">{held} 封（邮件服务开通前）</div>
           </div>
           <Link href="/admin/users/" className="rounded-2xl border border-zinc-200 bg-white p-4 no-underline hover:border-zinc-300">
-            <div className="text-[13px] text-zinc-500">用户</div>
-            <div className="mt-1 text-[13.5px] text-zinc-800">按邮箱查找、生成验证/重置链接</div>
+            <div className="text-[13px] text-zinc-500">用户（按当前有效等级）</div>
+            <div className="mt-1 text-[13.5px] text-zinc-800">{tiers.map((t) => `${t.labelZh} ${stats[t.code] ?? 0}`).join(" · ")}</div>
           </Link>
         </div>
         <p className="mt-3 text-[12.5px] text-zinc-500">Skills、模块与网站的后台编辑将在后续版本加入；目前它们仍通过 content/ 文件导入。</p>
@@ -53,12 +62,17 @@ export default async function AdminHome() {
                   {a.slug && (
                     <>
                       {" "}
-                      <Link href={`/admin/prompts/${a.targetId}/`} className="font-mono text-[12.5px] text-zinc-600">
+                      <Link href={a.resourceType === "MODULE" ? `/admin/modules/#m-${a.targetId}` : `/admin/prompts/${a.targetId}/`} className="font-mono text-[12.5px] text-zinc-600">
                         {a.slug}
                       </Link>
                     </>
                   )}
-                  {a.targetType === "user" && <span className="text-zinc-500"> · 用户 #{a.targetId}</span>}
+                  {a.targetType === "user" && (
+                    <Link href={`/admin/users/${a.targetId}/`} className="text-zinc-500">
+                      {" "}
+                      · 用户 #{a.targetId}
+                    </Link>
+                  )}
                 </span>
                 <span className="text-[12px] text-zinc-500">
                   {a.actor} · {fmtDateTime.format(a.createdAt)}

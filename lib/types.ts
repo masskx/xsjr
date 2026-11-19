@@ -43,7 +43,9 @@ interface Base {
   licenseNote?: string;
   /** 是否允许平台二次分发原文/附件；只索引时为 false */
   redistribution: boolean;
-  tier: "FREE" | "PRO";
+  /** required membership tier: a code from the `tiers` table (FREE, EI, SCI, ...).
+   *  Phase 1 meta.json files may still say "PRO", which the importer maps to EI. */
+  tier: string;
   updatedAt: string;
   verifiedAt?: string;
   featured?: boolean;

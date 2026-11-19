@@ -181,7 +181,8 @@ try {
   await Promise.all([vp.waitForURL(/\/account\//), vp.getByRole("button", { name: "注册" }).click()]);
   check("non-admin user gets 404 on /admin/prompts/", (await vp.goto(`${BASE}/admin/prompts/`)).status() === 404);
 
-  await page.goto(`${BASE}/admin/users/?email=${encodeURIComponent(userEmail)}`);
+  await page.goto(`${BASE}/admin/users/?q=${encodeURIComponent(userEmail)}`);
+  await Promise.all([page.waitForURL(/\/admin\/users\/\d+\//), page.getByRole("link", { name: new RegExp(userEmail) }).click()]);
   check("user lookup finds the account", (await page.textContent("body")).includes("未验证"));
   await page.getByRole("button", { name: "生成邮箱验证链接" }).click();
   const verifyLink = await page.locator("code").first().textContent();

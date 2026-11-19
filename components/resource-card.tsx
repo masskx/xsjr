@@ -11,7 +11,7 @@ export interface CardData {
   category: string;
   license: string;
   updatedAt: string;
-  tier: "FREE" | "PRO";
+  tier: string;
 }
 
 const TYPE_STYLE: Record<string, string> = {
@@ -38,10 +38,14 @@ export function TypeBadge({ type }: { type: Resource["type"] }) {
   );
 }
 
-export function ProBadge() {
+/** Membership badge for members-only resources ("EI", "SCI"); nothing for free ones. */
+export function TierBadge({ tier }: { tier: string }) {
+  if (tier === "FREE") return null;
   return (
-    <span className="inline-flex items-center rounded-md bg-zinc-900 px-1.5 py-0.5 text-[11px] font-medium text-white">
-      PRO
+    <span title={`${tier} 会员内容`} className="inline-flex items-center rounded-md bg-zinc-900 px-1.5 py-0.5 text-[11px] font-medium text-white">
+      <span aria-hidden>🔒 </span>
+      {tier}
+      <span className="sr-only"> 会员内容</span>
     </span>
   );
 }
@@ -54,7 +58,7 @@ export function ResourceCard({ resource }: { resource: CardData }) {
     >
       <div className="flex items-center gap-1.5">
         <TypeBadge type={resource.type} />
-        {resource.tier === "PRO" && <ProBadge />}
+        <TierBadge tier={resource.tier} />
         <span className="ml-auto shrink-0 text-[11px] text-zinc-400">
           {resource.updatedAt}
         </span>

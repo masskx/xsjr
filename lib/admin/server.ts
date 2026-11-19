@@ -12,6 +12,7 @@ import { and, eq, sql } from "drizzle-orm";
 import * as s from "../db/schema";
 import * as prompts from "./prompts";
 import * as users from "./users";
+import * as members from "./members";
 
 export async function adminContext(): Promise<{ viewer: ActiveSession; ctx: AdminCtx }> {
   const viewer = await requireAdmin();
@@ -43,6 +44,12 @@ export const adminData = {
       .where(eq(s.resourceVersions.resourceId, id));
     return n;
   },
+  tiers: () => members.listTiers(getDb()),
+  users: (filter: Parameters<typeof members.listUsers>[1]) => members.listUsers(getDb(), filter),
+  user: (id: number) => members.getUser(getDb(), id),
+  entitlementHistory: (id: number) => members.entitlementHistory(getDb(), id),
+  memberStats: () => members.memberStats(getDb()),
+  modulesForTier: () => members.listModulesForTier(getDb()),
   statusCounts: async (type: "PROMPT" | "SKILL" | "MODULE" | "SITE") => {
     const rows = await getDb()
       .select({ status: s.resources.status, n: sql<number>`count(*)::int` })

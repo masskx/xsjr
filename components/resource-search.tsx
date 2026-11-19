@@ -147,9 +147,9 @@ export function ResourceSearch({ docs }: { docs: SearchDoc[] }) {
                   <h3 className="truncate text-[14px] font-medium text-zinc-900 group-hover:text-indigo-700">
                     {d.title}
                   </h3>
-                  {d.tier === "PRO" && (
-                    <span className="shrink-0 rounded bg-zinc-900 px-1 py-px text-[10px] font-medium text-white">
-                      PRO
+                  {d.tier !== "FREE" && (
+                    <span title={`${d.tier} 会员内容`} className="shrink-0 rounded bg-zinc-900 px-1 py-px text-[10px] font-medium text-white">
+                      {d.tier}
                     </span>
                   )}
                 </div>

@@ -68,6 +68,12 @@ async function shot(page, name) {
   await page.screenshot({ path: path.join(SHOTS, `${name}.png`), fullPage: true });
 }
 
+// self-contained: the admin part exercises TOTP enrolment, so start from "not enrolled"
+if (process.env.ADMIN_EMAIL) {
+  await db.query("UPDATE users SET totp_secret_enc = NULL, totp_enabled_at = NULL, totp_last_step = NULL WHERE email = $1", [process.env.ADMIN_EMAIL]);
+}
+await db.query("DELETE FROM rate_limits");
+
 const browser = await chromium.launch();
 try {
   // ── visitor ──
@@ -179,7 +185,7 @@ try {
     check("wrong TOTP code rejected", (await ap.textContent("body")).includes("验证码不正确"));
     await ap.getByLabel("验证码").fill(totp(secret));
     await Promise.all([ap.waitForURL(`${BASE}/admin/`), ap.getByRole("button", { name: "启用两步验证" }).click()]);
-    check("TOTP enrolment opens /admin/", (await ap.textContent("h1")) === "管理后台");
+    check("TOTP enrolment opens /admin/", ap.url() === `${BASE}/admin/` && (await ap.locator("h1").first().textContent()) === "概览");
     await shot(ap, "admin");
     await actx.close();
 

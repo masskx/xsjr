@@ -104,7 +104,6 @@ export async function importContent(db: Db, items: LoadedResource[], opts: Impor
           summary: r.summary,
           bodyMd: item.body,
           categoryId,
-          requiredTier: r.tier === "FREE" ? "FREE" : "EI",
           status: "PUBLISHED" as const,
           featured: r.featured === true,
           author: r.author,
@@ -124,7 +123,8 @@ export async function importContent(db: Db, items: LoadedResource[], opts: Impor
 
         let resourceId: number;
         if (existing) {
-          // sort_order is NOT touched on update: the admin owns ordering (slice 3).
+          // sort_order and required_tier are NOT touched on update: once a resource exists, the
+          // admin owns its position (slice 3) and its membership tier (slice 4).
           await tx.update(s.resources).set(values).where(eq(s.resources.id, existing.id));
           resourceId = existing.id;
         } else {
@@ -134,7 +134,8 @@ export async function importContent(db: Db, items: LoadedResource[], opts: Impor
             .select({ next: sql<number>`coalesce(max(${s.resources.sortOrder}) + 1, 0)::int` })
             .from(s.resources)
             .where(eq(s.resources.type, r.type));
-          const [row] = await tx.insert(s.resources).values({ ...values, sortOrder: next }).returning({ id: s.resources.id });
+          const requiredTier = r.tier === "PRO" ? "EI" : r.tier; // Phase 1 "PRO" = first paid tier
+          const [row] = await tx.insert(s.resources).values({ ...values, sortOrder: next, requiredTier }).returning({ id: s.resources.id });
           resourceId = row.id;
         }
 

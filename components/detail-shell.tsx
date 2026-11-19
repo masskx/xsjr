@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getRelated } from "@/lib/repo";
 import { TYPE_LABEL, TYPE_HREF, type Resource } from "@/lib/types";
-import { ResourceCard, TypeBadge, ProBadge } from "./resource-card";
+import { ResourceCard, TypeBadge, TierBadge } from "./resource-card";
 
 export async function DetailShell({
   resource,
@@ -34,7 +34,7 @@ export async function DetailShell({
       <header className="mt-4 border-b border-zinc-100 pb-6">
         <div className="flex items-center gap-1.5">
           <TypeBadge type={resource.type} />
-          {resource.tier === "PRO" && <ProBadge />}
+          <TierBadge tier={resource.tier} />
           <span className="text-[11px] text-zinc-400">
             更新于 {resource.updatedAt}
           </span>

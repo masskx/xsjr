@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import {
+  getAccess,
   getAttachment,
   getBody,
   getResource,
 } from "@/lib/repo";
+import { LockedCode } from "@/components/locked-code";
 import { DetailShell } from "@/components/detail-shell";
 import { Markdown } from "@/components/markdown";
 import { CodeBlock } from "@/components/code-block";
@@ -37,7 +39,10 @@ export default async function ModuleDetail({
 
   const resource = r as ModuleResource;
   const body = await getBody(resource);
-  const code = await getAttachment(resource, resource.entry) ?? "";
+  // Members-only code is only returned by the repo to an entitled viewer (checked there and in
+  // SQL); for everyone else `code` is null and the response contains no code at all.
+  const access = await getAccess(resource);
+  const code = access.allowed ? ((await getAttachment(resource, resource.entry)) ?? "") : null;
 
   return (
     <DetailShell
@@ -69,7 +74,9 @@ export default async function ModuleDetail({
         <h2 className="mb-3 text-[15px] font-semibold text-zinc-900">
           完整代码
         </h2>
-        {code ? (
+        {code === null ? (
+          <LockedCode access={access} returnTo={`/modules/${resource.slug}/`} />
+        ) : code ? (
           <CodeBlock
             code={code}
             filename={resource.entry.replace(/^files\//, "")}

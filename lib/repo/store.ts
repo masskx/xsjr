@@ -1,6 +1,6 @@
 // Pure data access (no Next.js imports) so scripts and tests can use it directly.
 // Rebuilds the exact Resource objects that Phase 1 read from meta.json, from published rows.
-import { and, asc, eq, inArray } from "drizzle-orm";
+import { and, asc, eq, inArray, lte } from "drizzle-orm";
 import type { Db } from "../db/client";
 import * as s from "../db/schema";
 import { normaliseAttachmentPath } from "../content-files";
@@ -24,6 +24,9 @@ export interface Snapshot {
   bySlug: Map<string, Resource>;
   bodies: Map<string, string>;
   ids: Map<string, number>;
+  /** tier ladder: code -> rank, code -> Chinese label */
+  tierRanks: Map<string, number>;
+  tierLabels: Map<string, string>;
   loadedAt: number;
 }
 
@@ -122,8 +125,7 @@ export async function loadSnapshot(db: Db): Promise<Snapshot> {
       license: row.license,
       licenseNote: row.licenseNote,
       redistribution: row.redistribution,
-      // Phase 1 content only knows FREE/PRO; tier display is reworked in slice 4.
-      tier: row.requiredTier === "FREE" ? ("FREE" as const) : ("PRO" as const),
+      tier: row.requiredTier,
       updatedAt: row.updatedOn,
       verifiedAt: row.verifiedOn,
       featured: row.featured ? true : undefined,
@@ -192,22 +194,40 @@ export async function loadSnapshot(db: Db): Promise<Snapshot> {
       a.slug.localeCompare(b.slug),
   );
 
-  return { all, bySlug: new Map(all.map((r) => [r.slug, r])), bodies, ids: idMap, loadedAt: Date.now() };
+  const tierRows = await db.select().from(s.tiers);
+  return {
+    all,
+    bySlug: new Map(all.map((r) => [r.slug, r])),
+    bodies,
+    ids: idMap,
+    tierRanks: new Map(tierRows.map((t) => [t.code, t.rank])),
+    tierLabels: new Map(tierRows.map((t) => [t.code, t.labelZh])),
+    loadedAt: Date.now(),
+  };
 }
 
 /**
  * Read one attachment (module code, SKILL.md, template.md) of a PUBLISHED resource.
- * This is the only function that selects resource_files.content. Slice 4 puts the
- * entitlement check in front of it for gated modules.
+ * This is the only function that selects resource_files.content, and it only returns content
+ * whose required tier ranks at or below `maxRank`: a members-only file is not even read from the
+ * database for a viewer who may not see it. lib/repo/index.ts computes maxRank from the viewer.
  */
-export async function loadAttachment(db: Db, slug: string, relativePath: string): Promise<string | null> {
+export async function loadAttachment(db: Db, slug: string, relativePath: string, maxRank: number): Promise<string | null> {
   const rel = normaliseAttachmentPath(relativePath);
   if (!rel) return null;
   const [row] = await db
     .select({ content: s.resourceFiles.content })
     .from(s.resourceFiles)
     .innerJoin(s.resources, eq(s.resources.id, s.resourceFiles.resourceId))
-    .where(and(eq(s.resources.slug, slug), eq(s.resources.status, "PUBLISHED"), eq(s.resourceFiles.path, rel)));
+    .innerJoin(s.tiers, eq(s.tiers.code, s.resources.requiredTier))
+    .where(
+      and(
+        eq(s.resources.slug, slug),
+        eq(s.resources.status, "PUBLISHED"),
+        eq(s.resourceFiles.path, rel),
+        lte(s.tiers.rank, maxRank),
+      ),
+    );
   return row?.content ?? null;
 }
 

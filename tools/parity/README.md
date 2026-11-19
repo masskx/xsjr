@@ -39,10 +39,11 @@ it doubles as an independent copy of the 15 resources' published content.
 
 | Route | Since | Why it differs, and why that is intended |
 |---|---|---|
+| `/about/` | Phase 2 slice 4 | The paragraph about the old 「PRO」 label now describes the 「EI」「SCI」 membership badges (the PRO label never appeared on any resource). Text-only change. |
 | `/search/` | Phase 2 slice 1 | The static export rendered only the placeholder "正在加载搜索框…" because `useSearchParams()` defers that subtree to the browser. Server rendering includes the full result list in the HTML. After hydration both show the same list; crawlers and no-JS visitors now get the results too. |
 
 Slice 1 command (production baseline vs server build):
 
 ```bash
-node compare.mjs <live-capture> <server-capture> --allow-noslash-redirect --expect /search/
+node compare.mjs <live-capture> <server-capture> --allow-noslash-redirect --expect /search/ --expect /about/
 ```
