@@ -13,7 +13,8 @@ with estimates, (d) risks. Section E lists the decisions and inputs needed from 
 | 0. Groundwork | Done here: parity baseline, tag-sort fix, plan. **Not done** (needs server access): SSH hardening, swap/mirror on the real box (bootstrap.sh automates swap), IP-TLS spike. |
 | 1. Database + content migration | **Built and rehearsed, not yet deployed to production.** See CHANGELOG "slice 1" for what was verified. |
 | 2. Authentication and sessions | **Built and tested, shipped switched off** (`AUTH_ENABLED=0`) until HTTPS exists; deploying it changes nothing visible. See CHANGELOG "slice 2" and RUNBOOK section 9. |
-| 3–7 | Not started. |
+| 3. Admin CRUD (prompts) | **Built and tested** (82 tests, 30 browser checks). Only reachable once accounts are on. Skills/modules editing follows in slice 5. |
+| 4–7 | Not started. |
 
 Deviations from this plan made during slice 1 (the sections below are otherwise unchanged):
 
@@ -39,6 +40,10 @@ Deviations from this plan made during slice 1 (the sections below are otherwise 
   touch the database for every page.
 - **Login availability is a hard rule in code**, resolving the Secure-cookie vs plain-HTTP
   conflict (A.4): accounts open only on https (or localhost); otherwise every account route 404s.
+- **Ordering:** up/down buttons (keyboard-accessible) instead of drag-and-drop; positions are
+  renumbered on every move. Public order became featured, position, date (see CHANGELOG).
+- **Editing a published prompt is live on save** (with a version snapshot), rather than a
+  separate "pending changes" copy. Simpler, and the history is kept.
 - **Deploy pre-flight:** the new release is booted in a temporary container and must render
   `/`, `/robots.txt` and `/sitemap.xml` before anything switches. A broken release is rejected
   with zero visitor impact (rehearsed).

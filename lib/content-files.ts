@@ -6,6 +6,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { DIR_TYPE, type Resource, type SiteResource } from "./types";
+import { baseMetaSchema, promptFieldsSchema } from "./content/validation";
 
 export interface FileEntry {
   /** path relative to the resource's files/ directory, forward slashes */
@@ -89,6 +90,13 @@ export function validate(r: Resource, where: string) {
   }
   if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(r.slug)) {
     throw new Error(`[content] ${where} 目录名不是合法 slug: ${r.slug}`);
+  }
+  // The same rules the admin editor applies (lib/content/validation.ts).
+  const checks = [baseMetaSchema.safeParse(r), r.type === "PROMPT" ? promptFieldsSchema.safeParse(r) : null];
+  for (const res of checks) {
+    if (res && !res.success) {
+      throw new Error(`[content] ${where} ${res.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; ")}`);
+    }
   }
 }
 

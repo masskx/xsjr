@@ -22,7 +22,8 @@ const ENTRY_COLOR: Record<string, string> = {
 export default async function HomePage() {
   const all = await getAllResources();
   const featured = all.filter((r) => r.featured).slice(0, 3);
-  const recent = all.slice(0, 9);
+  // "最近更新": newest content date first (stable sort keeps the display order for equal dates)
+  const recent = [...all].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).slice(0, 9);
   const categories = (await getCategories()).slice(0, 10);
   const latest = all[0]?.updatedAt ?? "";
 

@@ -85,7 +85,7 @@ content/prompts/my-prompt/
 - `slug` 与 `type` 由目录名推导，**不要**写进 meta.json；目录名即 URL：`/prompts/my-prompt/`。
 - 四类资源的专属字段见 `lib/types.ts`。
 - 导入规则：内容没变 → 跳过；后台改过的资源 → 不覆盖（需 `--force`）；文件被删 → 只报告，不删库。
-- 后台（slice 3 起）上线后，日常编辑以后台为准，文件方式用于批量导入。
+- 提示词可在后台 `/admin/prompts/` 编辑（RUNBOOK 第 10 节）；后台改过的资源以数据库为准，文件导入会跳过它。
 
 ## 本地开发（Windows）
 
@@ -127,4 +127,4 @@ powershell -ExecutionPolicy Bypass -File infra/deploy.ps1
 - [ ] OG 图片：目前只有文本 metadata
 - [ ] Skill ZIP 打包下载：当前提供 SKILL.md 复制与安装说明
 - [ ] 开通账户功能：需要 HTTPS、运营者信息、法务审阅隐私政策与用户协议，见 RUNBOOK 第 9 节
-- [ ] Phase 2 后续切片：后台 → 会员分级 → 模块画廊 → 统计 → DeepSeek 导入（见 PLAN.md）
+- [ ] Phase 2 后续切片：会员分级 → 模块画廊（含 Skills/模块后台编辑）→ 统计 → DeepSeek 导入（见 PLAN.md）

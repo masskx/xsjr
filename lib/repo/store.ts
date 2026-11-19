@@ -17,7 +17,9 @@ import type {
 } from "../types";
 
 export interface Snapshot {
-  /** published resources in display order (featured, updatedAt desc, type, sort_order) */
+  /** published resources in display order: featured first, then the admin's sort_order (per
+   *  type), then newest content date. Phase 1 sorted by date before position; with the Phase 1
+   *  data (equal dates) both orders are identical, and only this one lets the admin reorder. */
   all: Resource[];
   bySlug: Map<string, Resource>;
   bodies: Map<string, string>;
@@ -185,8 +187,9 @@ export async function loadSnapshot(db: Db): Promise<Snapshot> {
   all.sort(
     (a, b) =>
       Number(!!b.featured) - Number(!!a.featured) ||
+      order.get(a.slug)! - order.get(b.slug)! ||
       b.updatedAt.localeCompare(a.updatedAt) ||
-      order.get(a.slug)! - order.get(b.slug)!,
+      a.slug.localeCompare(b.slug),
   );
 
   return { all, bySlug: new Map(all.map((r) => [r.slug, r])), bodies, ids: idMap, loadedAt: Date.now() };

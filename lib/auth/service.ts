@@ -62,6 +62,21 @@ async function issueToken(ctx: Ctx, userId: number, email: string, purpose: "EMA
   return token;
 }
 
+/** Admin-issued link (no mail provider yet, or a user cannot receive mail). */
+export async function issueAccountLink(
+  ctx: Ctx,
+  userId: number,
+  purpose: "EMAIL_VERIFY" | "PASSWORD_RESET",
+  adminId: number,
+): Promise<{ link: string; expiresAt: Date } | null> {
+  const [user] = await ctx.db.select().from(s.users).where(eq(s.users.id, userId));
+  if (!user) return null;
+  const ttl = purpose === "EMAIL_VERIFY" ? VERIFY_TTL_MS : RESET_TTL_MS;
+  const token = await issueToken(ctx, user.id, user.email, purpose, ttl, adminId);
+  const path = purpose === "EMAIL_VERIFY" ? "verify-email" : "reset-password";
+  return { link: `${ctx.config.siteUrl}/${path}/?token=${token}`, expiresAt: new Date((ctx.now ?? new Date()).getTime() + ttl) };
+}
+
 async function consumeToken(ctx: Ctx, token: string, purpose: "EMAIL_VERIFY" | "PASSWORD_RESET") {
   if (!token || token.length > 100) return null;
   const now = ctx.now ?? new Date();

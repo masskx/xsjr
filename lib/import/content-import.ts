@@ -7,7 +7,7 @@
 // - Never deletes: resources that disappeared from content/ are reported, not removed.
 // - All writes for one resource happen in one transaction.
 import { createHash } from "node:crypto";
-import { and, eq, inArray, notInArray } from "drizzle-orm";
+import { and, eq, inArray, notInArray, sql } from "drizzle-orm";
 import type { Db } from "../db/client";
 import * as s from "../db/schema";
 import type { LoadedResource } from "../content-files";
@@ -59,7 +59,7 @@ export function contentHash(item: LoadedResource): Buffer {
         ? Object.fromEntries(Object.keys(v as object).sort().map((k) => [k, canonical((v as Record<string, unknown>)[k])]))
         : v;
   return createHash("sha256")
-    .update(JSON.stringify(canonical({ r: item.resource, b: item.body, f: item.files, o: item.orderInType })))
+    .update(JSON.stringify(canonical({ r: item.resource, b: item.body, f: item.files })))
     .digest();
 }
 
@@ -106,7 +106,6 @@ export async function importContent(db: Db, items: LoadedResource[], opts: Impor
           categoryId,
           requiredTier: r.tier === "FREE" ? "FREE" : "EI",
           status: "PUBLISHED" as const,
-          sortOrder: item.orderInType,
           featured: r.featured === true,
           author: r.author,
           license: r.license,
@@ -125,10 +124,17 @@ export async function importContent(db: Db, items: LoadedResource[], opts: Impor
 
         let resourceId: number;
         if (existing) {
+          // sort_order is NOT touched on update: the admin owns ordering (slice 3).
           await tx.update(s.resources).set(values).where(eq(s.resources.id, existing.id));
           resourceId = existing.id;
         } else {
-          const [row] = await tx.insert(s.resources).values(values).returning({ id: s.resources.id });
+          // New resources go after the last one of their type (for the initial seed this
+          // reproduces file order, which is what Phase 1 displayed).
+          const [{ next }] = await tx
+            .select({ next: sql<number>`coalesce(max(${s.resources.sortOrder}) + 1, 0)::int` })
+            .from(s.resources)
+            .where(eq(s.resources.type, r.type));
+          const [row] = await tx.insert(s.resources).values({ ...values, sortOrder: next }).returning({ id: s.resources.id });
           resourceId = row.id;
         }
 
@@ -164,13 +170,13 @@ export async function notifyContentChanged(db: Db) {
   await db.execute("NOTIFY content_changed");
 }
 
-async function upsertCategory(db: Db, name: string): Promise<number> {
+export async function upsertCategory(db: Db, name: string): Promise<number> {
   await db.insert(s.categories).values({ name }).onConflictDoNothing();
   const [row] = await db.select({ id: s.categories.id }).from(s.categories).where(eq(s.categories.name, name));
   return row.id;
 }
 
-async function replaceTags(db: Db, resourceId: number, tagNames: string[]) {
+export async function replaceTags(db: Db, resourceId: number, tagNames: string[]) {
   await db.delete(s.resourceTags).where(eq(s.resourceTags.resourceId, resourceId));
   const names = [...new Set(tagNames)];
   if (!names.length) return;

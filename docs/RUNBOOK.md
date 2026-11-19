@@ -211,8 +211,8 @@ $DC run --rm cli node scripts/create-admin.mjs --email admin@example.cn --reset-
 $DC exec -T db psql -U rh -d research_hub -c \
   "SELECT id, to_email, template, payload->>'link' AS link, created_at FROM mail_outbox WHERE status='held' ORDER BY id DESC LIMIT 20"
 ```
-把验证链接（24 小时内有效）通过其他渠道发给用户。找回密码：用 `create-admin.mjs` 的方式不适用于普通用户，
-后台的“重置链接”功能在 slice 3 提供；在此之前可由用户自行注销后重新注册。
+把验证链接（24 小时内有效）通过其他渠道发给用户。更方便的方式：在后台 `/admin/users/` 按邮箱查找用户，
+直接生成验证链接或重置密码链接（第 10 节）。
 
 ### 9.4 上线前验证
 ```bash
@@ -220,6 +220,29 @@ BASE_URL=https://www.example.cn DATABASE_URL=… ADMIN_EMAIL=… ADMIN_PASSWORD=
 ```
 （在能访问数据库的机器上运行，例如通过 SSH 隧道；会创建并删除一个测试用户。）
 
-## 10. DeepSeek 导入任务
+## 10. 管理后台（slice 3）
+
+入口 `/admin/`（需管理员账号 + 两步验证；账户功能关闭时整个后台返回 404）。
+
+**提示词管理**（`/admin/prompts/`）
+- 新建 → 草稿（网站上不可见）→ 在编辑页完善正文、模板、变量 → 保存 → 发布。
+- 发布前检查：模板里每个 `{{变量}}` 都必须已定义；字段规则与文件导入完全相同（`lib/content/validation.ts`）。
+- 已发布的提示词再编辑，保存后**立即生效**，并自动记录一个历史版本（`resource_versions`）。
+- 取消发布：网站上立即消失（详情页 404、列表、搜索、sitemap 同步移除）。
+- 归档：需要 10 分钟内验证过身份（再输入一次 6 位验证码）。可在“已归档”中恢复为草稿。
+- 网址标识（slug）发布后不能修改，避免已有链接失效。
+- 两人同时编辑：后保存的一方会被拒绝并提示刷新，不会互相覆盖。
+- 顺序：列表顺序就是网站顺序，用 ↑ ↓ 调整；精选内容固定排在最前。
+
+**文件导入与后台的关系**：资源一旦在后台**编辑、发布或取消发布过**，数据库即为准，
+之后的文件导入会跳过它（导入日志显示 `skipped-admin-edited`）；只调整顺序不影响导入。
+确需用文件覆盖：`importer ... --force`（第 8 节）。
+
+**用户**（`/admin/users/`）：按邮箱查找；生成邮箱验证链接；生成重置密码链接（需再次验证身份，
+务必先确认对方是账户本人）。所有后台操作记录在 `admin_audit_log`，概览页显示最近操作。
+
+Skills、模块、网站的后台编辑尚未提供，仍通过 `content/` 文件导入。
+
+## 11. DeepSeek 导入任务
 
 Slice 7 实现，届时补充。

@@ -2,6 +2,33 @@
 
 ## Unreleased
 
+### Phase 2, slice 3: admin back office for prompts
+
+Added
+- `/admin/` (admin role + TOTP-verified session, checked in proxy.ts, the layout and every
+  action): overview with recent audit entries, prompt management, user lookup.
+- Prompts: create draft, edit (basic info, Markdown body with server-rendered preview, template,
+  variable schema editor, notes), live preview with the public playground component, publish,
+  unpublish, archive (requires TOTP re-authentication within 10 minutes), restore, reorder.
+- Safety: stale saves are refused (version token); slugs are locked after first publish;
+  publishing requires every `{{placeholder}}` to be declared; a version snapshot is recorded on
+  every publish and every edit of a published prompt; every change is audit-logged; public pages,
+  search and sitemap update immediately via NOTIFY.
+- Users: look up by email; issue email-verification and password-reset links (reset requires
+  re-authentication) to stand in for mail until a provider exists.
+- Shared validation (`lib/content/validation.ts`, zod) used by both the admin editor and the file
+  importer.
+- Tests: 7 admin integration tests; `tests/e2e/admin-prompts.mjs` (30 browser checks, each step
+  verified on the public site).
+
+Changed
+- Public order is now featured first, then the admin's position, then content date (was date
+  before position). Identical output for the current data (parity unchanged).
+- Home "最近更新" sorts by content date explicitly.
+- The importer no longer overwrites `sort_order` of existing resources and appends new ones; its
+  content hash no longer depends on file position.
+
+
 ### Phase 2, slice 2: accounts and sessions (shipped switched off)
 
 Accounts are built and tested but stay OFF until HTTPS exists: they open only when
