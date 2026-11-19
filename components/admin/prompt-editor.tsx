@@ -1,9 +1,10 @@
 "use client";
 // Prompt editor. Edits structured input in local state, saves through a server action with the
 // row's version token (stale saves are refused), previews with the real public components.
-import { useEffect, useId, useMemo, useState, useTransition, type ReactNode } from "react";
+import { useEffect, useId, useMemo, useState, useTransition } from "react";
 import { PromptPlayground } from "@/components/prompt-playground";
 import { btn } from "@/components/admin/ui";
+import { Card, Input, MarkdownField, TextArea, inputCls } from "@/components/admin/editor-kit";
 import type { PromptInput } from "@/lib/content/validation";
 import type { PromptVariable } from "@/lib/types";
 import type { SaveResult } from "@/app/admin/actions";
@@ -354,71 +355,6 @@ export function PromptEditor({
   );
 }
 
-// ── small field components ──
-
-function Card({ title, description, children }: { title: string; description?: string; children: ReactNode }) {
-  return (
-    <section className="rounded-2xl border border-zinc-200 bg-white p-4 sm:p-5">
-      <h2 className="text-[15px] font-semibold text-zinc-900">{title}</h2>
-      {description && <p className="mt-1 text-[12.5px] leading-5 text-zinc-500">{description}</p>}
-      <div className="mt-4">{children}</div>
-    </section>
-  );
-}
-
-const inputCls = (error?: string, mono?: boolean) =>
-  `block w-full rounded-lg border bg-white px-3 py-2 text-[13.5px] text-zinc-900 outline-none focus-visible:ring-2 focus-visible:ring-zinc-900/20 read-only:bg-zinc-50 read-only:text-zinc-500 ${mono ? "font-mono" : ""} ${error ? "border-rose-400" : "border-zinc-300 focus-visible:border-zinc-500"}`;
-
-function Help({ id, error, hint }: { id: string; error?: string; hint?: string }) {
-  if (error) return <p id={`${id}-err`} className="mt-1 text-[12px] text-rose-700">{error}</p>;
-  if (hint) return <p id={`${id}-hint`} className="mt-1 text-[12px] text-zinc-500">{hint}</p>;
-  return null;
-}
-
-function Input(props: { label: string; value: string; onChange: (v: string) => void; error?: string; hint?: string; maxLength?: number; type?: string; readOnly?: boolean; mono?: boolean }) {
-  const id = useId();
-  return (
-    <div>
-      <label htmlFor={id} className="mb-1 block text-[12.5px] font-medium text-zinc-700">
-        {props.label}
-      </label>
-      <input
-        id={id}
-        type={props.type ?? "text"}
-        value={props.value}
-        maxLength={props.maxLength}
-        readOnly={props.readOnly}
-        onChange={(e) => props.onChange(e.target.value)}
-        aria-invalid={props.error ? true : undefined}
-        aria-describedby={props.error ? `${id}-err` : props.hint ? `${id}-hint` : undefined}
-        className={inputCls(props.error, props.mono)}
-      />
-      <Help id={id} error={props.error} hint={props.hint} />
-    </div>
-  );
-}
-
-function TextArea(props: { label: string; value: string; onChange: (v: string) => void; error?: string; rows?: number; mono?: boolean }) {
-  const id = useId();
-  return (
-    <div>
-      <label htmlFor={id} className="sr-only">
-        {props.label}
-      </label>
-      <textarea
-        id={id}
-        value={props.value}
-        rows={props.rows ?? 6}
-        onChange={(e) => props.onChange(e.target.value)}
-        aria-invalid={props.error ? true : undefined}
-        aria-describedby={props.error ? `${id}-err` : undefined}
-        className={`${inputCls(props.error, props.mono)} leading-6`}
-      />
-      <Help id={id} error={props.error} />
-    </div>
-  );
-}
-
 function SelectType({ value, onChange }: { value: VarRow["type"]; onChange: (v: VarRow["type"]) => void }) {
   const id = useId();
   return (
@@ -436,37 +372,3 @@ function SelectType({ value, onChange }: { value: VarRow["type"]; onChange: (v: 
   );
 }
 
-function MarkdownField({ value, onChange, error, preview }: { value: string; onChange: (v: string) => void; error?: string; preview: (md: string) => Promise<string> }) {
-  const [tab, setTab] = useState<"edit" | "preview">("edit");
-  const [html, setHtml] = useState("");
-  const [loading, startPreview] = useTransition();
-  const show = (t: "edit" | "preview") => {
-    setTab(t);
-    if (t === "preview") startPreview(async () => setHtml(await preview(value)));
-  };
-  return (
-    <div>
-      <div role="tablist" aria-label="正文编辑方式" className="mb-2 flex gap-1">
-        {(["edit", "preview"] as const).map((t) => (
-          <button
-            key={t}
-            type="button"
-            role="tab"
-            aria-selected={tab === t}
-            onClick={() => show(t)}
-            className={`rounded-md px-2.5 py-1 text-[12.5px] ${tab === t ? "bg-zinc-900 text-white" : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"}`}
-          >
-            {t === "edit" ? "编辑" : "预览"}
-          </button>
-        ))}
-      </div>
-      {tab === "edit" ? (
-        <TextArea label="正文" value={value} onChange={onChange} error={error} rows={12} mono />
-      ) : (
-        <div className="min-h-32 rounded-lg border border-zinc-200 p-4">
-          {loading ? <p className="text-[13px] text-zinc-400">渲染中…</p> : value.trim() ? <div className="md" dangerouslySetInnerHTML={{ __html: html }} /> : <p className="text-[13px] text-zinc-400">（正文为空）</p>}
-        </div>
-      )}
-    </div>
-  );
-}

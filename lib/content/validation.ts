@@ -52,6 +52,44 @@ export const baseMetaSchema = z.object({
   featured: z.boolean().optional(),
   updatedAt: isoDate("更新日期"),
   verifiedAt: isoDate("核验日期").optional(),
+  applicableTasks: z.array(text("适用任务", 1, 80)).max(12, "适用任务最多 12 条").optional(),
+});
+
+const shortList = (label: string, maxItems: number, maxLen: number) =>
+  z.array(text(label, 1, maxLen)).max(maxItems, `${label}最多 ${maxItems} 条`);
+
+export const moduleFieldsSchema = z.object({
+  language: text("语言", 1, 30),
+  entry: z.string().trim().min(1, "请填写入口文件").max(200),
+  env: shortList("环境要求", 12, 120),
+  dependencies: shortList("依赖", 20, 120).optional(),
+  usage: shortList("用法", 20, 500).optional(),
+});
+
+export const skillFieldsSchema = z.object({
+  compat: z
+    .array(
+      z.object({
+        tool: z.string().trim().regex(/^[a-z0-9][a-z0-9-]{0,29}$/, "工具标识只能用小写字母、数字和连字符"),
+        supportedRange: text("支持范围", 1, 80),
+        installPath: optionalText("安装路径", 200),
+        note: optionalText("备注", 200),
+      }),
+    )
+    .max(12, "兼容性最多 12 行")
+    .refine((rows) => new Set(rows.map((r) => r.tool)).size === rows.length, "同一工具只能出现一次"),
+  files: z
+    .array(z.object({ path: z.string().trim().min(1).max(200), size: z.number().int().nonnegative().optional(), desc: optionalText("文件说明", 200) }))
+    .max(50, "文件最多 50 个"),
+  risks: shortList("风险提示", 10, 200).optional(),
+  dependencies: shortList("依赖", 20, 120).optional(),
+});
+
+export const siteFieldsSchema = z.object({
+  url: z.string().trim().url("网址无效").refine((u) => /^https?:\/\//.test(u), "网址必须以 http(s):// 开头"),
+  pricing: z.enum(["免费", "部分免费", "付费", "机构订阅"], { message: "收费方式无效" }),
+  region: optionalText("地区", 40),
+  loginRequired: z.boolean().optional(),
 });
 
 export const VAR_KEY_RE = /^[a-zA-Z_][a-zA-Z0-9_]{0,39}$/;

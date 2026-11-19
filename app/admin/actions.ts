@@ -10,6 +10,9 @@ import { adminContext, requireRecentReauth } from "@/lib/admin/server";
 import * as prompts from "@/lib/admin/prompts";
 import { auditUserAction } from "@/lib/admin/users";
 import * as members from "@/lib/admin/members";
+import * as R from "@/lib/admin/resources";
+import { moduleAdapter, removeDiagram, setDiagram } from "@/lib/admin/modules";
+import { skillAdapter } from "@/lib/admin/skills";
 
 export interface AdminFormState {
   ok?: boolean;
@@ -171,4 +174,87 @@ export async function setModuleTierAction(fd: FormData): Promise<void> {
   const id = idOf(fd);
   const r = await members.setModuleTier(ctx, id, str(fd, "tier"));
   redirect(`/admin/modules/?${r.ok ? `saved=${id}` : `err=${encodeURIComponent(r.error)}`}#m-${id}`);
+}
+
+// ── modules and skills (shared lifecycle in lib/admin/resources.ts) ──
+
+type Kind = "MODULE" | "SKILL";
+const ADAPTER = { MODULE: moduleAdapter, SKILL: skillAdapter } as const;
+const BASE: Record<Kind, string> = { MODULE: "modules", SKILL: "skills" };
+const backTo = (kind: Kind, id: number, q: string) => redirect(`/admin/${BASE[kind]}/${id}/?${q}`);
+const errQ = (errors: Record<string, string>) => `err=${encodeURIComponent(Object.values(errors).join("；"))}`;
+
+async function createOf(kind: Kind, fd: FormData): Promise<AdminFormState> {
+  const { ctx } = await adminContext();
+  const values = { title: str(fd, "title"), slug: str(fd, "slug"), summary: str(fd, "summary"), category: str(fd, "category") };
+  const r = await R.createDraft(ctx, ADAPTER[kind] as R.Adapter<R.CommonInput>, values);
+  if (!r.ok) {
+    const [field, error] = Object.entries(r.errors)[0];
+    return { error, field, values };
+  }
+  redirect(`/admin/${BASE[kind]}/${r.id}/?created=1`);
+}
+async function publishOf(kind: Kind, fd: FormData) {
+  const { ctx } = await adminContext();
+  const id = idOf(fd);
+  const r = await R.publishResource(ctx, ADAPTER[kind] as R.Adapter<R.CommonInput>, id);
+  backTo(kind, id, r.ok ? "msg=published" : errQ(r.errors));
+}
+async function statusOf(kind: Kind, fd: FormData, op: "unpublish" | "archive" | "restore") {
+  const { viewer, ctx } = await adminContext();
+  const id = idOf(fd);
+  if (op === "archive") requireRecentReauth(viewer, `/admin/${BASE[kind]}/${id}/`);
+  const r = await R[op](ctx, kind, id);
+  if (!r.ok) backTo(kind, id, errQ(r.errors));
+  if (op === "archive") redirect(`/admin/${BASE[kind]}/?msg=archived`);
+  backTo(kind, id, op === "unpublish" ? "msg=unpublished" : "msg=restored");
+}
+async function moveOf(kind: Kind, fd: FormData) {
+  const { ctx } = await adminContext();
+  const id = idOf(fd);
+  const r = await R.move(ctx, kind, id, str(fd, "dir") === "up" ? "up" : "down");
+  redirect(`/admin/${BASE[kind]}/?${r.ok ? `moved=${id}` : errQ(r.errors)}#p-${id}`);
+}
+
+export async function createModuleAction(_: AdminFormState, fd: FormData) { return createOf("MODULE", fd); }
+export async function createSkillAction(_: AdminFormState, fd: FormData) { return createOf("SKILL", fd); }
+export async function saveModuleAction(id: number, input: unknown, version: string): Promise<SaveResult> {
+  const { ctx } = await adminContext();
+  return R.saveResource(ctx, moduleAdapter, id, input, version);
+}
+export async function saveSkillAction(id: number, input: unknown, version: string): Promise<SaveResult> {
+  const { ctx } = await adminContext();
+  return R.saveResource(ctx, skillAdapter, id, input, version);
+}
+export async function publishModuleAction(fd: FormData) { await publishOf("MODULE", fd); }
+export async function publishSkillAction(fd: FormData) { await publishOf("SKILL", fd); }
+export async function unpublishModuleAction(fd: FormData) { await statusOf("MODULE", fd, "unpublish"); }
+export async function unpublishSkillAction(fd: FormData) { await statusOf("SKILL", fd, "unpublish"); }
+export async function archiveModuleAction(fd: FormData) { await statusOf("MODULE", fd, "archive"); }
+export async function archiveSkillAction(fd: FormData) { await statusOf("SKILL", fd, "archive"); }
+export async function restoreModuleAction(fd: FormData) { await statusOf("MODULE", fd, "restore"); }
+export async function restoreSkillAction(fd: FormData) { await statusOf("SKILL", fd, "restore"); }
+export async function moveModuleAction(fd: FormData) { await moveOf("MODULE", fd); }
+export async function moveSkillAction(fd: FormData) { await moveOf("SKILL", fd); }
+
+// ── structure diagrams ──
+
+export async function uploadDiagramAction(_: AdminFormState, fd: FormData): Promise<AdminFormState> {
+  const { ctx } = await adminContext();
+  const id = idOf(fd);
+  const file = fd.get("file");
+  if (!(file instanceof File) || file.size === 0) return { error: "请选择图片文件" };
+  if (file.size > 2 * 1024 * 1024) return { error: "图片不能超过 2 MB" };
+  const alt = str(fd, "alt").trim();
+  if (!alt) return { error: "请填写图片说明（替代文字），方便读屏用户理解结构图" };
+  const r = await setDiagram(ctx, id, Buffer.from(await file.arrayBuffer()), alt);
+  if (!r.ok) return { error: r.error };
+  redirect(`/admin/modules/${id}/?msg=diagram`);
+}
+
+export async function removeDiagramAction(fd: FormData): Promise<void> {
+  const { ctx } = await adminContext();
+  const id = idOf(fd);
+  await removeDiagram(ctx, id);
+  redirect(`/admin/modules/${id}/?msg=diagram-removed`);
 }

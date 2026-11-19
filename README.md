@@ -127,4 +127,4 @@ powershell -ExecutionPolicy Bypass -File infra/deploy.ps1
 - [ ] OG 图片：目前只有文本 metadata
 - [ ] Skill ZIP 打包下载：当前提供 SKILL.md 复制与安装说明
 - [ ] 开通账户功能：需要 HTTPS、运营者信息、法务审阅隐私政策与用户协议，见 RUNBOOK 第 9 节
-- [ ] Phase 2 后续切片：会员分级 → 模块画廊（含 Skills/模块后台编辑）→ 统计 → DeepSeek 导入（见 PLAN.md）
+- [ ] Phase 2 后续切片：统计 → DeepSeek 导入（见 PLAN.md）；科研网站（导航）的后台编辑

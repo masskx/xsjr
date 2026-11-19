@@ -15,7 +15,8 @@ with estimates, (d) risks. Section E lists the decisions and inputs needed from 
 | 2. Authentication and sessions | **Built and tested, shipped switched off** (`AUTH_ENABLED=0`) until HTTPS exists; deploying it changes nothing visible. See CHANGELOG "slice 2" and RUNBOOK section 9. |
 | 3. Admin CRUD (prompts) | **Built and tested** (82 tests, 30 browser checks). Only reachable once accounts are on. Skills/modules editing follows in slice 5. |
 | 4. Tiers and gating | **Built and tested** (109 tests; 22 gating checks across anonymous / FREE / EI / SCI / expired / revoked, HTML and RSC). |
-| 5–7 | Not started. |
+| 5. Module gallery and diagrams | **Built and tested** (126 tests; 25 browser checks; other pages unchanged). Also admin editors for modules and skills. |
+| 6–7 | Not started. |
 
 Deviations from this plan made during slice 1 (the sections below are otherwise unchanged):
 

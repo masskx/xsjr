@@ -13,6 +13,9 @@ import * as s from "../db/schema";
 import * as prompts from "./prompts";
 import * as users from "./users";
 import * as members from "./members";
+import * as resources from "./resources";
+import * as modules from "./modules";
+import * as skills from "./skills";
 
 export async function adminContext(): Promise<{ viewer: ActiveSession; ctx: AdminCtx }> {
   const viewer = await requireAdmin();
@@ -50,6 +53,10 @@ export const adminData = {
   entitlementHistory: (id: number) => members.entitlementHistory(getDb(), id),
   memberStats: () => members.memberStats(getDb()),
   modulesForTier: () => members.listModulesForTier(getDb()),
+  listResources: (type: resources.ResourceType, filter: Parameters<typeof resources.listResources>[2]) => resources.listResources(getDb(), type, filter),
+  moduleForEdit: (id: number) => modules.getModuleForEdit(getDb(), id),
+  skillForEdit: (id: number) => skills.getSkillForEdit(getDb(), id),
+  diagramOf: (id: number) => modules.diagramOf(getDb(), id),
   statusCounts: async (type: "PROMPT" | "SKILL" | "MODULE" | "SITE") => {
     const rows = await getDb()
       .select({ status: s.resources.status, n: sql<number>`count(*)::int` })

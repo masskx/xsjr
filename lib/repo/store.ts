@@ -1,6 +1,6 @@
 // Pure data access (no Next.js imports) so scripts and tests can use it directly.
 // Rebuilds the exact Resource objects that Phase 1 read from meta.json, from published rows.
-import { and, asc, eq, inArray, lte } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, lte } from "drizzle-orm";
 import type { Db } from "../db/client";
 import * as s from "../db/schema";
 import { normaliseAttachmentPath } from "../content-files";
@@ -16,6 +16,21 @@ import type {
   SkillResource,
 } from "../types";
 
+/** Public metadata of an attachment: name, language, size. Never the content. */
+export interface FileMeta {
+  path: string;
+  language: string;
+  sizeBytes: number;
+  isEntry: boolean;
+}
+
+export interface Diagram {
+  src: string;
+  width: number;
+  height: number;
+  alt: string;
+}
+
 export interface Snapshot {
   /** published resources in display order: featured first, then the admin's sort_order (per
    *  type), then newest content date. Phase 1 sorted by date before position; with the Phase 1
@@ -27,6 +42,10 @@ export interface Snapshot {
   /** tier ladder: code -> rank, code -> Chinese label */
   tierRanks: Map<string, number>;
   tierLabels: Map<string, string>;
+  /** per slug, in display order; contents are only ever read through loadAttachment(s) */
+  files: Map<string, FileMeta[]>;
+  /** module structure diagrams (public for everyone, members-only modules included) */
+  diagrams: Map<string, Diagram>;
   loadedAt: number;
 }
 
@@ -48,6 +67,7 @@ export async function loadSnapshot(db: Db): Promise<Snapshot> {
       title: s.resources.title,
       summary: s.resources.summary,
       bodyMd: s.resources.bodyMd,
+      applicableTasks: s.resources.applicableTasks,
       category: s.categories.name,
       requiredTier: s.resources.requiredTier,
       sortOrder: s.resources.sortOrder,
@@ -59,13 +79,18 @@ export async function loadSnapshot(db: Db): Promise<Snapshot> {
       sourceUrl: s.resources.sourceUrl,
       updatedOn: s.resources.contentUpdatedOn,
       verifiedOn: s.resources.verifiedOn,
+      diagramKey: s.media.storageKey,
+      diagramWidth: s.media.width,
+      diagramHeight: s.media.height,
+      diagramAlt: s.media.alt,
     })
     .from(s.resources)
     .leftJoin(s.categories, eq(s.categories.id, s.resources.categoryId))
+    .leftJoin(s.media, eq(s.media.id, s.resources.structureMediaId))
     .where(eq(s.resources.status, "PUBLISHED"));
 
   const ids = rows.map((r) => r.id);
-  const [tagRows, prompts, vars, skills, compat, modules, sites] = ids.length
+  const [tagRows, prompts, vars, skills, compat, modules, sites, fileRows] = ids.length
     ? await Promise.all([
         db
           .select({ resourceId: s.resourceTags.resourceId, name: s.tags.name, position: s.resourceTags.position })
@@ -87,8 +112,19 @@ export async function loadSnapshot(db: Db): Promise<Snapshot> {
           .orderBy(asc(s.skillCompat.resourceId), asc(s.skillCompat.sortOrder)),
         db.select().from(s.resourceModule).where(inArray(s.resourceModule.resourceId, ids)),
         db.select().from(s.resourceSite).where(inArray(s.resourceSite.resourceId, ids)),
+        db
+          .select({
+            resourceId: s.resourceFiles.resourceId,
+            path: s.resourceFiles.path,
+            language: s.resourceFiles.language,
+            sizeBytes: s.resourceFiles.sizeBytes,
+            isEntry: s.resourceFiles.isEntry,
+          })
+          .from(s.resourceFiles)
+          .where(inArray(s.resourceFiles.resourceId, ids))
+          .orderBy(asc(s.resourceFiles.resourceId), desc(s.resourceFiles.isEntry), asc(s.resourceFiles.sortOrder), asc(s.resourceFiles.path)),
       ])
-    : [[], [], [], [], [], [], []];
+    : [[], [], [], [], [], [], [], []];
 
   const group = <T extends { resourceId: number }>(list: T[]) => {
     const m = new Map<number, T[]>();
@@ -104,6 +140,10 @@ export async function loadSnapshot(db: Db): Promise<Snapshot> {
   const moduleBy = one(modules);
   const siteBy = one(sites);
 
+  const filesBy = group(fileRows);
+  const files = new Map<string, FileMeta[]>();
+  const diagrams = new Map<string, Diagram>();
+
   const order = new Map<string, number>();
   const bodies = new Map<string, string>();
   const idMap = new Map<string, number>();
@@ -112,6 +152,15 @@ export async function loadSnapshot(db: Db): Promise<Snapshot> {
     order.set(row.slug, TYPE_RANK[row.type] * 1_000_000 + row.sortOrder);
     bodies.set(row.slug, row.bodyMd);
     idMap.set(row.slug, row.id);
+    files.set(row.slug, (filesBy.get(row.id) ?? []).map(({ resourceId: _r, ...f }) => f));
+    if (row.diagramKey && row.diagramWidth && row.diagramHeight) {
+      diagrams.set(row.slug, {
+        src: `/media/${row.diagramKey}`,
+        width: row.diagramWidth,
+        height: row.diagramHeight,
+        alt: row.diagramAlt || `${row.title} 结构图`,
+      });
+    }
 
     const base = compact({
       slug: row.slug,
@@ -129,6 +178,7 @@ export async function loadSnapshot(db: Db): Promise<Snapshot> {
       updatedAt: row.updatedOn,
       verifiedAt: row.verifiedOn,
       featured: row.featured ? true : undefined,
+      applicableTasks: row.applicableTasks.length ? row.applicableTasks : undefined,
     });
 
     switch (row.type) {
@@ -170,6 +220,7 @@ export async function loadSnapshot(db: Db): Promise<Snapshot> {
           env: m?.env ?? [],
           entry: m?.entryPath ?? "",
           usage: m?.usage,
+          dependencies: m?.dependencies?.length ? m.dependencies : undefined,
         }) as ModuleResource;
       }
       case "SITE": {
@@ -202,6 +253,8 @@ export async function loadSnapshot(db: Db): Promise<Snapshot> {
     ids: idMap,
     tierRanks: new Map(tierRows.map((t) => [t.code, t.rank])),
     tierLabels: new Map(tierRows.map((t) => [t.code, t.labelZh])),
+    files,
+    diagrams,
     loadedAt: Date.now(),
   };
 }
@@ -263,4 +316,15 @@ export function relatedOf(all: Resource[], resource: Resource, limit = 3): Resou
     .sort((a, b) => b.score - a.score)
     .slice(0, limit)
     .map((x) => x.r);
+}
+
+/** Every attachment of a PUBLISHED resource whose tier ranks at or below maxRank (else []). */
+export async function loadAttachments(db: Db, slug: string, maxRank: number): Promise<{ path: string; language: string; content: string }[]> {
+  return db
+    .select({ path: s.resourceFiles.path, language: s.resourceFiles.language, content: s.resourceFiles.content })
+    .from(s.resourceFiles)
+    .innerJoin(s.resources, eq(s.resources.id, s.resourceFiles.resourceId))
+    .innerJoin(s.tiers, eq(s.tiers.code, s.resources.requiredTier))
+    .where(and(eq(s.resources.slug, slug), eq(s.resources.status, "PUBLISHED"), lte(s.tiers.rank, maxRank)))
+    .orderBy(desc(s.resourceFiles.isEntry), asc(s.resourceFiles.sortOrder), asc(s.resourceFiles.path));
 }

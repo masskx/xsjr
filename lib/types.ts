@@ -49,6 +49,8 @@ interface Base {
   updatedAt: string;
   verifiedAt?: string;
   featured?: boolean;
+  /** tasks or scenarios the resource fits (shown on module and skill pages) */
+  applicableTasks?: string[];
 }
 
 export interface PromptResource extends Base {
@@ -73,6 +75,7 @@ export interface ModuleResource extends Base {
   /** 主文件相对路径，详情页默认展示它的代码 */
   entry: string;
   usage?: string[];
+  dependencies?: string[];
 }
 
 export interface SiteResource extends Base {

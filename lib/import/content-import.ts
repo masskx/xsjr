@@ -103,6 +103,7 @@ export async function importContent(db: Db, items: LoadedResource[], opts: Impor
           title: r.title,
           summary: r.summary,
           bodyMd: item.body,
+          applicableTasks: r.applicableTasks ?? [],
           categoryId,
           status: "PUBLISHED" as const,
           featured: r.featured === true,
@@ -272,6 +273,7 @@ async function replaceDetails(db: Db, resourceId: number, item: LoadedResource) 
         language: m.language,
         entryPath: m.entry,
         env: m.env ?? [],
+        dependencies: m.dependencies ?? [],
         usage: m.usage ?? null,
       });
       break;

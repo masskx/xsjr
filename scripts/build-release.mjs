@@ -105,6 +105,11 @@ const findLinks = (dir) => {
 };
 findLinks(stage);
 if (links.length) throw new Error(`symlinks in release: ${links.join(", ")}`);
+// Only the runtime belongs in app/: a file-tracing regression once copied the whole project
+// (sources, docs, old release tarballs) into the standalone output.
+const ALLOWED_APP_ENTRIES = new Set([".next", "node_modules", "package.json", "server.js"]);
+const unexpected = fs.readdirSync(path.join(stage, "app")).filter((e) => !ALLOWED_APP_ENTRIES.has(e));
+if (unexpected.length) throw new Error(`unexpected entries in app/ (check outputFileTracingExcludes): ${unexpected.join(", ")}`);
 // Secrets never ship: production configuration lives only in /opt/research-hub/.env on the server.
 const envFiles = [];
 const findEnv = (dir) => {
@@ -155,4 +160,8 @@ execFileSync("tar", ["-czf", tarball, "-C", stage, "."], { stdio: "inherit" });
 fs.rmSync(stage, { recursive: true, force: true });
 const mb = (fs.statSync(tarball).size / 1024 / 1024).toFixed(1);
 console.log(`==> ${tarball} (${mb} MB)`);
+if (Number(mb) > 15) {
+  fs.rmSync(tarball, { force: true });
+  throw new Error(`release is ${mb} MB (budget 15 MB): something unexpected was packaged`);
+}
 fs.writeFileSync(path.join(outDir, "LATEST"), `${id}\n`);

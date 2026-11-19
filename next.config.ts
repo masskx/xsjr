@@ -29,6 +29,35 @@ const nextConfig: NextConfig = {
   // Caddy sets these; the app does not need to advertise itself.
   poweredByHeader: false,
   images: { unoptimized: true },
+  // The uploads directory is computed at runtime (lib/media/storage.ts); the file tracer cannot
+  // resolve it and would otherwise copy the whole project (sources, docs, old releases in dist/)
+  // into the standalone server. Nothing below is read at runtime. build-release.mjs also fails if
+  // anything unexpected reaches the release.
+  outputFileTracingExcludes: {
+    "/*": [
+      "./dist/**/*",
+      "./data/**/*",
+      "./docs/**/*",
+      "./tests/**/*",
+      "./tools/**/*",
+      "./infra/**/*",
+      "./scripts/**/*",
+      "./drizzle/**/*",
+      "./content/**/*",
+      "./app/**/*",
+      "./components/**/*",
+      "./lib/**/*",
+      "./*.md",
+      "./LICENSE",
+      "./*.ts",
+      "./*.mts",
+      "./*.json",
+      "./*.tsbuildinfo",
+    ],
+  },
+  // Structure-diagram uploads go through a server action: images are capped at 2 MB by the
+  // validator (lib/media/images.ts); the multipart envelope needs a little headroom.
+  experimental: { serverActions: { bodySizeLimit: "3mb" } },
   turbopack: {
     rules: {
       "*.css": {

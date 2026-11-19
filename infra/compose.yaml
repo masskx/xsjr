@@ -63,12 +63,15 @@ services:
       <<: *node-env
       PORT: "3000"
       HOSTNAME: 0.0.0.0
+      UPLOADS_DIR: /data/uploads
       NODE_OPTIONS: --max-old-space-size=448
       RH_PROCESS_NAME: research-hub-app
     volumes:
       # ./current is a symlink to releases/<id>; Docker resolves it when the container is created,
       # so recreating `app` is what switches releases.
       - ${RELEASE_DIR:-./current}:/release:ro
+      # module structure diagrams (written by the app as uid 1000; Caddy serves them read-only)
+      - ./data/uploads:/data/uploads
     tmpfs:
       - /release/app/.next/cache:size=64m,uid=1000,gid=1000
     depends_on:

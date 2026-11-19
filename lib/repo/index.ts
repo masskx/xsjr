@@ -14,7 +14,8 @@ import { canAccess, effectiveTier, isExpired, viewerRank } from "../auth/entitle
 import { authConfig, getViewer } from "../auth/server";
 import type { Resource, ResourceType } from "../types";
 import { ensureContentListener } from "./listen";
-import { categoriesOf, loadAttachment, loadSnapshot, relatedOf, tagsOf, type Snapshot } from "./store";
+import { categoriesOf, loadAttachment, loadAttachments, loadSnapshot, relatedOf, tagsOf, type Diagram, type FileMeta, type Snapshot } from "./store";
+export type { Diagram, FileMeta };
 
 const SNAPSHOT_MAX_AGE_MS = Number(process.env.SNAPSHOT_MAX_AGE_MS ?? 5 * 60_000);
 
@@ -134,4 +135,32 @@ export async function getTags(limit = 40): Promise<{ name: string; count: number
 
 export async function getRelated(resource: Resource, limit = 3): Promise<Resource[]> {
   return relatedOf(await getAllResources(), resource, limit);
+}
+
+/** File names, languages and sizes (public: used for the file-tree diagram). Never contents. */
+export async function getFileIndex(resource: Resource): Promise<FileMeta[]> {
+  return (await snapshot()).files.get(resource.slug) ?? [];
+}
+
+export async function getDiagram(resource: Resource): Promise<Diagram | null> {
+  return (await snapshot()).diagrams.get(resource.slug) ?? null;
+}
+
+/**
+ * All files of a module with their contents, for the code tabs. Same two-layer gate as
+ * getAttachment: the viewer is checked here and the SQL filters by tier rank.
+ * Returns null when the viewer may not see the code.
+ */
+export async function getModuleFiles(resource: Resource): Promise<{ path: string; language: string; content: string }[] | null> {
+  const snap = await snapshot();
+  const current = snap.bySlug.get(resource.slug);
+  if (!current) return null;
+  let maxRank = snap.tierRanks.get("FREE") ?? 0;
+  if (current.tier !== "FREE") {
+    const viewer = await getViewer();
+    if (!canAccess(viewer?.user ?? null, current.tier, snap.tierRanks)) return null;
+    maxRank = viewerRank(viewer?.user ?? null, snap.tierRanks);
+  }
+  const rows = await loadAttachments(getDb(), resource.slug, maxRank);
+  return rows.length ? rows : null;
 }

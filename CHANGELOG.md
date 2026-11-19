@@ -2,6 +2,39 @@
 
 ## Unreleased
 
+### Phase 2, slice 5: module gallery, structure diagrams, module and skill editors
+
+Added
+- `/modules/` gallery: cards with a structure thumbnail (uploaded diagram or a file tree generated
+  from file names), applicable tasks, tier badge; category and tag filters as server-rendered
+  links (shareable, no JS needed).
+- Module pages in the brief's order: structure diagram, introduction, applicable tasks, code with
+  one tab per file (keyboard-navigable, copy per file), environment and dependencies, usage
+  examples (usage was in meta.json but never shown before).
+- Structure diagrams: PNG/JPEG/WebP up to 2 MB, identified by content (no SVG), dimensions read
+  from headers, JPEG EXIF/XMP stripped (no sharp, releases stay portable); stored under
+  `data/uploads` (backed up nightly), served by Caddy at `/media/` (route handler in development);
+  replacing or removing a diagram deletes the old file. Diagrams stay public on members-only
+  modules; code from every file is withheld (two-layer gate, as in slice 4).
+- Admin editors for modules (files, entry, environment, dependencies, usage, tasks, diagram) and
+  skills (SKILL.md, compatibility matrix, file list, risks, dependencies), on a shared lifecycle
+  (`lib/admin/resources.ts`) with prompts: drafts, publish, versions, audit, reorder, conflicts.
+- `applicableTasks` (all types) and module `dependencies` are accepted in meta.json; every type
+  now has a validation schema shared by importer and admin.
+- Tests: 12 media tests (formats, EXIF stripping, disguised files, path safety), 5 module/skill
+  admin tests (including "open and save every imported module/skill without changing its public
+  page"); `tests/e2e/gallery.mjs` (25 checks).
+
+Changed
+- `/modules/` and module detail pages (intended; parity expectations documented).
+
+Fixed
+- Next's file tracing copied the whole project (sources, docs, old release tarballs) into the
+  standalone server once a runtime-computed path appeared (release 40 MB instead of 5 MB). Non-
+  runtime paths are now excluded in next.config, and build-release.mjs fails if app/ contains
+  anything but the runtime or the release exceeds 15 MB.
+
+
 ### Phase 2, slice 4: membership tiers and server-side gating
 
 Added
