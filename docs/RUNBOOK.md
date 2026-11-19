@@ -176,6 +176,50 @@ $DC run --rm importer node scripts/import-content.mjs --content-dir /release/con
 
 `--force` 会用文件覆盖后台改过的资源，谨慎使用。
 
-## 9. DeepSeek 导入任务
+## 9. 账户功能（slice 2）
+
+账户功能代码已上线，但**默认关闭**：`.env` 里 `AUTH_ENABLED=0` 时所有账户页面返回 404、页头没有“登录”，
+网站与没有账户功能时完全一致。只有同时满足以下条件才会开启（`lib/auth/config.ts`）：
+
+- `AUTH_ENABLED=1`
+- `SITE_URL` 是 `https://...`（明文 HTTP 下浏览器会丢弃 Secure Cookie，密码也不能明文传输）
+- `AUTH_SECRET` 至少 32 个字符（bootstrap 已生成）
+
+### 9.1 开启前的清单
+1. HTTPS 已生效（第 6 节换域名后自动具备）。
+2. 在 `.env` 填写运营者信息（隐私政策与用户协议中展示，PIPL 要求）：
+   `OPERATOR_NAME=…`、`CONTACT_EMAIL=…`。未填写时页面会显示“（待填写）”。
+3. 请法务审阅 `/privacy/` 与 `/terms/` 两页的文案（代码中为草案，内容与系统实际行为一致）。
+4. 邮件：有邮件服务商时设置
+   `MAIL_DRIVER=smtp`、`SMTP_URL=smtps://用户名:密码@smtp.服务商:465`、`MAIL_FROM=…`（腾讯云封禁 25 端口）。
+   没有服务商时保持 `MAIL_DRIVER=hold`：注册照常，验证邮件留在发件箱（`mail_outbox` 表），**自助找回密码关闭**，
+   未验证邮箱的账户不能开通会员（slice 4 执行）。
+5. 创建管理员（见 9.2），然后 `.env` 设 `AUTH_ENABLED=1`，执行 `deploy.ps1 -ApplyConfig`。
+
+### 9.2 管理员
+```bash
+DC="sudo docker compose --project-directory /opt/research-hub -f /opt/research-hub/current/infra/compose.yaml"
+$DC run --rm cli node scripts/create-admin.mjs --email admin@example.cn                  # 创建或提升
+$DC run --rm cli node scripts/create-admin.mjs --email admin@example.cn --reset-password  # 忘记密码
+$DC run --rm cli node scripts/create-admin.mjs --email admin@example.cn --reset-mfa       # 手机丢失
+```
+脚本打印一次性生成的密码（只显示这一次）。管理员首次登录必须绑定身份验证器（TOTP）才能进入 `/admin/`；
+以后每次登录都要输入 6 位验证码。管理员会话 12 小时过期，普通用户 30 天。
+
+### 9.3 邮件处于 hold 状态时人工处理
+```bash
+$DC exec -T db psql -U rh -d research_hub -c \
+  "SELECT id, to_email, template, payload->>'link' AS link, created_at FROM mail_outbox WHERE status='held' ORDER BY id DESC LIMIT 20"
+```
+把验证链接（24 小时内有效）通过其他渠道发给用户。找回密码：用 `create-admin.mjs` 的方式不适用于普通用户，
+后台的“重置链接”功能在 slice 3 提供；在此之前可由用户自行注销后重新注册。
+
+### 9.4 上线前验证
+```bash
+BASE_URL=https://www.example.cn DATABASE_URL=… ADMIN_EMAIL=… ADMIN_PASSWORD=… node tests/e2e/auth-flow.mjs
+```
+（在能访问数据库的机器上运行，例如通过 SSH 隧道；会创建并删除一个测试用户。）
+
+## 10. DeepSeek 导入任务
 
 Slice 7 实现，届时补充。

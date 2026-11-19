@@ -19,3 +19,13 @@ export const NAV = [
   { href: "/modules", label: "模块", desc: "可直接复用的代码" },
   { href: "/directory", label: "科研导航", desc: "数据集、工具与站点" },
 ] as const;
+
+/**
+ * The legal operator shown in the privacy policy and terms (PIPL requires naming who processes
+ * personal data and how to reach them). Runtime configuration in /opt/research-hub/.env; the
+ * placeholders are deliberately visible so an unconfigured site is obvious.
+ */
+export const OPERATOR = {
+  name: process.env.OPERATOR_NAME || "（运营者名称待填写）",
+  contact: process.env.CONTACT_EMAIL || "（联系邮箱待填写）",
+} as const;

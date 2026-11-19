@@ -16,19 +16,25 @@
   },
   "dependencies": {
     "drizzle-orm": "^0.45.4",
+    "hash-wasm": "^4.13.0",
     "markdown-it": "^15.0.3",
     "next": "16.4.6",
+    "nodemailer": "^10.6.0",
     "pg": "^8.23.1",
     "pinyin-pro": "^3.29.5",
+    "qrcode": "^1.5.4",
     "react": "19.3.0",
     "react-dom": "19.3.0",
-    "server-only": "^0.0.1"
+    "server-only": "^0.0.1",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "4.3.3",
     "@types/markdown-it": "^14.2.0",
     "@types/node": "^24.19.2",
+    "@types/nodemailer": "^8.0.2",
     "@types/pg": "^8.23.1",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "drizzle-kit": "^0.31.11",

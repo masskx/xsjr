@@ -6,7 +6,7 @@
 //
 // Produces dist/rh-<timestamp>-<gitsha>.tar.gz containing:
 //   app/          Next.js standalone server (server.js, traced node_modules, .next/static)
-//   scripts/      migrate.mjs, import-content.mjs (single-file esbuild bundles)
+//   scripts/      migrate.mjs, import-content.mjs, create-admin.mjs (single-file esbuild bundles)
 //   drizzle/      SQL migrations
 //   content/      the file-format content (imported on every deploy; idempotent)
 //   infra/        compose.yaml, Caddyfile(s), remote/*.sh
@@ -105,10 +105,21 @@ const findLinks = (dir) => {
 };
 findLinks(stage);
 if (links.length) throw new Error(`symlinks in release: ${links.join(", ")}`);
+// Secrets never ship: production configuration lives only in /opt/research-hub/.env on the server.
+const envFiles = [];
+const findEnv = (dir) => {
+  for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+    const p = path.join(dir, e.name);
+    if (e.isDirectory() && e.name !== "node_modules") findEnv(p);
+    else if (/^\.env/.test(e.name) && e.name !== ".env.example") envFiles.push(path.relative(stage, p));
+  }
+};
+findEnv(path.join(stage, "app"));
+if (envFiles.length) throw new Error(`refusing to ship env files: ${envFiles.join(", ")}`);
 
 console.log("==> bundle scripts/");
 const esbuild = await import("esbuild");
-for (const name of ["migrate", "import-content"]) {
+for (const name of ["migrate", "import-content", "create-admin"]) {
   await esbuild.build({
     entryPoints: [path.join(root, "scripts", `${name}.ts`)],
     outfile: path.join(stage, "scripts", `${name}.mjs`),

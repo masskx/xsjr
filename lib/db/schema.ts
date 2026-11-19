@@ -76,6 +76,11 @@ export const users = pgTable(
     emailVerifiedAt: ts("email_verified_at"),
     totpSecretEnc: bytea("totp_secret_enc"),
     totpEnabledAt: ts("totp_enabled_at"),
+    /** last accepted TOTP time step: a code is never accepted twice (replay protection) */
+    totpLastStep: bigint("totp_last_step", { mode: "number" }),
+    /** PIPL: when the user accepted the privacy policy and terms, and which version */
+    consentAt: ts("consent_at"),
+    consentVersion: text("consent_version"),
     failedLogins: integer("failed_logins").notNull().default(0),
     lockedUntil: ts("locked_until"),
     disabledAt: ts("disabled_at"),

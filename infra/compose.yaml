@@ -6,10 +6,18 @@
 # The database publishes no port; only Caddy is reachable from outside.
 name: research-hub
 
+# Bounded container logs (Docker keeps them forever by default): about 50 MB per service.
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
 x-node: &node
   image: ${NODE_IMAGE:-node:24-alpine}
   user: node
   env_file: .env
+  logging: *logging
   environment: &node-env
     NODE_ENV: production
     TZ: Asia/Shanghai
@@ -19,6 +27,7 @@ x-node: &node
 services:
   caddy:
     image: ${CADDY_IMAGE:-caddy:2-alpine}
+    logging: *logging
     restart: unless-stopped
     ports:
       - "80:80"
@@ -79,6 +88,7 @@ services:
 
   db:
     image: ${POSTGRES_IMAGE:-postgres:16-alpine}
+    logging: *logging
     restart: unless-stopped
     environment:
       POSTGRES_DB: research_hub
@@ -139,6 +149,26 @@ services:
     environment:
       <<: *node-env
       RH_PROCESS_NAME: research-hub-import
+    volumes:
+      - ${RELEASE_DIR:-./current}:/release:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  # General command runner for maintenance scripts, e.g.
+  #   docker compose ... run --rm cli node scripts/create-admin.mjs --email admin@example.cn
+  cli:
+    <<: *node
+    profiles: [tools]
+    working_dir: /release
+    command: ["node", "--version"]
+    environment:
+      <<: *node-env
+      RH_PROCESS_NAME: research-hub-cli
     volumes:
       - ${RELEASE_DIR:-./current}:/release:ro
     depends_on:

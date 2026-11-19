@@ -45,9 +45,22 @@
 		}
 	}
 
+	# Access log: client IPs are truncated (IPv4 /24, IPv6 /48) so no full IP is stored; Caddy
+	# already redacts Cookie and Authorization headers. Retention is bounded by the Docker log
+	# rotation in compose.yaml. Keep this in line with the privacy policy (app/(account)/privacy).
 	log {
 		output stdout
-		format console
+		format filter {
+			wrap console
+			request>remote_ip ip_mask {
+				ipv4 24
+				ipv6 48
+			}
+			request>client_ip ip_mask {
+				ipv4 24
+				ipv6 48
+			}
+		}
 		level INFO
 	}
 }

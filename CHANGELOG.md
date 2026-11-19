@@ -2,6 +2,45 @@
 
 ## Unreleased
 
+### Phase 2, slice 2: accounts and sessions (shipped switched off)
+
+Accounts are built and tested but stay OFF until HTTPS exists: they open only when
+`AUTH_ENABLED=1`, `SITE_URL` is https (or localhost) and `AUTH_SECRET` is set. While off, every
+account route answers the normal 404 page and the header is unchanged (parity against production:
+identical on all 47 routes except the known `/search/` difference).
+
+Added
+- Registration with consent record (PIPL), email verification, login, logout, password reset,
+  password change, profile, device list with remote sign-out, account deletion.
+- Argon2id password hashing (WASM, OWASP parameters); policy: 10+ characters (admins 14+), not
+  among the 20,000 most common long passwords, not containing the email name.
+- Server-side sessions: 256-bit token in a `__Host-` cookie (HttpOnly, Secure, SameSite=Lax);
+  only its SHA-256 is stored; 30-day users, 12-hour admins; revoked on password change/reset.
+- Brute-force protection: per-IP limits (keyed hashes, no raw IPs) and account lockout with
+  doubling back-off; same error and same timing for unknown emails.
+- Admins: mandatory TOTP enrolment (QR rendered server-side, secret encrypted at rest with
+  AES-256-GCM, single-use codes); `/admin/` checked in `proxy.ts` and again in the page.
+- Mail outbox with `smtp`, `log` and `hold` drivers; with `hold`, self-service reset is off.
+- `scripts/create-admin.ts` (also `--reset-password`, `--reset-mfa`), `cli` compose service.
+- Privacy policy and user agreement (drafts for legal review), operator name/contact from `.env`.
+- Content-Security-Policy header in production builds.
+- Tests: 32 unit + 11 service integration tests; `tests/e2e/auth-flow.mjs` (30 browser checks).
+
+Changed
+- Caddy access logs keep only the first three octets of client IPs (IPv6 /48); container logs
+  are rotated (10 MB x 5 per service). Both are stated in the privacy policy.
+- Release builder refuses to package `.env*` files.
+
+Verified
+- E2E 30/30 at 390 px (no horizontal overflow on any account page), screenshots reviewed.
+- Forged cross-site form POST rejected; server actions posted while accounts are off rejected
+  (409) on every path; no-JS form submission works (303).
+
+Not yet done
+- Admin-issued reset links for users while mail is on hold (slice 3, admin UI).
+- `login` and `register` analytics events (slice 6).
+
+
 ### Phase 2, slice 1: PostgreSQL and server mode (no visible change)
 
 Added

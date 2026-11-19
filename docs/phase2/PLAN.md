@@ -12,7 +12,8 @@ with estimates, (d) risks. Section E lists the decisions and inputs needed from 
 |---|---|
 | 0. Groundwork | Done here: parity baseline, tag-sort fix, plan. **Not done** (needs server access): SSH hardening, swap/mirror on the real box (bootstrap.sh automates swap), IP-TLS spike. |
 | 1. Database + content migration | **Built and rehearsed, not yet deployed to production.** See CHANGELOG "slice 1" for what was verified. |
-| 2–7 | Not started. |
+| 2. Authentication and sessions | **Built and tested, shipped switched off** (`AUTH_ENABLED=0`) until HTTPS exists; deploying it changes nothing visible. See CHANGELOG "slice 2" and RUNBOOK section 9. |
+| 3–7 | Not started. |
 
 Deviations from this plan made during slice 1 (the sections below are otherwise unchanged):
 
@@ -33,6 +34,11 @@ Deviations from this plan made during slice 1 (the sections below are otherwise 
 - **Runtime image:** no image is built. Releases are plain directories (standalone server +
   bundled scripts) bind-mounted read-only into stock `node:24-alpine`. Nothing is built on the
   server, and there is no registry to run.
+- **Sessions are absolute, not sliding** (30 days users, 12 hours admins): the cookie and the
+  database row expire together, and refreshing a cookie on every request would need the proxy to
+  touch the database for every page.
+- **Login availability is a hard rule in code**, resolving the Secure-cookie vs plain-HTTP
+  conflict (A.4): accounts open only on https (or localhost); otherwise every account route 404s.
 - **Deploy pre-flight:** the new release is booted in a temporary container and must render
   `/`, `/robots.txt` and `/sitemap.xml` before anything switches. A broken release is rejected
   with zero visitor impact (rehearsed).

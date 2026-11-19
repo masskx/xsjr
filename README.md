@@ -35,6 +35,7 @@ app/                    页面路由（App Router），全部服务端按需渲�
 proxy.ts                请求进入页面前：未发布/不存在的 slug → 404 页
 components/             UI 组件
 lib/
+  auth/                 账户：配置、密码、会话、TOTP、限流、邮件、业务逻辑（service.ts）
   types.ts              资源数据契约
   repo/                 页面唯一的数据入口（快照缓存、附件读取、slug 索引）
   db/                   Drizzle schema 与连接池
@@ -125,4 +126,5 @@ powershell -ExecutionPolicy Bypass -File infra/deploy.ps1
 - [ ] 举报邮箱：`app/about/page.tsx` 里是占位，上线前替换
 - [ ] OG 图片：目前只有文本 metadata
 - [ ] Skill ZIP 打包下载：当前提供 SKILL.md 复制与安装说明
-- [ ] Phase 2 后续切片：登录 → 后台 → 会员分级 → 模块画廊 → 统计 → DeepSeek 导入（见 PLAN.md）
+- [ ] 开通账户功能：需要 HTTPS、运营者信息、法务审阅隐私政策与用户协议，见 RUNBOOK 第 9 节
+- [ ] Phase 2 后续切片：后台 → 会员分级 → 模块画廊 → 统计 → DeepSeek 导入（见 PLAN.md）

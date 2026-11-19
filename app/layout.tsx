@@ -3,6 +3,7 @@ import Link from "next/link";
 import "./globals.css";
 import { SITE_DESC, SITE_NAME, SITE_TAGLINE, SITE_URL, NAV } from "@/lib/site";
 import { HeaderSearch } from "@/components/header-search";
+import { AccountLink } from "@/components/account-link";
 
 // Every page renders per request: content comes from PostgreSQL and SITE_URL (canonical URLs,
 // metadataBase) is runtime configuration, so nothing may be frozen at build time.
@@ -70,6 +71,7 @@ export default function RootLayout({
 
             <div className="ml-auto flex items-center gap-3">
               <HeaderSearch />
+              <AccountLink />
             </div>
           </div>
 
