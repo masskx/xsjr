@@ -1,21 +1,23 @@
+# Research Hub reverse proxy (Phase 2: server-rendered app behind Caddy).
+#
+# Site address comes from CADDY_SITE_ADDRESS in /opt/research-hub/.env:
+#   before ICP filing:  CADDY_SITE_ADDRESS=:80        (direct IP, plain HTTP)
+#   after filing:       CADDY_SITE_ADDRESS=example.cn, www.example.cn
+# With a domain as the address Caddy obtains and renews TLS certificates automatically and
+# redirects HTTP to HTTPS. No file change is needed for the switch: edit .env, then run
+#   infra/remote/apply-config.sh
 {
-	admin off
+	# The admin API listens on localhost:2019 inside the container only (no port is published),
+	# which is what `caddy reload` uses during deploys.
 	persist_config off
-	auto_https off
 }
 
-# 备案完成前先用 IP 访问。域名解析 + 备案通过后，把下面的 :80 换成你的域名，
-# 并删掉 global 里的 auto_https off，Caddy 会自动申请并续期 TLS 证书。
-:80 {
-	root * /srv
+{$CADDY_SITE_ADDRESS::80} {
 	encode zstd gzip
 
-	# Next 生成的是带哈希的静态资源，可以长缓存
+	# Next.js emits content-hashed assets; cache them forever.
 	@immutable path /_next/static/*
 	header @immutable Cache-Control "public, max-age=31536000, immutable"
-
-	@html path *.html
-	header @html Cache-Control "public, max-age=0, must-revalidate"
 
 	header {
 		X-Content-Type-Options "nosniff"
@@ -23,15 +25,24 @@
 		X-Frame-Options "SAMEORIGIN"
 		Permissions-Policy "geolocation=(), microphone=(), camera=()"
 		-Server
+		-X-Powered-By
 	}
 
-	try_files {path} {path}.html {path}/index.html
-
-	file_server
-
-	handle_errors {
-		rewrite * /404.html
+	# Uploaded media (module structure diagrams, slice 5). Public by design; never executable.
+	handle_path /media/* {
+		root * /srv/media
+		header Cache-Control "public, max-age=86400"
+		header Content-Security-Policy "default-src 'none'; sandbox"
 		file_server
+	}
+
+	handle {
+		reverse_proxy app:3000 {
+			# Hold requests while the app container restarts during a deploy (2-4 s) instead of
+			# answering 502: visitors see a slow response, not an error.
+			lb_try_duration 10s
+			lb_try_interval 250ms
+		}
 	}
 
 	log {

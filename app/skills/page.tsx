@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getResourcesByType } from "@/lib/content";
+import { getResourcesByType } from "@/lib/repo";
 import { buildSearchIndex } from "@/lib/search";
 import { TypeListing } from "@/components/type-listing";
 import { PageHeader } from "@/components/page-header";
@@ -10,8 +10,8 @@ export const metadata: Metadata = {
     "遵循 Agent Skills 规范的科研技能包：模拟审稿人、绘图自检、参考文献核验、学位论文结构规划。含 SKILL.md 预览、文件树、兼容工具与风险提示。",
 };
 
-export default function SkillsPage() {
-  const docs = buildSearchIndex(getResourcesByType("SKILL"));
+export default async function SkillsPage() {
+  const docs = buildSearchIndex(await getResourcesByType("SKILL"));
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6">
       <PageHeader

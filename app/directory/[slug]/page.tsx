@@ -1,15 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getAllResources, getBody, getResource } from "@/lib/content";
+import { getBody, getResource } from "@/lib/repo";
 import { DetailShell } from "@/components/detail-shell";
 import { Markdown } from "@/components/markdown";
 import type { SiteResource } from "@/lib/types";
-
-export function generateStaticParams() {
-  return getAllResources()
-    .filter((r) => r.type === "SITE")
-    .map((r) => ({ slug: r.slug }));
-}
 
 export async function generateMetadata({
   params,
@@ -17,7 +11,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const r = getResource(slug);
+  const r = await getResource(slug);
   if (!r) return {};
   return {
     title: r.title,
@@ -32,11 +26,11 @@ export default async function SiteDetail({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const r = getResource(slug);
+  const r = await getResource(slug);
   if (!r || r.type !== "SITE") notFound();
 
   const resource = r as SiteResource;
-  const body = getBody(resource);
+  const body = await getBody(resource);
 
   return (
     <DetailShell

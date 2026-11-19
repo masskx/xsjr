@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getAllResources, getCategories, getResourcesByType } from "@/lib/content";
+import { getAllResources, getCategories } from "@/lib/repo";
 import { NAV, SITE_NAME } from "@/lib/site";
 import { TYPE_LABEL, type ResourceType } from "@/lib/types";
 import { ResourceCard } from "@/components/resource-card";
@@ -19,11 +19,11 @@ const ENTRY_COLOR: Record<string, string> = {
   SITE: "from-sky-500/10 to-transparent",
 };
 
-export default function HomePage() {
-  const all = getAllResources();
+export default async function HomePage() {
+  const all = await getAllResources();
   const featured = all.filter((r) => r.featured).slice(0, 3);
   const recent = all.slice(0, 9);
-  const categories = getCategories().slice(0, 10);
+  const categories = (await getCategories()).slice(0, 10);
   const latest = all[0]?.updatedAt ?? "";
 
   return (
@@ -65,7 +65,7 @@ export default function HomePage() {
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {NAV.map((n) => {
             const meta = ENTRY_META[n.href];
-            const count = getResourcesByType(meta.type).length;
+            const count = all.filter((r) => r.type === meta.type).length;
             return (
               <Link
                 key={n.href}

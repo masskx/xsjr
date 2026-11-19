@@ -4,6 +4,10 @@ import "./globals.css";
 import { SITE_DESC, SITE_NAME, SITE_TAGLINE, SITE_URL, NAV } from "@/lib/site";
 import { HeaderSearch } from "@/components/header-search";
 
+// Every page renders per request: content comes from PostgreSQL and SITE_URL (canonical URLs,
+// metadataBase) is runtime configuration, so nothing may be frozen at build time.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {

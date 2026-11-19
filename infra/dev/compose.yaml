@@ -1,0 +1,19 @@
+# Local development database (not used in production). Requires Docker Desktop.
+#   docker compose -f infra/dev/compose.yaml up -d
+# Then copy .env.example to .env.local (its DATABASE_URL matches this container) and run
+#   npm.cmd run db:migrate && npm.cmd run content:import && npm.cmd run dev
+name: research-hub-dev
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: rh_dev
+      POSTGRES_USER: rh
+      POSTGRES_PASSWORD: rh_dev_only
+    ports:
+      # bound to localhost only
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - dev_pg:/var/lib/postgresql/data
+volumes:
+  dev_pg:

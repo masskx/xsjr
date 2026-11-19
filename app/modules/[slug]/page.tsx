@@ -1,21 +1,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import {
-  getAllResources,
   getAttachment,
   getBody,
   getResource,
-} from "@/lib/content";
+} from "@/lib/repo";
 import { DetailShell } from "@/components/detail-shell";
 import { Markdown } from "@/components/markdown";
 import { CodeBlock } from "@/components/code-block";
 import type { ModuleResource } from "@/lib/types";
-
-export function generateStaticParams() {
-  return getAllResources()
-    .filter((r) => r.type === "MODULE")
-    .map((r) => ({ slug: r.slug }));
-}
 
 export async function generateMetadata({
   params,
@@ -23,7 +16,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const r = getResource(slug);
+  const r = await getResource(slug);
   if (!r) return {};
   return {
     title: r.title,
@@ -39,12 +32,12 @@ export default async function ModuleDetail({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const r = getResource(slug);
+  const r = await getResource(slug);
   if (!r || r.type !== "MODULE") notFound();
 
   const resource = r as ModuleResource;
-  const body = getBody(resource);
-  const code = getAttachment(resource, resource.entry) ?? "";
+  const body = await getBody(resource);
+  const code = await getAttachment(resource, resource.entry) ?? "";
 
   return (
     <DetailShell

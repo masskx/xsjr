@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getResourcesByType } from "@/lib/content";
+import { getResourcesByType } from "@/lib/repo";
 import { buildSearchIndex } from "@/lib/search";
 import { TypeListing } from "@/components/type-listing";
 import { PageHeader } from "@/components/page-header";
@@ -10,8 +10,8 @@ export const metadata: Metadata = {
     "可直接复制进项目的科研代码模块：统计检验选择与执行、出版级绘图样式、Bootstrap 置信区间与效应量。含依赖、用法与输出示例。",
 };
 
-export default function ModulesPage() {
-  const docs = buildSearchIndex(getResourcesByType("MODULE"));
+export default async function ModulesPage() {
+  const docs = buildSearchIndex(await getResourcesByType("MODULE"));
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6">
       <PageHeader

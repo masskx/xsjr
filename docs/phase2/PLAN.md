@@ -6,6 +6,39 @@ with estimates, (d) risks. Section E lists the decisions and inputs needed from 
 
 ---
 
+## Status
+
+| Slice | State |
+|---|---|
+| 0. Groundwork | Done here: parity baseline, tag-sort fix, plan. **Not done** (needs server access): SSH hardening, swap/mirror on the real box (bootstrap.sh automates swap), IP-TLS spike. |
+| 1. Database + content migration | **Built and rehearsed, not yet deployed to production.** See CHANGELOG "slice 1" for what was verified. |
+| 2–7 | Not started. |
+
+Deviations from this plan made during slice 1 (the sections below are otherwise unchanged):
+
+- **Schema:** `categories` and `tags` are keyed by `name` (no slug column yet; nothing routes by
+  them). `resource_tags.position` keeps authored tag order. Optional content fields
+  (`prompt_variables.required`, `notes`, `risks`, `usage`, …) are nullable so the database can
+  tell "not given" from "empty" and round-trips are exact.
+- **Compose service names:** the app service is `app`, not `web`. Phase 1 already uses `web` for
+  Caddy; a distinct name lets the new app start and pass health checks while the static site still
+  serves, which is what makes the cutover ~0.3 s.
+- **404 handling:** Next 16.4 renders `notFound()` from a dynamic page as an empty `__next_error__`
+  HTML shell (the 404 surfaces through the streamed-metadata outlet, outside every not-found
+  boundary). Unknown/unpublished slugs are therefore rewritten in `proxy.ts` to a path no route
+  matches; the pages keep `notFound()` as a second line of defence.
+- **Caching:** an in-process snapshot of published content invalidated by `LISTEN/NOTIFY`
+  instead of Next's tag cache. Simpler, works without Cache Components, and unpublish takes effect
+  on the next request (measured < 0.5 s).
+- **Runtime image:** no image is built. Releases are plain directories (standalone server +
+  bundled scripts) bind-mounted read-only into stock `node:24-alpine`. Nothing is built on the
+  server, and there is no registry to run.
+- **Deploy pre-flight:** the new release is booted in a temporary container and must render
+  `/`, `/robots.txt` and `/sitemap.xml` before anything switches. A broken release is rejected
+  with zero visitor impact (rehearsed).
+
+---
+
 ## What was verified before writing this plan
 
 The repository is not in this working session, so the plan rests on the brief plus read-only

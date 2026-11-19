@@ -1,22 +1,15 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import {
-  getAllResources,
   getAttachment,
   getBody,
   getResource,
-} from "@/lib/content";
+} from "@/lib/repo";
 import { DetailShell } from "@/components/detail-shell";
 import { Markdown } from "@/components/markdown";
 import { CodeBlock } from "@/components/code-block";
 import { CopyButton } from "@/components/copy-button";
 import { TOOL_LABEL, type SkillResource } from "@/lib/types";
-
-export function generateStaticParams() {
-  return getAllResources()
-    .filter((r) => r.type === "SKILL")
-    .map((r) => ({ slug: r.slug }));
-}
 
 export async function generateMetadata({
   params,
@@ -24,7 +17,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const r = getResource(slug);
+  const r = await getResource(slug);
   if (!r) return {};
   return {
     title: r.title,
@@ -40,12 +33,12 @@ export default async function SkillDetail({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const r = getResource(slug);
+  const r = await getResource(slug);
   if (!r || r.type !== "SKILL") notFound();
 
   const resource = r as SkillResource;
-  const body = getBody(resource);
-  const skillMd = getAttachment(resource, "SKILL.md") ?? "";
+  const body = await getBody(resource);
+  const skillMd = await getAttachment(resource, "SKILL.md") ?? "";
 
   return (
     <DetailShell

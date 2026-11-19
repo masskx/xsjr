@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { getRelated } from "@/lib/content";
+import { getRelated } from "@/lib/repo";
 import { TYPE_LABEL, TYPE_HREF, type Resource } from "@/lib/types";
 import { ResourceCard, TypeBadge, ProBadge } from "./resource-card";
 
-export function DetailShell({
+export async function DetailShell({
   resource,
   children,
   extraMeta,
@@ -12,7 +12,7 @@ export function DetailShell({
   children: React.ReactNode;
   extraMeta?: { label: string; value: React.ReactNode }[];
 }) {
-  const related = getRelated(resource, 3);
+  const related = await getRelated(resource, 3);
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">

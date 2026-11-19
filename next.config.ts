@@ -1,9 +1,13 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // 纯静态导出：服务器上不需要 Node 运行时，Caddy 直接托管 out/
-  output: "export",
+  // Phase 2: server-rendered. "standalone" emits a self-contained server.js with only the traced
+  // node_modules, which is what infra/ ships (never build on the server: 3.7 GB RAM).
+  output: "standalone",
+  // Phase 1 URLs all end in "/"; keep them byte-identical.
   trailingSlash: true,
+  // Caddy sets these; the app does not need to advertise itself.
+  poweredByHeader: false,
   images: { unoptimized: true },
   turbopack: {
     rules: {

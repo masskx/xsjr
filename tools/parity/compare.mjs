@@ -2,19 +2,22 @@
 // Compare two parity captures (baseline vs candidate). Exit code 0 only when there is no
 // visible difference.
 //
-//   node compare.mjs <baselineDir> <candidateDir> [--allow-noslash-redirect]
+//   node compare.mjs <baselineDir> <candidateDir> [--allow-noslash-redirect] [--expect <path>]...
 //
 // Compared per page: status code, head metadata, heading outline, links, code block hashes,
 // visible text (line diff). robots.txt and sitemap.xml are compared after origin normalisation.
 // --allow-noslash-redirect accepts a 308 -> "<path>/" where the baseline served the
 // no-trailing-slash variant with 200 (the expected Next.js trailingSlash behaviour; the
 // canonical URLs are unchanged).
+// --expect <path> marks a documented, intended difference on that route: it is still printed in
+// full, but does not fail the run. Every use must be explained in tools/parity/README.md.
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { slugFile } from "./lib.mjs";
 
 const args = process.argv.slice(2);
-const [aDir, bDir] = args.filter((a) => !a.startsWith("--"));
+const expected = new Set(args.flatMap((a, i) => (a === "--expect" ? [args[i + 1]] : [])));
+const [aDir, bDir] = args.filter((a, i) => !a.startsWith("--") && args[i - 1] !== "--expect");
 const allowNoSlash = args.includes("--allow-noslash-redirect");
 if (!aDir || !bDir) {
   console.error("usage: node compare.mjs <baselineDir> <candidateDir> [--allow-noslash-redirect]");
@@ -62,12 +65,24 @@ for (const [path, a] of Object.entries(A.routes)) {
 }
 for (const path of Object.keys(B.routes)) if (!A.routes[path]) note(path, "new route not in baseline (informational)");
 
-if (problems.length) {
-  console.log(problems.join("\n\n"));
-  console.log(`\nFAIL: ${problems.length} difference(s)`);
+const isExpected = (p) => expected.has(p.slice(0, p.indexOf(": ")));
+const failing = problems.filter((p) => !isExpected(p));
+const acknowledged = problems.filter(isExpected);
+if (acknowledged.length) {
+  console.log(acknowledged.map((p) => `[expected] ${p}`).join("\n\n"));
+  console.log("");
+}
+if (failing.length) {
+  console.log(failing.join("\n\n"));
+  console.log(`\nFAIL: ${failing.length} difference(s)${acknowledged.length ? `, ${acknowledged.length} expected` : ""}`);
   process.exit(1);
 }
-console.log(`PASS: ${Object.keys(A.routes).length} routes identical`);
+const routes = Object.keys(A.routes).length;
+console.log(
+  acknowledged.length
+    ? `PASS: ${routes} routes; identical except ${acknowledged.length} expected difference(s) on ${[...expected].join(", ")}`
+    : `PASS: ${routes} routes identical`,
+);
 
 // Minimal LCS line diff, capped for readability.
 function lineDiff(x, y, max = 40) {

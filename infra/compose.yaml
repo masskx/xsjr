@@ -1,29 +1,158 @@
+# Research Hub production stack. Lives in each release (infra/compose.yaml) and is always run as
+#   docker compose --project-directory /opt/research-hub -f /opt/research-hub/current/infra/compose.yaml ...
+# (infra/remote/lib.sh wraps this). Relative paths below are relative to /opt/research-hub.
+#
+# Memory budget on the 3.7 GB box: caddy 128M + app 640M + db 640M + one-off tools 256M.
+# The database publishes no port; only Caddy is reachable from outside.
 name: research-hub
 
+x-node: &node
+  image: ${NODE_IMAGE:-node:24-alpine}
+  user: node
+  env_file: .env
+  environment: &node-env
+    NODE_ENV: production
+    TZ: Asia/Shanghai
+    DATABASE_URL: postgres://rh:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@db:5432/research_hub
+  networks: [app]
+
 services:
-  web:
-    image: caddy:2-alpine
-    container_name: research-hub-web
+  caddy:
+    image: ${CADDY_IMAGE:-caddy:2-alpine}
     restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
+    environment:
+      CADDY_SITE_ADDRESS: ${CADDY_SITE_ADDRESS:-:80}
     volumes:
+      # A file (not the release symlink) so `caddy reload` sees updates written in place.
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - ./site:/srv:ro
+      - ./data/uploads:/srv/media:ro
+      - ./site:/srv/legacy:ro
       - caddy_data:/data
       - caddy_config:/config
+    networks: [app]
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+    healthcheck:
+      test: ["CMD", "wget", "-qO", "/dev/null", "http://127.0.0.1:2019/config/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # Named "app", not "web": in Phase 1 the Caddy service was called "web", and a distinct name
+  # lets the new app start and pass its health check while the old static site still serves.
+  app:
+    <<: *node
+    restart: unless-stopped
+    working_dir: /release/app
+    command: ["node", "server.js"]
+    environment:
+      <<: *node-env
+      PORT: "3000"
+      HOSTNAME: 0.0.0.0
+      NODE_OPTIONS: --max-old-space-size=448
+      RH_PROCESS_NAME: research-hub-app
+    volumes:
+      # ./current is a symlink to releases/<id>; Docker resolves it when the container is created,
+      # so recreating `app` is what switches releases.
+      - ${RELEASE_DIR:-./current}:/release:ro
+    tmpfs:
+      - /release/app/.next/cache:size=64m,uid=1000,gid=1000
+    depends_on:
+      db:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 640M
+    healthcheck:
+      test: ["CMD", "wget", "-qO", "/dev/null", "http://127.0.0.1:3000/robots.txt"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+      start_interval: 1s
+
+  db:
+    image: ${POSTGRES_IMAGE:-postgres:16-alpine}
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: research_hub
+      POSTGRES_USER: rh
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      TZ: Asia/Shanghai
+      PGTZ: Asia/Shanghai
+    command:
+      - postgres
+      - -c
+      - shared_buffers=128MB
+      - -c
+      - max_connections=30
+      - -c
+      - work_mem=4MB
+      - -c
+      - maintenance_work_mem=64MB
+      - -c
+      - effective_cache_size=512MB
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks: [app]
+    deploy:
+      resources:
+        limits:
+          memory: 640M
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rh -d research_hub"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  # One-off tools, run with `docker compose run --rm <name>` (profile "tools" keeps them out of `up`).
+  migrate:
+    <<: *node
+    profiles: [tools]
+    working_dir: /release
+    command: ["node", "scripts/migrate.mjs"]
+    environment:
+      <<: *node-env
+      MIGRATIONS_DIR: /release/drizzle
+      RH_PROCESS_NAME: research-hub-migrate
+    volumes:
+      - ${RELEASE_DIR:-./current}:/release:ro
+    depends_on:
+      db:
+        condition: service_healthy
     deploy:
       resources:
         limits:
           memory: 256M
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
+
+  importer:
+    <<: *node
+    profiles: [tools]
+    working_dir: /release
+    command: ["node", "scripts/import-content.mjs", "--content-dir", "/release/content"]
+    environment:
+      <<: *node-env
+      RH_PROCESS_NAME: research-hub-import
+    volumes:
+      - ${RELEASE_DIR:-./current}:/release:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+networks:
+  app: {}
 
 volumes:
+  pg_data:
   caddy_data:
   caddy_config:

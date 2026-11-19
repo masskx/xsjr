@@ -34,3 +34,15 @@ Self-check: two consecutive captures of the live site compare as `PASS: 47 route
 It holds 24 pages (all 200 except the two 404 probes), `robots.txt`, `sitemap.xml` and 21
 no-slash probes (all 200). The raw HTML also contains every resource's full text and code, so
 it doubles as an independent copy of the 15 resources' published content.
+
+## Expected differences (`--expect`)
+
+| Route | Since | Why it differs, and why that is intended |
+|---|---|---|
+| `/search/` | Phase 2 slice 1 | The static export rendered only the placeholder "正在加载搜索框…" because `useSearchParams()` defers that subtree to the browser. Server rendering includes the full result list in the HTML. After hydration both show the same list; crawlers and no-JS visitors now get the results too. |
+
+Slice 1 command (production baseline vs server build):
+
+```bash
+node compare.mjs <live-capture> <server-capture> --allow-noslash-redirect --expect /search/
+```

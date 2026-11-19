@@ -4,9 +4,13 @@ export const SITE_TAGLINE =
 export const SITE_DESC =
   "面向科研人员的 AI 资源发现与分发平台：按场景筛选可用的提示词、Skills、代码模块与科研网站，复制或下载后在你自己的 Agent / IDE 里使用。";
 
-/** 部署地址：由环境变量注入（部署脚本会自动设置），本地开发回落到 localhost */
+/**
+ * 部署地址（canonical、sitemap、metadataBase 用）。
+ * SITE_URL is server-only runtime configuration (infra/.env), so switching from the IP to the
+ * filed domain needs no rebuild. NEXT_PUBLIC_SITE_URL is the Phase 1 build-time fallback.
+ */
 export const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+  process.env.SITE_URL || process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
 ).replace(/\/$/, "");
 
 export const NAV = [

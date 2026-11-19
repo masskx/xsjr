@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { getAllResources } from "@/lib/content";
+import { getAllResources } from "@/lib/repo";
 import { buildSearchIndex } from "@/lib/search";
 import { ResourceSearch } from "@/components/resource-search";
 
@@ -10,8 +10,8 @@ export const metadata: Metadata = {
     "按标题、标签、分类检索科研提示词、Skills、代码模块与科研网站。支持中文、拼音与首字母输入。",
 };
 
-export default function SearchPage() {
-  const docs = buildSearchIndex(getAllResources());
+export default async function SearchPage() {
+  const docs = buildSearchIndex(await getAllResources());
 
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6">
