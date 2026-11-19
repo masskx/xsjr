@@ -23,7 +23,7 @@ export function TypeListing({ docs }: { docs: SearchDoc[] }) {
       for (const t of d.tags) m.set(t, (m.get(t) ?? 0) + 1);
     }
     return [...m.entries()]
-      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "zh-CN"))
       .slice(0, 12);
   }, [docs, cat]);
 

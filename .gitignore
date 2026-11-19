@@ -52,3 +52,6 @@ infra/.env.local
 Thumbs.db
 .idea/
 .vscode/
+
+# parity captures (tools/parity)
+/.parity/

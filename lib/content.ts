@@ -124,7 +124,7 @@ export function getTags(limit = 40): { name: string; count: number }[] {
   }
   return [...map.entries()]
     .map(([name, count]) => ({ name, count }))
-    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
+    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, "zh-CN"))
     .slice(0, limit);
 }
 
