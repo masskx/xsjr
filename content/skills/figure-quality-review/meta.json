@@ -1,0 +1,34 @@
+{
+  "title": "科研绘图自检清单（Figure Quality Review）",
+  "summary": "按期刊印刷要求逐项检查图表：分辨率、字号、色盲友好、误差棒、坐标轴与图注完整性，输出待改清单。",
+  "category": "科研绘图",
+  "tags": ["科研绘图", "期刊排版", "色盲友好", "图表规范"],
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-19",
+  "verifiedAt": "2026-11-19",
+  "compat": [
+    {
+      "tool": "claude-code",
+      "supportedRange": "Claude Code 1.x 及以上",
+      "installPath": "~/.claude/skills/figure-quality-review/SKILL.md"
+    },
+    {
+      "tool": "generic",
+      "supportedRange": "通用",
+      "installPath": "把 SKILL.md 正文作为系统提示粘贴"
+    }
+  ],
+  "files": [
+    {
+      "path": "SKILL.md",
+      "desc": "检查维度、判定阈值与输出模板"
+    }
+  ],
+  "risks": [
+    "技能只能检查你描述或用代码生成的信息，无法直接「看」图片像素；请提供绘图代码或对图的文字描述。",
+    "不同期刊的具体数值要求不同，最终以目标期刊作者指南为准。"
+  ]
+}

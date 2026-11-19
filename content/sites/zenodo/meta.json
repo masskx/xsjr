@@ -1,0 +1,17 @@
+{
+  "title": "Zenodo 开放研究数据仓库",
+  "summary": "由 CERN 运营的开放研究数据仓库，可免费上传数据集与代码并获得 DOI，支持版本管理与访问限制，公开记录下载无需注册。",
+  "category": "数据集",
+  "tags": ["数据集", "DOI 引用", "开放数据", "版本管理"],
+  "author": "平台整理",
+  "sourceUrl": "https://zenodo.org",
+  "license": "服务条款（ToS v1.3）；内容许可由上传者指定，元数据默认 CC0",
+  "redistribution": false,
+  "tier": "FREE",
+  "updatedAt": "2026-11-19",
+  "verifiedAt": "2026-11-19",
+  "url": "https://zenodo.org",
+  "pricing": "免费",
+  "region": "全球可访问",
+  "loginRequired": false
+}

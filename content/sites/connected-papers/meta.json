@@ -1,0 +1,17 @@
+{
+  "title": "Connected Papers 文献关系图",
+  "summary": "输入一篇种子论文即可生成相似文献关系图，用共被引与文献耦合找出领域奠基工作与后续研究，适合开题时快速摸清脉络。",
+  "category": "文献检索",
+  "tags": ["文献关系图", "引文网络", "相关工作", "开题调研"],
+  "author": "平台整理",
+  "sourceUrl": "https://www.connectedpapers.com",
+  "license": "服务条款（需遵守站点 ToS）；引文数据来自 Semantic Scholar 语料（ODC-BY）",
+  "redistribution": false,
+  "tier": "FREE",
+  "updatedAt": "2026-11-19",
+  "verifiedAt": "2026-11-19",
+  "url": "https://www.connectedpapers.com",
+  "pricing": "部分免费",
+  "region": "全球可访问",
+  "loginRequired": true
+}

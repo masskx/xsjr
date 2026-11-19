@@ -1,0 +1,34 @@
+{
+  "title": "参考文献核验工作流（Reference Verification）",
+  "summary": "把参考文献列表逐条核验：查 DOI 是否可解析、作者年份卷期页是否一致、是否是模型编造的虚构文献。",
+  "category": "文献综述",
+  "tags": ["参考文献", "DOI", "引用核查", "防幻觉"],
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-19",
+  "verifiedAt": "2026-11-19",
+  "compat": [
+    {
+      "tool": "claude-code",
+      "supportedRange": "Claude Code 1.x 及以上",
+      "installPath": "~/.claude/skills/reference-verification/SKILL.md"
+    },
+    {
+      "tool": "generic",
+      "supportedRange": "通用",
+      "installPath": "把 SKILL.md 正文作为系统提示粘贴"
+    }
+  ],
+  "files": [
+    {
+      "path": "SKILL.md",
+      "desc": "核验流程、可疑特征判定与输出表格模板"
+    }
+  ],
+  "risks": [
+    "技能本身不联网，只能做格式与内部一致性检查；DOI 真实可解析性必须你自己用 doi.org 打开确认。",
+    "被标记为「可疑」不等于一定是假文献，需要人工复核。"
+  ]
+}

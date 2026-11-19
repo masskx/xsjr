@@ -1,0 +1,61 @@
+{
+  "title": "审稿意见回复撰写（Point-by-Point Response）",
+  "summary": "把审稿人的每条意见拆成「意见—判断—行动—证据」四段，生成可直接修改的回复信初稿，避免逐条空转。",
+  "category": "论文写作",
+  "tags": ["审稿回复", "同行评议", "SCI", "回复信", "投稿"],
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-19",
+  "verifiedAt": "2026-11-19",
+  "featured": true,
+  "variables": [
+    {
+      "key": "manuscript_title",
+      "label": "稿件题目",
+      "type": "text",
+      "required": true,
+      "help": "写完整标题即可"
+    },
+    {
+      "key": "journal",
+      "label": "目标期刊",
+      "type": "text",
+      "required": true,
+      "help": "例如 Remote Sensing of Environment；不确定可写领域名"
+    },
+    {
+      "key": "decision_type",
+      "label": "决定类型",
+      "type": "select",
+      "required": true,
+      "options": ["Major Revision", "Minor Revision", "Reject & Resubmit"]
+    },
+    {
+      "key": "reviewer_comments",
+      "label": "审稿意见原文",
+      "type": "textarea",
+      "required": true,
+      "help": "整段粘贴，不要自己概括；多位审稿人请标注 Reviewer 1/2"
+    },
+    {
+      "key": "revision_summary",
+      "label": "作者已完成的修改",
+      "type": "textarea",
+      "help": "写实际改了什么（补了哪组实验、改了哪段论证）。没做的留空，模型不会替你编造"
+    },
+    {
+      "key": "tone",
+      "label": "回复语气",
+      "type": "select",
+      "default": "克制、就事论事",
+      "options": ["克制、就事论事", "更谦逊、多致谢", "更强硬、明确反驳"]
+    }
+  ],
+  "notes": [
+    "生成的是中文骨架，英文投稿还需你自己润色一遍，不要直接机翻提交。",
+    "涉及反驳时务必核对稿件中的节号/行号，模型给的定位可能是错的。",
+    "审稿意见属于未公开材料，粘贴前确认所用工具的数据条款允许。"
+  ]
+}

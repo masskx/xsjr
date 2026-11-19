@@ -1,0 +1,20 @@
+{
+  "title": "出版级 Matplotlib 样式",
+  "summary": "Matplotlib 出版级样式：中文字体回退、300 DPI、去上右边框、色盲友好配色与字号层级，附 apply_style/save。",
+  "category": "科研绘图",
+  "tags": ["matplotlib", "论文配图", "字体回退", "色盲友好", "300dpi"],
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "featured": true,
+  "updatedAt": "2026-11-19",
+  "verifiedAt": "2026-11-19",
+  "language": "Python",
+  "env": ["Python >= 3.9", "matplotlib>=3.7"],
+  "entry": "files/pub_style.py",
+  "usage": [
+    "python files/pub_style.py  # 自检并导出一张示例图",
+    "from pub_style import apply_style, save; apply_style(); save(fig, 'figures/fig1.png')"
+  ]
+}

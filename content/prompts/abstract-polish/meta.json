@@ -1,0 +1,47 @@
+{
+  "title": "中文摘要译润为英文期刊摘要",
+  "summary": "把中文摘要改写成符合期刊惯例的英文摘要：先保证信息完整，再按目标期刊风格压缩到字数上限。",
+  "category": "论文写作",
+  "tags": ["摘要", "英文学术写作", "润色", "投稿"],
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-19",
+  "verifiedAt": "2026-11-19",
+  "featured": true,
+  "variables": [
+    {
+      "key": "abstract_cn",
+      "label": "中文摘要",
+      "type": "textarea",
+      "required": true,
+      "help": "直接粘贴，不必先手动精简"
+    },
+    {
+      "key": "target_journal",
+      "label": "目标期刊",
+      "type": "text",
+      "required": true,
+      "help": "例如 IEEE TGRS；只写领域也可以"
+    },
+    {
+      "key": "word_limit",
+      "label": "字数上限",
+      "type": "select",
+      "default": "200 词",
+      "options": ["150 词", "200 词", "250 词", "300 词"]
+    },
+    {
+      "key": "key_numbers",
+      "label": "必须保留的量化结果",
+      "type": "text",
+      "help": "例如「OA 提升 3.2%、Kappa 0.91」；模型会把它们放进结果句"
+    }
+  ],
+  "notes": [
+    "摘要不是逐句翻译：中文里常见的方法罗列在英文摘要里会被压缩成一句。",
+    "量化结果必须你自己核对，模型不会知道你的真实实验数值。",
+    "生成后检查是否误加了中文摘要里没有的结论。"
+  ]
+}

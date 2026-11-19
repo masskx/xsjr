@@ -1,0 +1,52 @@
+{
+  "title": "文献综述提纲生成",
+  "summary": "给定研究主题与已有文献，生成可按图施工的综述提纲：分几节、每节论证什么、需要哪类文献支撑。",
+  "category": "文献综述",
+  "tags": ["文献综述", "研究选题", "提纲", "开题"],
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-19",
+  "verifiedAt": "2026-11-19",
+  "variables": [
+    {
+      "key": "topic",
+      "label": "综述主题",
+      "type": "text",
+      "required": true,
+      "help": "越具体越好，例如「高光谱影像的小样本分类」而不是「遥感」"
+    },
+    {
+      "key": "field",
+      "label": "学科领域",
+      "type": "text",
+      "required": true,
+      "help": "例如 遥感 / 材料 / 临床医学 / 教育技术"
+    },
+    {
+      "key": "paper_list",
+      "label": "已掌握的文献",
+      "type": "textarea",
+      "help": "按「作者+年份+一句话结论」每题一行；没有可以先留空"
+    },
+    {
+      "key": "angle",
+      "label": "综述视角",
+      "type": "select",
+      "default": "方法论演进",
+      "options": ["方法论演进", "问题—方案对照", "时间线梳理", "争议与共识"]
+    },
+    {
+      "key": "length",
+      "label": "目标篇幅",
+      "type": "select",
+      "default": "8000 字 / 期刊综述",
+      "options": ["3000 字 / 开题报告", "8000 字 / 期刊综述", "20000 字 / 学位论文一章"]
+    }
+  ],
+  "notes": [
+    "模型不会知道你没给它的文献，提纲里的「需要补充哪类文献」要当成检索任务去执行。",
+    "生成后先用 3–5 篇核心文献实测提纲是否站得住，再往下写。"
+  ]
+}

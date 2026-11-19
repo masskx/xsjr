@@ -1,0 +1,19 @@
+{
+  "title": "Bootstrap 置信区间与效应量",
+  "summary": "纯 numpy 的 bootstrap 置信区间（percentile/BCa），覆盖均值、中位数与相关，附 Cohen's d、Cliff's delta。",
+  "category": "数据分析",
+  "tags": ["bootstrap", "置信区间", "效应量", "重抽样"],
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-19",
+  "verifiedAt": "2026-11-19",
+  "language": "Python",
+  "env": ["Python >= 3.9", "numpy>=1.24"],
+  "entry": "files/bootstrap_ci.py",
+  "usage": [
+    "python files/bootstrap_ci.py  # 运行自检示例",
+    "from bootstrap_ci import compare_groups; print(compare_groups(x, y, seed=42))"
+  ]
+}

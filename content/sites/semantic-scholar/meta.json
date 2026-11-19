@@ -1,0 +1,17 @@
+{
+  "title": "Semantic Scholar 语义学术搜索",
+  "summary": "基于语义理解与引文网络的免费文献检索工具，覆盖两亿多篇论文，提供摘要、TLDR、被引次数与引文网络，可用免费 API 批量取题录。",
+  "category": "文献检索",
+  "tags": ["文献检索", "语义搜索", "引文分析", "开放 API"],
+  "author": "平台整理",
+  "sourceUrl": "https://www.semanticscholar.org",
+  "license": "服务条款（需遵守 Semantic Scholar / Ai2 服务条款与 API 许可协议）",
+  "redistribution": false,
+  "tier": "FREE",
+  "updatedAt": "2026-11-19",
+  "verifiedAt": "2026-11-19",
+  "url": "https://www.semanticscholar.org",
+  "pricing": "免费",
+  "region": "全球可访问",
+  "loginRequired": false
+}

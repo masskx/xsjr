@@ -1,0 +1,52 @@
+{
+  "title": "基金申请书立项依据起草",
+  "summary": "按国自然评审习惯组织立项依据：研究意义、国内外现状、存在问题、关键科学问题四段递进，避免写成综述堆砌。",
+  "category": "基金申请",
+  "tags": ["国自然", "申请书", "立项依据", "科研基金"],
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-19",
+  "verifiedAt": "2026-11-19",
+  "variables": [
+    {
+      "key": "project_title",
+      "label": "项目名称",
+      "type": "text",
+      "required": true
+    },
+    {
+      "key": "funding_type",
+      "label": "申报类型",
+      "type": "select",
+      "default": "国自然面上项目",
+      "options": ["国自然青年基金", "国自然面上项目", "省部级项目", "校级项目"]
+    },
+    {
+      "key": "field_direction",
+      "label": "学科与方向",
+      "type": "text",
+      "required": true,
+      "help": "例如 遥感信息工程 / 高光谱小样本解译"
+    },
+    {
+      "key": "background_materials",
+      "label": "已有素材",
+      "type": "textarea",
+      "required": true,
+      "help": "近几年代表性工作、你的前期结果、要解决的行业痛点"
+    },
+    {
+      "key": "key_scientific_question",
+      "label": "你认为的关键科学问题",
+      "type": "textarea",
+      "help": "写不准确没关系，模型会给出改写建议，但方向必须你自己定"
+    }
+  ],
+  "notes": [
+    "立项依据的说服力来自「问题是真的、你比别人更懂这个问题」，不是措辞。",
+    "引用文献一律需要你自己核对真实存在与年份，模型给出的引用可能不实。",
+    "不同基金委的评审口径不同，生成后必须按当年指南再调整。"
+  ]
+}

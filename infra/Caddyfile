@@ -1,0 +1,42 @@
+{
+	admin off
+	persist_config off
+	auto_https off
+}
+
+# 备案完成前先用 IP 访问。域名解析 + 备案通过后，把下面的 :80 换成你的域名，
+# 并删掉 global 里的 auto_https off，Caddy 会自动申请并续期 TLS 证书。
+:80 {
+	root * /srv
+	encode zstd gzip
+
+	# Next 生成的是带哈希的静态资源，可以长缓存
+	@immutable path /_next/static/*
+	header @immutable Cache-Control "public, max-age=31536000, immutable"
+
+	@html path *.html
+	header @html Cache-Control "public, max-age=0, must-revalidate"
+
+	header {
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		X-Frame-Options "SAMEORIGIN"
+		Permissions-Policy "geolocation=(), microphone=(), camera=()"
+		-Server
+	}
+
+	try_files {path} {path}.html {path}/index.html
+
+	file_server
+
+	handle_errors {
+		rewrite * /404.html
+		file_server
+	}
+
+	log {
+		output stdout
+		format console
+		level INFO
+	}
+}

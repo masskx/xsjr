@@ -1,0 +1,17 @@
+{
+  "title": "Overleaf 在线 LaTeX 协作编辑器",
+  "summary": "云端 LaTeX 编辑器，支持多人实时协作、期刊模板与版本历史，免安装即可排版论文；免费版项目数不限但每项目仅一位协作者。",
+  "category": "写作工具",
+  "tags": ["LaTeX", "协作写作", "论文排版", "期刊模板"],
+  "author": "平台整理",
+  "sourceUrl": "https://www.overleaf.com",
+  "license": "服务条款（需遵守 Overleaf 服务条款与隐私声明）",
+  "redistribution": false,
+  "tier": "FREE",
+  "updatedAt": "2026-11-19",
+  "verifiedAt": "2026-11-19",
+  "url": "https://www.overleaf.com",
+  "pricing": "部分免费",
+  "region": "全球可访问",
+  "loginRequired": true
+}

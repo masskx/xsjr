@@ -1,0 +1,19 @@
+{
+  "title": "统计检验选择与执行工具包",
+  "summary": "按研究设计与正态性推荐检验方法，一次算出统计量、p 值、效应量与 APA 报告串；无 scipy 时自动回退纯 numpy 并提示安装。",
+  "category": "统计方法",
+  "tags": ["统计检验", "APA 报告", "效应量", "scipy", "numpy"],
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-19",
+  "verifiedAt": "2026-11-19",
+  "language": "Python",
+  "env": ["Python >= 3.9", "numpy>=1.24", "scipy>=1.10（可选，未安装时自动回退纯 numpy）"],
+  "entry": "files/stat_tests.py",
+  "usage": [
+    "python files/stat_tests.py  # 运行自检示例",
+    "from stat_tests import recommend, auto_test; print(auto_test(x, y).report())"
+  ]
+}

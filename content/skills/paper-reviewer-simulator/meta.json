@@ -1,0 +1,41 @@
+{
+  "title": "模拟审稿人（Simulated Peer Reviewer）",
+  "summary": "在投稿前扮演严格审稿人读你的稿子，按期刊审稿单给出可执行的批评清单，而不是泛泛夸奖或挑错。",
+  "category": "论文写作",
+  "tags": ["同行评议", "投稿前自检", "审稿意见", "Claude Code"],
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-19",
+  "verifiedAt": "2026-11-19",
+  "featured": true,
+  "compat": [
+    {
+      "tool": "claude-code",
+      "supportedRange": "Claude Code 1.x 及以上",
+      "installPath": "~/.claude/skills/paper-reviewer-simulator/SKILL.md"
+    },
+    {
+      "tool": "codex",
+      "supportedRange": "需改造",
+      "installPath": "—",
+      "note": "Codex 使用 AGENTS.md，需手动改写为约定片段"
+    },
+    {
+      "tool": "generic",
+      "supportedRange": "通用",
+      "installPath": "把 SKILL.md 正文作为系统提示粘贴"
+    }
+  ],
+  "files": [
+    {
+      "path": "SKILL.md",
+      "desc": "技能定义：审稿角色、输出结构与批评口径"
+    }
+  ],
+  "risks": [
+    "技能只读取你提供给它的稿件文本，不会联网核验文献是否真实存在。",
+    "模型可能虚构审稿人常提出的参考文献，不要把它列出的文献当作真实引用。"
+  ]
+}

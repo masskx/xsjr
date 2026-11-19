@@ -1,0 +1,17 @@
+{
+  "title": "arXiv 预印本库",
+  "summary": "物理、数学、计算机等领域的开放预印本文库，收录三百多万篇论文，可免费检索与下载全文，但内容未经同行评审。",
+  "category": "预印本",
+  "tags": ["预印本", "开放获取", "全文下载", "论文检索"],
+  "author": "平台整理",
+  "sourceUrl": "https://arxiv.org",
+  "license": "服务条款；论文许可由作者选择（CC BY / arXiv 非独占许可等），元数据 CC0",
+  "redistribution": false,
+  "tier": "FREE",
+  "updatedAt": "2026-11-19",
+  "verifiedAt": "2026-11-19",
+  "url": "https://arxiv.org",
+  "pricing": "免费",
+  "region": "全球可访问",
+  "loginRequired": false
+}
