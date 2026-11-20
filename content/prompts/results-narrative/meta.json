@@ -1,0 +1,57 @@
+{
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "title": "结果段落与统计报告规范",
+  "summary": "把分析输出写成结果段落：效应量、置信区间、精确 p 值与样本量都交代清楚，避免把相关说成因果。",
+  "category": "统计方法",
+  "tags": [
+    "结果写作",
+    "效应量",
+    "置信区间",
+    "统计报告"
+  ],
+  "variables": [
+    {
+      "key": "hypothesis",
+      "label": "待检验假设",
+      "type": "text",
+      "required": true
+    },
+    {
+      "key": "analysis_output",
+      "label": "分析输出",
+      "type": "textarea",
+      "required": true,
+      "help": "直接把统计软件的输出粘贴进来，越原始越好"
+    },
+    {
+      "key": "design_n",
+      "label": "设计与样本量",
+      "type": "text",
+      "required": true,
+      "help": "例如 两组独立样本，n=32/30"
+    },
+    {
+      "key": "effect_measure",
+      "label": "效应量类型",
+      "type": "select",
+      "default": "自动判断",
+      "options": [
+        "自动判断",
+        "Cohen's d",
+        "η² / partial η²",
+        "相关系数 r",
+        "OR / HR",
+        "其他"
+      ]
+    }
+  ],
+  "notes": [
+    "模型不会替你算统计量，它只整理你粘贴的输出；数值务必自己核对一遍。",
+    "如果输出里没有置信区间，段落里必须标出来，不能默默省略。"
+  ]
+}

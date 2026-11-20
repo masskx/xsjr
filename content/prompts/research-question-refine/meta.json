@@ -1,0 +1,56 @@
+{
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "title": "研究问题打磨与可检验化",
+  "summary": "把「我想研究某某」磨成能检验、能被反驳的具体问题，并给出失效条件与最小可行实验。",
+  "category": "科研选题",
+  "tags": [
+    "选题",
+    "研究设计",
+    "可检验性",
+    "开题"
+  ],
+  "variables": [
+    {
+      "key": "draft_question",
+      "label": "初步想法",
+      "type": "textarea",
+      "required": true,
+      "help": "哪怕一句话也行，写得越具体越好"
+    },
+    {
+      "key": "field",
+      "label": "学科方向",
+      "type": "text",
+      "required": true,
+      "help": "例如 遥感影像解译 / 教育测量"
+    },
+    {
+      "key": "approach",
+      "label": "研究类型",
+      "type": "select",
+      "required": true,
+      "options": [
+        "实验研究",
+        "观察与测量",
+        "建模与仿真",
+        "质性访谈",
+        "文本与档案"
+      ]
+    },
+    {
+      "key": "resource_limit",
+      "label": "可用资源",
+      "type": "textarea",
+      "help": "时间、设备、数据、经费、人力。写实情，模型会据此判断可行性"
+    }
+  ],
+  "notes": [
+    "生成的「最小可行实验」是建议，不是保证能做完；请按你的真实资源再砍一半。",
+    "同事先证伪。要让模型给出「什么结果会让你放弃这个方向」，否则问题还不够锋利。"
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "title": "图表标题与正文引用撰写",
+  "summary": "写出脱离正文也能读懂、并交代清统计规范的图注与表注，含 n、误差棒含义与显著性检验。",
+  "category": "科研绘图",
+  "tags": [
+    "图注",
+    "表注",
+    "数据可视化",
+    "期刊规范"
+  ],
+  "variables": [
+    {
+      "key": "figure_purpose",
+      "label": "这张图要说明什么",
+      "type": "textarea",
+      "required": true
+    },
+    {
+      "key": "data_description",
+      "label": "图中数据",
+      "type": "textarea",
+      "required": true,
+      "help": "各组含义、样本量、单位"
+    },
+    {
+      "key": "stats_details",
+      "label": "统计信息",
+      "type": "text",
+      "help": "误差棒是 SD 还是 SEM、用了什么检验、显著性标记含义"
+    },
+    {
+      "key": "style",
+      "label": "用途",
+      "type": "select",
+      "default": "期刊图注",
+      "options": [
+        "期刊图注",
+        "学位论文图注",
+        "汇报幻灯片"
+      ]
+    }
+  ],
+  "notes": [
+    "图注必须自足：读者只看图不看正文也能懂。这是审稿人常提的意见。",
+    "误差棒含义不写清楚，是最常见的退修原因之一。"
+  ]
+}

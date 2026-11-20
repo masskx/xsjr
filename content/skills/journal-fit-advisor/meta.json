@@ -1,0 +1,45 @@
+{
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "title": "选刊顾问（Journal Fit Advisor）",
+  "summary": "按稿件特征给出冲刺/匹配/保底三档候选刊，标出 desk-reject 风险点与你需要自行核实的字段。",
+  "category": "论文投稿",
+  "tags": [
+    "选刊",
+    "投稿",
+    "desk reject",
+    "期刊"
+  ],
+  "compat": [
+    {
+      "tool": "claude-code",
+      "supportedRange": "Claude Code 1.x 及以上",
+      "installPath": "~/.claude/skills/journal-fit-advisor/SKILL.md"
+    },
+    {
+      "tool": "codex",
+      "supportedRange": "需改造",
+      "installPath": "—",
+      "note": "Codex 使用 AGENTS.md，需手动改写为约定片段"
+    },
+    {
+      "tool": "generic",
+      "supportedRange": "通用",
+      "installPath": "把 SKILL.md 正文作为系统提示粘贴"
+    }
+  ],
+  "files": [
+    {
+      "path": "SKILL.md",
+      "desc": "选刊维度、风险评估与输出模板"
+    }
+  ],
+  "risks": [
+    "技能不联网：影响因子、APC（版面费）、审稿周期、收录状态必须你自己到期刊官网或 JCR 核实，模型给的是判断框架而不是事实。",
+    "模型可能记错期刊范围或已改名/停刊，任何候选刊都要先打开官网确认仍正常收稿。"
+  ]
+}

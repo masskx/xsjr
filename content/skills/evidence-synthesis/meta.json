@@ -1,0 +1,45 @@
+{
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "title": "系统综述执行者（Evidence Synthesis）",
+  "summary": "按 PRISMA 流程做系统综述：检索记录、双人筛选、偏倚评估与证据分级，逐环节留下可核查的痕迹。",
+  "category": "文献综述",
+  "tags": [
+    "系统综述",
+    "PRISMA",
+    "偏倚评估",
+    "GRADE"
+  ],
+  "compat": [
+    {
+      "tool": "claude-code",
+      "supportedRange": "Claude Code 1.x 及以上",
+      "installPath": "~/.claude/skills/evidence-synthesis/SKILL.md"
+    },
+    {
+      "tool": "codex",
+      "supportedRange": "需改造",
+      "installPath": "—",
+      "note": "Codex 使用 AGENTS.md，需手动改写为约定片段"
+    },
+    {
+      "tool": "generic",
+      "supportedRange": "通用",
+      "installPath": "把 SKILL.md 正文作为系统提示粘贴"
+    }
+  ],
+  "files": [
+    {
+      "path": "SKILL.md",
+      "desc": "PRISMA 各环节清单、判定口径与产出模板"
+    }
+  ],
+  "risks": [
+    "技能不联网，无法替你检索或核验文献是否存在；所有纳入文献必须你自己确认。",
+    "它不能替代统计合成软件，也不能替你判断偏倚风险等级——它给的是判定口径和表格。"
+  ]
+}

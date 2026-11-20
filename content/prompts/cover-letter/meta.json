@@ -1,0 +1,60 @@
+{
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "title": "期刊投稿信（Cover Letter）",
+  "summary": "写一封 300 词以内的投稿信：一句话贡献、为什么适合这本刊、声明与推荐审稿人，删掉套话。",
+  "category": "论文投稿",
+  "tags": [
+    "投稿信",
+    "Cover Letter",
+    "投稿",
+    "期刊"
+  ],
+  "variables": [
+    {
+      "key": "title",
+      "label": "稿件标题",
+      "type": "text",
+      "required": true
+    },
+    {
+      "key": "journal",
+      "label": "目标期刊",
+      "type": "text",
+      "required": true
+    },
+    {
+      "key": "contribution",
+      "label": "一句话贡献",
+      "type": "textarea",
+      "required": true,
+      "help": "写成「我们证明了/提出了……，其关键在于……」"
+    },
+    {
+      "key": "why_journal",
+      "label": "为什么投这本刊",
+      "type": "textarea",
+      "help": "读者群、近期相关论文、期刊范围"
+    },
+    {
+      "key": "declarations",
+      "label": "需要声明的事项",
+      "type": "textarea",
+      "help": "未一稿多投、伦理审批、利益冲突、数据可得性"
+    },
+    {
+      "key": "reviewers",
+      "label": "推荐审稿人",
+      "type": "text",
+      "help": "姓名与单位；可留空"
+    }
+  ],
+  "notes": [
+    "投稿信超过一页通常没人细看，300 词以内最稳。",
+    "不要写「贵刊是国际顶级期刊」这类空话，编辑一眼就跳过。"
+  ]
+}

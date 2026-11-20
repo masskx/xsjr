@@ -1,0 +1,46 @@
+{
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "title": "讨论章节与局限陈述",
+  "summary": "把发现放回文献脉络，区分证据与推测，并把局限写成审稿人挑不出毛病的具体陈述。",
+  "category": "论文写作",
+  "tags": [
+    "讨论",
+    "局限",
+    "过度推断",
+    "学术写作"
+  ],
+  "variables": [
+    {
+      "key": "key_findings",
+      "label": "主要发现",
+      "type": "textarea",
+      "required": true,
+      "help": "只写数据支持的，不写你希望成立的"
+    },
+    {
+      "key": "prior_literature",
+      "label": "已有文献脉络",
+      "type": "textarea",
+      "help": "哪些结论一致、哪些不一致；不确定的留空"
+    },
+    {
+      "key": "alternative_explanations",
+      "label": "可能的替代解释",
+      "type": "textarea"
+    },
+    {
+      "key": "known_limitations",
+      "label": "已知局限",
+      "type": "textarea"
+    }
+  ],
+  "notes": [
+    "「局限」写得越具体越显专业，写「样本量有限」是最容易被追问的一种。",
+    "模型给的文献对比只能当结构参考，具体结论必须你自己核。"
+  ]
+}

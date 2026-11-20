@@ -1,0 +1,45 @@
+{
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "title": "模型评估统计（ML Evaluation Statistics）",
+  "summary": "给模型评估补上统计：多随机种子的均值与置信区间、配对检验、效应量与校准，拒绝单次最优结果。",
+  "category": "数据分析",
+  "tags": [
+    "模型评估",
+    "置信区间",
+    "显著性",
+    "校准"
+  ],
+  "compat": [
+    {
+      "tool": "claude-code",
+      "supportedRange": "Claude Code 1.x 及以上",
+      "installPath": "~/.claude/skills/ml-eval-statistics/SKILL.md"
+    },
+    {
+      "tool": "codex",
+      "supportedRange": "需改造",
+      "installPath": "—",
+      "note": "Codex 使用 AGENTS.md，需手动改写为约定片段"
+    },
+    {
+      "tool": "generic",
+      "supportedRange": "通用",
+      "installPath": "把 SKILL.md 正文作为系统提示粘贴"
+    }
+  ],
+  "files": [
+    {
+      "path": "SKILL.md",
+      "desc": "评估方案设计、报告规范与常见错误清单"
+    }
+  ],
+  "risks": [
+    "技能不运行你的代码，只设计评估方案与报告格式；数值需你自己算。",
+    "小样本下的显著性检验容易失效，它会提示这一点但无法替代实验规模。"
+  ]
+}

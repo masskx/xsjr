@@ -1,0 +1,66 @@
+{
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "title": "文献检索式构造（WoS / Scopus / PubMed / 知网）",
+  "summary": "把研究问题翻成各数据库能直接粘贴的布尔检索式，含同义词、截词、字段限定与检索记录表。",
+  "category": "文献检索",
+  "tags": [
+    "检索式",
+    "布尔逻辑",
+    "PRISMA",
+    "文献综述"
+  ],
+  "variables": [
+    {
+      "key": "question",
+      "label": "研究问题",
+      "type": "textarea",
+      "required": true
+    },
+    {
+      "key": "concepts",
+      "label": "核心概念",
+      "type": "text",
+      "required": true,
+      "help": "用顿号分隔，例如 高光谱、小样本、分类"
+    },
+    {
+      "key": "database",
+      "label": "目标数据库",
+      "type": "select",
+      "required": true,
+      "options": [
+        "Web of Science",
+        "Scopus",
+        "PubMed",
+        "中国知网 CNKI",
+        "Google Scholar"
+      ]
+    },
+    {
+      "key": "date_range",
+      "label": "时间范围",
+      "type": "text",
+      "default": "2015 至今"
+    },
+    {
+      "key": "language",
+      "label": "语言",
+      "type": "select",
+      "default": "不限",
+      "options": [
+        "不限",
+        "仅英文",
+        "仅中文"
+      ]
+    }
+  ],
+  "notes": [
+    "不同数据库语法不同（字段标签、截词符、邻近算符），生成后必须在数据库里试跑并看命中数。",
+    "务必记录检索日期与每次调整后的命中数，写综述时要用。"
+  ]
+}

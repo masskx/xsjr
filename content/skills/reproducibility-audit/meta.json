@@ -1,0 +1,45 @@
+{
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "title": "可复现性审计（Reproducibility Audit）",
+  "summary": "投稿前逐项审计数据、代码、环境、随机性与报告，输出可复现性缺口清单与补强优先级。",
+  "category": "数据分析",
+  "tags": [
+    "可复现",
+    "开放科学",
+    "数据可得性",
+    "代码"
+  ],
+  "compat": [
+    {
+      "tool": "claude-code",
+      "supportedRange": "Claude Code 1.x 及以上",
+      "installPath": "~/.claude/skills/reproducibility-audit/SKILL.md"
+    },
+    {
+      "tool": "codex",
+      "supportedRange": "需改造",
+      "installPath": "—",
+      "note": "Codex 使用 AGENTS.md，需手动改写为约定片段"
+    },
+    {
+      "tool": "generic",
+      "supportedRange": "通用",
+      "installPath": "把 SKILL.md 正文作为系统提示粘贴"
+    }
+  ],
+  "files": [
+    {
+      "path": "SKILL.md",
+      "desc": "审计维度、判定口径与补强优先级规则"
+    }
+  ],
+  "risks": [
+    "技能只做清单式审计，不会运行你的代码或数据。",
+    "它给出的「是否满足期刊要求」需以目标期刊最新政策为准。"
+  ]
+}

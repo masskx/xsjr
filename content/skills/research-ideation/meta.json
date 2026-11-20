@@ -1,0 +1,45 @@
+{
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "title": "从已有成果到可发表方向（Research Ideation）",
+  "summary": "盘点手上的数据、代码与结果，生成并按新颖性、可行性、资源需求排序的可发表方向与最小验证实验。",
+  "category": "科研选题",
+  "tags": [
+    "选题",
+    "研究规划",
+    "最小可行实验",
+    "发表策略"
+  ],
+  "compat": [
+    {
+      "tool": "claude-code",
+      "supportedRange": "Claude Code 1.x 及以上",
+      "installPath": "~/.claude/skills/research-ideation/SKILL.md"
+    },
+    {
+      "tool": "codex",
+      "supportedRange": "需改造",
+      "installPath": "—",
+      "note": "Codex 使用 AGENTS.md，需手动改写为约定片段"
+    },
+    {
+      "tool": "generic",
+      "supportedRange": "通用",
+      "installPath": "把 SKILL.md 正文作为系统提示粘贴"
+    }
+  ],
+  "files": [
+    {
+      "path": "SKILL.md",
+      "desc": "资产盘点、方向生成、排序与验证计划模板"
+    }
+  ],
+  "risks": [
+    "技能不联网，不能替你查重新颖性；排序只是启发式判断，必须由你做文献检索确认。",
+    "它不会编造文献，需要引用时会给占位符。"
+  ]
+}
