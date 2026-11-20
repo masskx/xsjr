@@ -2,6 +2,30 @@
 
 ## Unreleased
 
+### Visual redesign: "paper and ink"
+
+Changed
+- New look across the site (and, through shared tokens, the back office): neutral paper
+  background, near-black ink, thin display headlines (Alumni Sans), Albert Sans body text,
+  JetBrains Mono labels, gold section tags ("01 · 四类资源"), a teal accent for state, links and
+  focus rings, hairline borders, 3–8 px corners, quiet layered shadows, dotted section dividers.
+- Fonts are bundled via `@fontsource-variable/*` (OFL) and served by the site itself; nothing is
+  loaded from Google (unreliable from mainland China). Chinese uses the visitor's system fonts,
+  with light weights for headlines.
+- Implemented as design tokens in `app/globals.css`: the zinc scale is redefined as true
+  neutrals (small grey text now >= 4.5:1 contrast) and the indigo accent scale as teal, so
+  existing markup changed colour without edits; shared classes `display`, `headline`, `eyebrow`,
+  `tag-gold`, `tag-mono`, `link-line`, `btn-ink`, `surface`, `dot`, `rule-dots`.
+- Header: active section marked with a teal dot (`aria-current`). Home: larger hero, a sample
+  resource card annotated with what the platform checks (wide screens only), numbered sections.
+  Cards, detail pages, list headers, filters, search boxes, copy buttons and code blocks restyled.
+- Footer shows `ICP_RECORD` / `PSB_RECORD` when set (the variables existed but were never shown).
+
+Verified
+- All six browser suites (155 checks) pass on the new build; no horizontal overflow at 390 px.
+- Page text is identical to before on every page except the home page (new section tags and
+  the sample card).
+
 ### Bulk upload of skills and modules
 
 Added

@@ -12,7 +12,7 @@ export function CodeBlock({
   maxHeight?: string;
 }) {
   return (
-    <div className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900">
+    <div className="overflow-hidden rounded-[3px] border border-zinc-800 bg-[oklch(17%_0_0)] shadow-md">
       <div className="flex items-center justify-between border-b border-zinc-800 px-3 py-2">
         <span className="truncate font-mono text-[11.5px] text-zinc-400">
           {filename ?? language ?? "code"}

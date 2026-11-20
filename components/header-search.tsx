@@ -21,14 +21,14 @@ export function HeaderSearch() {
         onChange={(e) => setQ(e.target.value)}
         placeholder="搜索资源…"
         aria-label="搜索资源"
-        className="h-9 w-36 rounded-lg border border-zinc-200 bg-zinc-50 pl-8 pr-2 text-sm text-zinc-800 outline-none transition-all placeholder:text-zinc-400 focus:w-52 focus:border-zinc-300 focus:bg-white sm:w-48 sm:focus:w-64"
+        className="h-9 w-36 rounded-[3px] border border-rule bg-paper-raised pl-8 pr-2 text-sm text-zinc-800 outline-none transition-all placeholder:text-zinc-500 focus:w-52 focus:border-zinc-900 sm:w-44 sm:focus:w-60"
       />
       <svg
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
         strokeWidth="2"
-        className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-zinc-400"
+        className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-zinc-500"
         aria-hidden
       >
         <circle cx="11" cy="11" r="7" />

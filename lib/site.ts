@@ -29,3 +29,8 @@ export const OPERATOR = {
   name: process.env.OPERATOR_NAME || "（运营者名称待填写）",
   contact: process.env.CONTACT_EMAIL || "（联系邮箱待填写）",
 } as const;
+
+/** Filing numbers shown in the footer once granted (runtime config; empty = hidden). */
+export function filingNumbers() {
+  return { icp: process.env.ICP_RECORD?.trim() || "", psb: process.env.PSB_RECORD?.trim() || "" };
+}

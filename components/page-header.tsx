@@ -10,18 +10,18 @@ export function PageHeader({
   children?: React.ReactNode;
 }) {
   return (
-    <div className="mb-6">
-      <div className="flex items-baseline gap-2.5">
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">
+    <div className="mb-8 border-b border-rule pb-8">
+      <div className="flex items-baseline gap-3">
+        <h1 className="headline text-[40px] sm:text-[52px]">
           {title}
         </h1>
         {typeof count === "number" && (
-          <span className="rounded-md bg-zinc-100 px-1.5 py-0.5 text-[12px] text-zinc-500">
+          <span className="font-mono text-[13px] text-zinc-500">
             {count}
           </span>
         )}
       </div>
-      <p className="mt-2 max-w-3xl text-[13.5px] leading-6 text-zinc-500">
+      <p className="mt-3 max-w-3xl text-[15px] font-light leading-7 text-zinc-700">
         {desc}
       </p>
       {children}

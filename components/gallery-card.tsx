@@ -9,9 +9,9 @@ export function GalleryCard({ module, diagram, files }: { module: ModuleResource
   return (
     <Link
       href={`/modules/${module.slug}/`}
-      className="group flex flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white no-underline transition-all hover:-translate-y-0.5 hover:border-zinc-300 hover:shadow-[0_8px_24px_-12px_rgba(0,0,0,0.15)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900/30 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+      className="surface group flex flex-col overflow-hidden no-underline transition-shadow duration-200 hover:shadow-md"
     >
-      <div className="relative flex aspect-[16/9] items-center justify-center overflow-hidden border-b border-zinc-100 bg-zinc-50">
+      <div className="relative flex aspect-[16/9] items-center justify-center overflow-hidden border-b border-rule bg-paper-deep">
         {diagram ? (
           // eslint-disable-next-line @next/next/no-img-element -- images.unoptimized; served by Caddy
           <img src={diagram.src} width={diagram.width} height={diagram.height} alt="" loading="lazy" decoding="async" className="h-full w-full object-contain" />
@@ -21,18 +21,18 @@ export function GalleryCard({ module, diagram, files }: { module: ModuleResource
           </div>
         )}
         <span className="absolute left-2 top-2 flex gap-1">
-          <span className="rounded bg-white/90 px-1.5 py-0.5 font-mono text-[11px] text-zinc-600 ring-1 ring-zinc-200">{module.language}</span>
+          <span className="tag-mono bg-paper-raised/95 ring-1 ring-rule">{module.language}</span>
           <TierBadge tier={module.tier} />
         </span>
       </div>
       <div className="flex flex-1 flex-col p-4">
-        <h3 className="text-[14.5px] font-semibold leading-snug text-zinc-900 group-hover:text-indigo-700">{module.title}</h3>
-        <p className="mt-1.5 line-clamp-2 text-[12.5px] leading-5 text-zinc-500">{module.summary}</p>
+        <h3 className="text-[16px] font-semibold leading-snug text-zinc-900 decoration-gold decoration-1 underline-offset-4 group-hover:underline">{module.title}</h3>
+        <p className="mt-1.5 line-clamp-2 text-[13.5px] font-light leading-6 text-zinc-600">{module.summary}</p>
         {module.applicableTasks && module.applicableTasks.length > 0 && (
           <ul className="mt-2.5 space-y-0.5 text-[12px] text-zinc-600">
             {module.applicableTasks.slice(0, 3).map((t) => (
               <li key={t} className="flex gap-1.5">
-                <span aria-hidden className="text-emerald-600">
+                <span aria-hidden className="text-patina-deep">
                   ✓
                 </span>
                 <span className="line-clamp-1">{t}</span>
@@ -41,9 +41,9 @@ export function GalleryCard({ module, diagram, files }: { module: ModuleResource
           </ul>
         )}
         <div className="mt-auto flex flex-wrap gap-1 pt-3">
-          <span className="rounded bg-zinc-100 px-1.5 py-0.5 text-[11px] text-zinc-600">{module.category}</span>
+          <span className="tag-mono">{module.category}</span>
           {module.tags.slice(0, 3).map((t) => (
-            <span key={t} className="rounded px-1.5 py-0.5 text-[11px] text-zinc-500 ring-1 ring-inset ring-zinc-200">
+            <span key={t} className="rounded-[2px] border border-rule px-1.5 py-0.5 text-[11.5px] text-zinc-600">
               {t}
             </span>
           ))}

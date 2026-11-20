@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getAllResources, getCategories } from "@/lib/repo";
 import { NAV, SITE_NAME } from "@/lib/site";
 import { TYPE_LABEL, type ResourceType } from "@/lib/types";
-import { ResourceCard } from "@/components/resource-card";
+import { ResourceCard, type CardData } from "@/components/resource-card";
 import { HeroSearch } from "@/components/hero-search";
 
 const ENTRY_META: Record<string, { type: ResourceType; hint: string }> = {
@@ -12,12 +12,44 @@ const ENTRY_META: Record<string, { type: ResourceType; hint: string }> = {
   "/directory": { type: "SITE", hint: "数据集、工具与机构站点" },
 };
 
-const ENTRY_COLOR: Record<string, string> = {
-  PROMPT: "from-indigo-500/10 to-transparent",
-  SKILL: "from-emerald-500/10 to-transparent",
-  MODULE: "from-amber-500/10 to-transparent",
-  SITE: "from-sky-500/10 to-transparent",
-};
+const Arrow = ({ className = "h-4 w-4" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className={className} aria-hidden>
+    <path d="M4 12h15m-5-6 6 6-6 6" />
+  </svg>
+);
+
+function SectionTag({ n, children }: { n: string; children: React.ReactNode }) {
+  return (
+    <span className="tag-gold">
+      {n} <span aria-hidden>·</span> {children}
+    </span>
+  );
+}
+
+/** Hero illustration: a real resource card annotated with what the platform checks. */
+function AnnotatedCard({ resource }: { resource: CardData }) {
+  const notes = [
+    { label: "类型 · 一眼可辨", top: "14%" },
+    { label: "许可证 · 已核验", top: "44%" },
+    { label: "来源 · 可追溯", top: "74%" },
+  ];
+  return (
+    <div className="relative mx-auto w-full max-w-[400px] pl-[124px]">
+      {notes.map((n) => (
+        <div key={n.label} aria-hidden className="absolute left-0 flex items-center" style={{ top: n.top }}>
+          <span className="tag-gold whitespace-nowrap normal-case tracking-[0.04em]">{n.label}</span>
+          <span className="h-px w-6 bg-gold-rich" />
+        </div>
+      ))}
+      <div className="relative border-l-2 border-gold-rich shadow-lg">
+        <ResourceCard resource={resource} />
+      </div>
+      <span aria-hidden className="eyebrow absolute -bottom-7 right-0 text-zinc-500">
+        样张 / sample
+      </span>
+    </div>
+  );
+}
 
 export default async function HomePage() {
   const all = await getAllResources();
@@ -26,44 +58,52 @@ export default async function HomePage() {
   const recent = [...all].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).slice(0, 9);
   const categories = (await getCategories()).slice(0, 10);
   const latest = all[0]?.updatedAt ?? "";
+  const sample = featured[0] ?? all[0];
 
   return (
     <div>
-      <section className="border-b border-zinc-100 bg-gradient-to-b from-white to-zinc-50/70">
-        <div className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-[11px] font-medium text-zinc-600 ring-1 ring-zinc-200">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-            面向科研人员的 AI 资源工作台
-          </span>
-
-          <h1 className="mt-5 max-w-3xl text-[30px] font-semibold leading-[1.25] tracking-tight text-zinc-900 sm:text-[42px]">
-            找到能直接用的科研 AI 资源，
-            <br className="hidden sm:block" />
-            复制或下载，回到你自己的工具里用。
-          </h1>
-
-          <p className="mt-4 max-w-2xl text-[15px] leading-7 text-zinc-600">
-            提示词模板、Agent Skills、可复用代码模块与科研网站导航。平台只做筛选、
-            规范化描述与分发——不内置模型、不替你跑结果、不执行任何第三方脚本。
-          </p>
-
-          <HeroSearch />
-
-          <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-[12px] text-zinc-500">
-            <span>
-              共 <b className="font-semibold text-zinc-900">{all.length}</b> 项资源
+      <section className="border-b border-rule">
+        <div className="mx-auto grid w-full max-w-6xl items-center gap-14 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[minmax(0,1.75fr)_minmax(0,1fr)]">
+          <div>
+            <span className="eyebrow inline-flex items-center gap-2 text-zinc-600">
+              <span className="dot" aria-hidden />
+              面向科研人员的 AI 资源工作台
             </span>
-            <span>
-              <b className="font-semibold text-zinc-900">{categories.length}</b>{" "}
-              个分类
-            </span>
-            <span>最近更新 {latest}</span>
+
+            <h1 className="display mt-6 max-w-3xl text-[38px] sm:text-[50px] lg:text-[54px]">
+              找到能直接用的科研 AI 资源，复制或下载，回到你自己的工具里用。
+            </h1>
+
+            <p className="mt-6 max-w-2xl text-[16px] font-light leading-[1.75] text-zinc-700">
+              提示词模板、Agent Skills、可复用代码模块与科研网站导航。平台只做筛选、
+              规范化描述与分发——不内置模型、不替你跑结果、不执行任何第三方脚本。
+            </p>
+
+            <HeroSearch />
+
+            <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 font-mono text-[12px] tracking-wide text-zinc-500">
+              <span>
+                共 <b className="font-semibold text-zinc-900">{all.length}</b> 项资源
+              </span>
+              <span>
+                <b className="font-semibold text-zinc-900">{categories.length}</b>{" "}
+                个分类
+              </span>
+              <span>最近更新 {latest}</span>
+            </div>
           </div>
+
+          {sample && (
+            <div className="hidden pb-6 lg:block">
+              <AnnotatedCard resource={sample} />
+            </div>
+          )}
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6">
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <section className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6">
+        <SectionTag n="01">四类资源</SectionTag>
+        <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {NAV.map((n) => {
             const meta = ENTRY_META[n.href];
             const count = all.filter((r) => r.type === meta.type).length;
@@ -71,54 +111,37 @@ export default async function HomePage() {
               <Link
                 key={n.href}
                 href={n.href}
-                className="group relative overflow-hidden rounded-xl border border-zinc-200 bg-white p-4 no-underline transition-all hover:-translate-y-0.5 hover:shadow-[0_10px_30px_-16px_rgba(0,0,0,0.25)]"
+                className="surface group flex flex-col p-5 no-underline transition-shadow duration-200 hover:shadow-md"
               >
-                <div
-                  className={`pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-gradient-to-br ${ENTRY_COLOR[meta.type]}`}
-                />
-                <div className="relative">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[15px] font-semibold text-zinc-900">
-                      {n.label}
-                    </span>
-                    <span className="rounded bg-zinc-100 px-1.5 py-0.5 text-[11px] text-zinc-500">
-                      {count}
-                    </span>
-                  </div>
-                  <p className="mt-1.5 text-[12.5px] leading-5 text-zinc-500">
-                    {meta.hint}
-                  </p>
-                  <span className="mt-3 inline-flex items-center gap-1 text-[12px] font-medium text-zinc-400 group-hover:text-zinc-700">
-                    浏览{TYPE_LABEL[meta.type]}
-                    <svg
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
-                      aria-hidden
-                    >
-                      <path d="m9 18 6-6-6-6" />
-                    </svg>
-                  </span>
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className="headline text-[28px]">{n.label}</span>
+                  <span className="font-mono text-[12px] text-zinc-500">{count}</span>
                 </div>
+                <p className="mt-2 text-[13px] font-light leading-6 text-zinc-600">
+                  {meta.hint}
+                </p>
+                <span className="mt-5 inline-flex items-center gap-1.5 text-[13px] font-medium text-zinc-900">
+                  浏览{TYPE_LABEL[meta.type]}
+                  <Arrow className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+                </span>
               </Link>
             );
           })}
         </div>
       </section>
 
+      <div className="rule-dots" aria-hidden />
+
       {featured.length > 0 && (
-        <section className="mx-auto w-full max-w-6xl px-4 pb-4 sm:px-6">
-          <div className="flex items-baseline justify-between">
-            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
-              编辑精选
-            </h2>
-            <span className="text-[12px] text-zinc-400">
+        <section className="mx-auto w-full max-w-6xl px-4 pt-16 sm:px-6">
+          <SectionTag n="02">人工核验</SectionTag>
+          <div className="mt-5 flex flex-wrap items-end justify-between gap-2">
+            <h2 className="headline text-[36px] sm:text-[44px]">编辑精选</h2>
+            <span className="text-[13px] font-light text-zinc-600">
               人工核验过可用性与来源
             </span>
           </div>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {featured.map((r) => (
               <ResourceCard key={r.slug} resource={r} />
             ))}
@@ -126,54 +149,51 @@ export default async function HomePage() {
         </section>
       )}
 
-      <section className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6">
-        <div className="flex items-baseline justify-between">
-          <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
-            最近更新
-          </h2>
-          <Link
-            href="/search/"
-            className="text-[12px] text-zinc-500 no-underline hover:text-zinc-900"
-          >
-            查看全部 →
+      <section className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6">
+        <SectionTag n={featured.length > 0 ? "03" : "02"}>新近收录</SectionTag>
+        <div className="mt-5 flex flex-wrap items-end justify-between gap-2">
+          <h2 className="headline text-[36px] sm:text-[44px]">最近更新</h2>
+          <Link href="/search/" className="link-line inline-flex items-center gap-1.5 text-[14px]">
+            查看全部 <Arrow className="h-3.5 w-3.5" />
           </Link>
         </div>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {recent.map((r) => (
             <ResourceCard key={r.slug} resource={r} />
           ))}
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-6xl px-4 pb-16 sm:px-6">
-        <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
-          按分类浏览
-        </h2>
-        <div className="mt-4 flex flex-wrap gap-2">
+      <div className="rule-dots" aria-hidden />
+
+      <section className="mx-auto w-full max-w-6xl px-4 pb-8 pt-16 sm:px-6">
+        <SectionTag n={featured.length > 0 ? "04" : "03"}>分类索引</SectionTag>
+        <h2 className="headline mt-5 text-[36px] sm:text-[44px]">按分类浏览</h2>
+        <div className="mt-6 flex flex-wrap gap-2">
           {categories.map((c) => (
             <Link
               key={c.name}
               href={`/search/?q=${encodeURIComponent(c.name)}`}
-              className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-[13px] text-zinc-700 no-underline transition-colors hover:border-zinc-300 hover:bg-zinc-50"
+              className="inline-flex items-center gap-2 rounded-[3px] border border-rule bg-paper-raised px-3 py-2 text-[14px] text-zinc-800 no-underline shadow-xs transition-shadow hover:shadow-md"
             >
               {c.name}
-              <span className="ml-1.5 text-[11px] text-zinc-400">{c.count}</span>
+              <span className="font-mono text-[11px] text-zinc-500">{c.count}</span>
             </Link>
           ))}
         </div>
 
-        <div className="mt-10 rounded-xl border border-zinc-200 bg-zinc-50/60 p-5">
-          <h3 className="text-sm font-semibold text-zinc-900">
+        <div className="surface mt-14 grid gap-8 p-6 sm:p-8 md:grid-cols-[1fr_1.4fr]">
+          <h3 className="headline text-[30px]">
             {SITE_NAME}做什么、不做什么
           </h3>
-          <div className="mt-3 grid gap-4 text-[12.5px] leading-6 text-zinc-600 sm:grid-cols-2">
+          <div className="grid gap-6 text-[14px] font-light leading-7 text-zinc-700 sm:grid-cols-2">
             <p>
-              <b className="text-zinc-900">做：</b>
+              <span className="eyebrow mb-2 block text-patina-deep">做</span>
               资源分类与检索、参数化提示词、Skill 包说明与下载、代码模块复用、
               科研站点导航、版本与许可证信息、来源核验记录。
             </p>
             <p>
-              <b className="text-zinc-900">不做：</b>
+              <span className="eyebrow mb-2 block text-zinc-500">不做</span>
               不内置大模型对话、不生成实验结果、不执行上传的脚本、
               不读取你的科研数据。所有内容在你自己的 Agent / IDE 里使用。
             </p>

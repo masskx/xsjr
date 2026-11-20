@@ -39,9 +39,9 @@ export function TypeListing({ docs }: { docs: SearchDoc[] }) {
 
   return (
     <div>
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border-b border-zinc-200 pb-3">
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border-b border-rule pb-3">
         <div className="flex flex-wrap items-center gap-1.5">
-          <span className="mr-1 text-[11px] font-medium uppercase tracking-wider text-zinc-400">
+          <span className="eyebrow mr-2 text-zinc-500">
             分类
           </span>
           <Chip active={cat === "ALL"} onClick={() => setCat("ALL")}>
@@ -63,8 +63,8 @@ export function TypeListing({ docs }: { docs: SearchDoc[] }) {
       </div>
 
       {tags.length > 0 && (
-        <div className="flex flex-wrap items-center gap-1.5 border-b border-zinc-100 py-2.5">
-          <span className="mr-1 text-[11px] font-medium uppercase tracking-wider text-zinc-400">
+        <div className="flex flex-wrap items-center gap-1.5 border-b border-rule py-2.5">
+          <span className="eyebrow mr-2 text-zinc-500">
             标签
           </span>
           <Chip active={tag === "ALL"} onClick={() => setTag("ALL")}>
@@ -79,7 +79,7 @@ export function TypeListing({ docs }: { docs: SearchDoc[] }) {
       )}
 
       {list.length === 0 ? (
-        <div className="mt-10 rounded-xl border border-dashed border-zinc-300 py-16 text-center text-sm text-zinc-500">
+        <div className="mt-10 rounded-xl border border-dashed border-zinc-300 py-16 text-center text-sm font-light text-zinc-600">
           这个筛选组合下还没有资源。
         </div>
       ) : (
@@ -105,10 +105,11 @@ function Chip({
   return (
     <button
       onClick={onClick}
-      className={`rounded-md px-2 py-1 text-[12px] transition-colors ${
+      aria-pressed={active}
+      className={`rounded-[3px] px-2.5 py-1 text-[13px] transition-colors ${
         active
-          ? "bg-zinc-900 text-white"
-          : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+          ? "bg-ink text-white"
+          : "text-zinc-700 hover:bg-paper-deep"
       }`}
     >
       {children}

@@ -15,8 +15,8 @@ export async function DetailShell({
   const related = await getRelated(resource, 3);
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">
-      <nav className="flex items-center gap-1.5 text-[12px] text-zinc-400">
+    <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6">
+      <nav className="flex items-center gap-1.5 font-mono text-[12px] text-zinc-500">
         <Link href="/" className="no-underline hover:text-zinc-700">
           首页
         </Link>
@@ -28,35 +28,35 @@ export async function DetailShell({
           {TYPE_LABEL[resource.type]}
         </Link>
         <span aria-hidden>/</span>
-        <span className="truncate text-zinc-600">{resource.title}</span>
+        <span className="truncate text-zinc-800">{resource.title}</span>
       </nav>
 
-      <header className="mt-4 border-b border-zinc-100 pb-6">
+      <header className="mt-6 border-b border-rule pb-8">
         <div className="flex items-center gap-1.5">
           <TypeBadge type={resource.type} />
           <TierBadge tier={resource.tier} />
-          <span className="text-[11px] text-zinc-400">
+          <span className="font-mono text-[11px] text-zinc-500">
             更新于 {resource.updatedAt}
           </span>
         </div>
 
-        <h1 className="mt-3 max-w-3xl text-[26px] font-semibold leading-tight tracking-tight text-zinc-900 sm:text-[32px]">
+        <h1 className="headline mt-4 max-w-4xl text-[36px] sm:text-[48px]">
           {resource.title}
         </h1>
 
-        <p className="mt-3 max-w-3xl text-[14.5px] leading-7 text-zinc-600">
+        <p className="mt-4 max-w-3xl text-[16px] font-light leading-[1.75] text-zinc-700">
           {resource.summary}
         </p>
 
         <div className="mt-4 flex flex-wrap items-center gap-2">
-          <span className="rounded-md bg-zinc-100 px-2 py-1 text-[12px] text-zinc-600">
+          <span className="tag-mono">
             {resource.category}
           </span>
           {resource.tags.map((t) => (
             <Link
               key={t}
               href={`/search/?q=${encodeURIComponent(t)}`}
-              className="rounded-md bg-zinc-50 px-2 py-1 text-[12px] text-zinc-500 no-underline ring-1 ring-inset ring-zinc-200 transition-colors hover:bg-zinc-100 hover:text-zinc-800"
+              className="rounded-[2px] border border-rule bg-paper-raised px-2 py-0.5 text-[12.5px] text-zinc-700 no-underline transition-shadow hover:shadow-md"
             >
               {t}
             </Link>
@@ -64,22 +64,22 @@ export async function DetailShell({
         </div>
       </header>
 
-      <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1fr)_272px]">
+      <div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,1fr)_288px]">
         <div className="min-w-0">{children}</div>
 
         <aside className="lg:sticky lg:top-24 lg:self-start">
-          <div className="rounded-xl border border-zinc-200 bg-white">
-            <h2 className="border-b border-zinc-100 px-4 py-3 text-[13px] font-semibold text-zinc-900">
+          <div className="surface shadow-sm">
+            <h2 className="eyebrow border-b border-rule px-4 py-3 text-zinc-600">
               资源信息
             </h2>
-            <dl className="divide-y divide-zinc-100 text-[12.5px]">
+            <dl className="divide-y divide-[var(--color-rule)] text-[13px]">
               <Row label="许可证" value={resource.license} />
               <Row label="分类" value={resource.category} />
               <Row
                 label="二次分发"
                 value={
                   resource.redistribution ? (
-                    <span className="text-emerald-600">允许</span>
+                    <span className="inline-flex items-center gap-1.5 text-zinc-900"><span aria-hidden className="dot" />允许</span>
                   ) : (
                     <span className="text-zinc-500">仅索引，原文以来源为准</span>
                   )
@@ -100,7 +100,7 @@ export async function DetailShell({
                       href={resource.sourceUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="break-all text-indigo-600 no-underline hover:underline"
+                      className="link-line break-all"
                     >
                       {hostOf(resource.sourceUrl)}
                     </a>
@@ -115,7 +115,7 @@ export async function DetailShell({
 
           {related.length > 0 && (
             <div className="mt-4">
-              <h2 className="mb-2 px-1 text-[12px] font-semibold uppercase tracking-wider text-zinc-400">
+              <h2 className="eyebrow mb-2 px-1 text-zinc-500">
                 相关资源
               </h2>
               <div className="space-y-2">
@@ -123,7 +123,7 @@ export async function DetailShell({
                   <Link
                     key={r.slug}
                     href={`${TYPE_HREF[r.type]}/${r.slug}/`}
-                    className="block rounded-lg border border-zinc-200 bg-white p-3 no-underline transition-colors hover:border-zinc-300 hover:bg-zinc-50"
+                    className="surface block p-3 no-underline transition-shadow hover:shadow-md"
                   >
                     <div className="flex items-center gap-1.5">
                       <TypeBadge type={r.type} />
@@ -141,7 +141,7 @@ export async function DetailShell({
 
       {related.length > 0 && (
         <section className="mt-10 lg:hidden">
-          <h2 className="mb-3 text-[12px] font-semibold uppercase tracking-wider text-zinc-400">
+          <h2 className="eyebrow mb-3 text-zinc-500">
             相关资源
           </h2>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -164,8 +164,8 @@ function Row({
 }) {
   return (
     <div className="flex gap-3 px-4 py-2.5">
-      <dt className="w-16 shrink-0 text-zinc-400">{label}</dt>
-      <dd className="min-w-0 flex-1 text-zinc-700">{value}</dd>
+      <dt className="w-16 shrink-0 text-zinc-500">{label}</dt>
+      <dd className="min-w-0 flex-1 text-zinc-800">{value}</dd>
     </div>
   );
 }

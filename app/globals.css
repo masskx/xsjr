@@ -1,11 +1,87 @@
 @import "tailwindcss";
 
+/*
+ * Design system: a calm "paper and ink" look. Neutral paper, near-black ink, thin display type,
+ * monospace labels on gold, a teal accent for state and links, hairline rules, tight corners.
+ * Fonts are bundled through npm (@fontsource-variable/*, OFL) and served by this site, never
+ * from Google: those hosts are unreliable from mainland China. Chinese falls back to the
+ * system's CJK fonts, which every visitor already has.
+ *
+ * The zinc and indigo scales are redefined here, so every existing utility (text-zinc-500,
+ * text-indigo-600 ...) picks up the new neutrals and the teal accent without touching markup.
+ */
 @theme {
-  --font-sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC",
-    sans-serif;
-  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", "Consolas",
+  --font-sans: "Albert Sans Variable", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+    "Noto Sans SC", "Noto Sans CJK SC", system-ui, sans-serif;
+  --font-display: "Alumni Sans Variable", "PingFang SC", "Hiragino Sans GB",
+    "Microsoft YaHei Light", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, "SF Mono", "Cascadia Code", Consolas,
     "Liberation Mono", monospace;
+
+  /* paper and ink */
+  --color-paper: oklch(97.8% 0 0);
+  --color-paper-raised: oklch(99.5% 0 0);
+  --color-paper-deep: oklch(95% 0 0);
+  --color-ink: oklch(13% 0 0);
+  --color-rule: oklch(13% 0 0 / 0.08);
+  --color-edge: oklch(13% 0 0 / 0.45);
+
+  /* gold: labels and highlights */
+  --color-gold: oklch(84% 0.19 80.46);
+  --color-gold-vivid: oklch(87% 0.2 85);
+  --color-gold-pale: oklch(86% 0.07 84);
+  --color-gold-rich: oklch(77% 0.13 82);
+  --color-gold-deep: oklch(61% 0.085 78);
+  --color-on-gold: oklch(14% 0.018 95);
+
+  /* teal: state, focus, links */
+  --color-patina: oklch(70% 0.12 188);
+  --color-patina-pale: oklch(82% 0.07 188);
+  --color-patina-deep: oklch(45% 0.1 190);
+
+  /* neutral greys (chroma 0); 400+ keep >= 4.5:1 on paper for small text */
+  --color-zinc-50: oklch(98.5% 0 0);
+  --color-zinc-100: oklch(95% 0 0);
+  --color-zinc-200: oklch(91% 0 0);
+  --color-zinc-300: oklch(86% 0 0);
+  --color-zinc-400: oklch(55% 0 0);
+  --color-zinc-500: oklch(49% 0 0);
+  --color-zinc-600: oklch(42% 0 0);
+  --color-zinc-700: oklch(31% 0 0);
+  --color-zinc-800: oklch(22% 0 0);
+  --color-zinc-900: oklch(13% 0 0);
+  --color-zinc-950: oklch(9% 0 0);
+
+  /* accent scale (was indigo) -> teal */
+  --color-indigo-50: oklch(97% 0.015 188);
+  --color-indigo-100: oklch(93.5% 0.03 188);
+  --color-indigo-200: oklch(87% 0.05 188);
+  --color-indigo-300: oklch(82% 0.07 188);
+  --color-indigo-400: oklch(70% 0.12 188);
+  --color-indigo-500: oklch(56% 0.11 189);
+  --color-indigo-600: oklch(45% 0.1 190);
+  --color-indigo-700: oklch(40% 0.1 190);
+  --color-indigo-800: oklch(33% 0.08 190);
+  --color-indigo-900: oklch(27% 0.06 190);
+  --color-indigo-950: oklch(20% 0.04 190);
+
+  /* tight corners */
+  --radius-xs: 2px;
+  --radius-sm: 3px;
+  --radius-md: 3px;
+  --radius-lg: 6px;
+  --radius-xl: 8px;
+  --radius-2xl: 10px;
+
+  /* layered, quiet shadows */
+  --shadow-xs: 0 1px 1px oklch(13% 0 0 / 0.04);
+  --shadow-sm: 0 1px 1px oklch(13% 0 0 / 0.05), 0 2px 3px oklch(13% 0 0 / 0.04);
+  --shadow-md: 0 1px 1px oklch(13% 0 0 / 0.05), 0 2px 3px oklch(13% 0 0 / 0.04),
+    0 6px 12px oklch(13% 0 0 / 0.05);
+  --shadow-lg: 0 1px 1px oklch(13% 0 0 / 0.04), 0 3px 5px oklch(13% 0 0 / 0.05),
+    0 12px 20px oklch(13% 0 0 / 0.06), 0 32px 48px oklch(13% 0 0 / 0.07);
+
+  --ease-settle: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 @layer base {
@@ -15,22 +91,152 @@
   }
 
   body {
-    @apply bg-white text-zinc-900 antialiased;
+    @apply antialiased;
+    background-color: var(--color-paper);
+    color: oklch(22% 0 0);
     font-family: var(--font-sans);
+    font-feature-settings: "kern";
   }
 
   ::selection {
-    @apply bg-indigo-100 text-indigo-900;
+    background: var(--color-gold-pale);
+    color: var(--color-ink);
   }
 
   a {
-    @apply underline-offset-2;
+    @apply underline-offset-4;
+    text-decoration-thickness: 1px;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-patina-deep);
+    outline-offset: 2px;
   }
 
   h1,
   h2,
   h3 {
     @apply text-balance;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* thin display headline (hero) */
+  .display {
+    font-family: var(--font-display);
+    font-weight: 300;
+    line-height: 1.02;
+    letter-spacing: 0;
+    color: var(--color-ink);
+  }
+  /* section / page headline */
+  .headline {
+    font-family: var(--font-display);
+    font-weight: 300;
+    line-height: 1.08;
+    color: var(--color-ink);
+  }
+  /* small monospace uppercase label */
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  /* the gold tag: "01 · 编辑精选" */
+  .tag-gold {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    border-radius: 2px;
+    background: var(--color-gold);
+    color: var(--color-on-gold);
+    padding: 0.2rem 0.45rem;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+  /* quiet grey mono label (type of resource, counts) */
+  .tag-mono {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35em;
+    border-radius: 2px;
+    background: var(--color-paper-deep);
+    color: var(--color-zinc-600);
+    padding: 0.15rem 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    line-height: 1.3;
+  }
+  /* text link with a thin underline that turns gold on hover */
+  .link-line {
+    color: var(--color-ink);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
+    text-decoration-color: oklch(13% 0 0 / 0.28);
+    transition: text-decoration-color 0.2s var(--ease-settle);
+  }
+  .link-line:hover {
+    text-decoration-color: var(--color-gold);
+  }
+  /* primary button: solid ink */
+  .btn-ink {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    min-height: 2.75rem;
+    border-radius: 3px;
+    background: var(--color-ink);
+    color: oklch(98% 0 0);
+    padding: 0 1.25rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 0.12s var(--ease-settle);
+  }
+  .btn-ink:hover {
+    background: oklch(24% 0 0);
+  }
+  /* raised paper surface (cards) */
+  .surface {
+    background: var(--color-paper-raised);
+    border: 1px solid var(--color-rule);
+    border-radius: 8px;
+  }
+  /* small teal status dot */
+  .dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--color-patina);
+  }
+  /* dotted divider between sections */
+  .rule-dots {
+    height: 4px;
+    background-image: radial-gradient(oklch(13% 0 0 / 0.18) 1px, transparent 1.2px);
+    background-size: 8px 4px;
   }
 }
 
@@ -50,7 +256,9 @@
   @apply mt-8 text-2xl;
 }
 .md h2 {
-  @apply mt-8 text-xl border-b border-zinc-100 pb-2;
+  @apply mt-10 border-b border-zinc-200 pb-2 text-[26px] font-light;
+  font-family: var(--font-display);
+  letter-spacing: 0;
 }
 .md h3 {
   @apply mt-6 text-base;
@@ -71,7 +279,13 @@
   @apply font-semibold text-zinc-900;
 }
 .md a {
-  @apply text-indigo-600 hover:text-indigo-700 underline;
+  color: var(--color-ink);
+  text-decoration: underline;
+  text-decoration-color: oklch(13% 0 0 / 0.28);
+  text-underline-offset: 4px;
+}
+.md a:hover {
+  text-decoration-color: var(--color-gold);
 }
 .md blockquote {
   @apply border-l-2 border-zinc-200 pl-4 text-zinc-500;
@@ -80,7 +294,7 @@
   @apply rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-[13px] text-zinc-800;
 }
 .md pre {
-  @apply overflow-x-auto rounded-xl border border-zinc-200 bg-zinc-50 p-4;
+  @apply overflow-x-auto rounded-sm border border-zinc-200 bg-zinc-100 p-4;
 }
 .md pre code {
   @apply bg-transparent p-0 text-[13px] leading-6 text-zinc-800;

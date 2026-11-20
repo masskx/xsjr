@@ -46,11 +46,11 @@ export function CopyButton({
   }, [text]);
 
   const base =
-    "inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium no-underline transition-all disabled:opacity-50";
+    "inline-flex items-center justify-center gap-1.5 rounded-[3px] px-3 py-2 text-sm font-medium no-underline transition-all disabled:opacity-50";
   const styles =
     variant === "primary"
       ? "bg-zinc-900 text-white hover:bg-zinc-800"
-      : "border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50";
+      : "border border-rule bg-paper-raised text-zinc-800 shadow-xs hover:shadow-md";
 
   return (
     <button
