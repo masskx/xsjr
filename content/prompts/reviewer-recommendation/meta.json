@@ -1,0 +1,47 @@
+{
+  "title": "推荐审稿人：候选画像与给编辑的推荐说明",
+  "summary": "按稿件主题拆出需要的审稿专长画像，输出候选清单的筛选标准与给编辑的推荐说明模板，并同步准备回避名单，姓名与单位一律由你核实。",
+  "category": "论文投稿",
+  "tags": ["推荐审稿人", "投稿", "同行评议", "回避名单", "编辑沟通"],
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "variables": [
+    {
+      "key": "manuscript_title",
+      "label": "稿件题目",
+      "type": "text",
+      "required": true,
+      "help": "投稿系统里填的题目"
+    },
+    {
+      "key": "abstract",
+      "label": "摘要与关键词",
+      "type": "textarea",
+      "required": true,
+      "help": "用于拆解需要的审稿专长维度"
+    },
+    {
+      "key": "conflicts",
+      "label": "利益冲突与回避对象",
+      "type": "textarea",
+      "help": "同单位、近期合作者、师承关系、有公开争论的对象；投稿系统通常要求申报"
+    },
+    {
+      "key": "count",
+      "label": "需要推荐几人",
+      "type": "text",
+      "required": true,
+      "default": "3",
+      "help": "多数期刊要求 3–5 人；按投稿系统要求填"
+    }
+  ],
+  "notes": [
+    "模型不会给你真实的姓名与邮箱，它只给筛选标准与画像；具体人选必须你自己在数据库中核实。",
+    "推荐与自己无利益关系的学者；同单位或有近期合作通常会被系统判定无效。",
+    "推荐说明写得像套话会被编辑忽略，要落到具体专长与稿件的对应关系。"
+  ]
+}

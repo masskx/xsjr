@@ -1,0 +1,52 @@
+{
+  "title": "预注册方案：把分析计划提前写死",
+  "summary": "按注册平台字段逐项产出预注册文本，明确主次结局、排除标准、停止规则与分析模型，让「事后改主意」无处藏身。",
+  "category": "科研选题",
+  "tags": ["预注册", "开放科学", "研究透明度", "分析计划", "可重复性"],
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "variables": [
+    {
+      "key": "study_summary",
+      "label": "研究概要",
+      "type": "textarea",
+      "required": true,
+      "help": "研究问题、对象、干预或暴露、结局、设计类型，一段话说清"
+    },
+    {
+      "key": "hypotheses",
+      "label": "假设清单",
+      "type": "textarea",
+      "required": true,
+      "help": "分开写主假设与次要假设，注明方向；探索性假设请单独标注"
+    },
+    {
+      "key": "sample_plan",
+      "label": "样本与招募",
+      "type": "text",
+      "help": "样本来源、目标量、抽样方式、纳入排除标准；不确定写待补"
+    },
+    {
+      "key": "analysis_plan",
+      "label": "分析设想",
+      "type": "textarea",
+      "help": "打算用什么模型、怎么处理缺失、是否做亚组、如何校正多重比较"
+    },
+    {
+      "key": "registry",
+      "label": "注册平台",
+      "type": "select",
+      "default": "OSF Registries",
+      "options": ["OSF Registries", "AsPredicted", "ClinicalTrials.gov", "机构自建平台", "期刊预注册通道"]
+    }
+  ],
+  "notes": [
+    "注册号、审批号一律不生成，需你在平台上实际注册后回填。",
+    "预注册不禁止后续改动，但每次偏离都要在论文里如实记录。",
+    "样本量数字涉及功效分析，模板会标为待补而不是随手给一个值。"
+  ]
+}

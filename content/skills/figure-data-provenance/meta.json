@@ -1,0 +1,41 @@
+{
+  "title": "图表数据溯源（Figure Data Provenance）",
+  "summary": "为每张图建立「图号—数据文件—脚本—参数—生成时间」台账，检查聚合链路与误差棒定义，输出缺口清单与可复现修复动作。",
+  "category": "科研绘图",
+  "tags": ["图表规范", "数据溯源", "可复现", "误差棒", "科研绘图"],
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "compat": [
+    {
+      "tool": "claude-code",
+      "supportedRange": "Claude Code 1.x 及以上",
+      "installPath": "~/.claude/skills/figure-data-provenance/SKILL.md"
+    },
+    {
+      "tool": "codex",
+      "supportedRange": "需改造",
+      "installPath": "—",
+      "note": "Codex 使用 AGENTS.md，需把正文改写为约定片段"
+    },
+    {
+      "tool": "generic",
+      "supportedRange": "通用",
+      "installPath": "把 SKILL.md 正文作为系统提示粘贴"
+    }
+  ],
+  "files": [
+    {
+      "path": "SKILL.md",
+      "desc": "台账字段、溯源核查流程与缺口分级规则"
+    }
+  ],
+  "risks": [
+    "技能看不到图片本身，也无法反推数据；判断依赖你提供的图表说明与数据文件信息。",
+    "不检查视觉美观与配色（那属于绘图自检的范围），只查数据链路与定义是否可追溯。",
+    "不替你决定期刊对图的具体技术要求，需以投稿指南为准。"
+  ]
+}

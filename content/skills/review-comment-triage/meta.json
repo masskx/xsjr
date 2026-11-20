@@ -1,0 +1,41 @@
+{
+  "title": "审稿意见分类归档（Review Comment Triage）",
+  "summary": "把审稿意见拆条、打六类标签、画依赖关系并排进日程，生成回复编号映射与状态跟踪表，让多人协作修回不再互相等待。",
+  "category": "论文投稿",
+  "tags": ["审稿意见", "任务分诊", "修回管理", "协作", "排期"],
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "compat": [
+    {
+      "tool": "claude-code",
+      "supportedRange": "Claude Code 1.x 及以上",
+      "installPath": "~/.claude/skills/review-comment-triage/SKILL.md"
+    },
+    {
+      "tool": "codex",
+      "supportedRange": "需改造",
+      "installPath": "—",
+      "note": "Codex 使用 AGENTS.md，需把正文改写为约定片段"
+    },
+    {
+      "tool": "generic",
+      "supportedRange": "通用",
+      "installPath": "把 SKILL.md 正文作为系统提示粘贴"
+    }
+  ],
+  "files": [
+    {
+      "path": "SKILL.md",
+      "desc": "拆条规则、六类标签口径、依赖排序与跟踪表模板"
+    }
+  ],
+  "risks": [
+    "技能只做分诊与排期，不写回复正文，也不判断审稿人的真实意图（那是另一类工作）。",
+    "工作量估算基于经验，与你团队的实际效率可能有差异。",
+    "不保证分类符合你的期刊或课题组既有流程，可按需调整标签。"
+  ]
+}

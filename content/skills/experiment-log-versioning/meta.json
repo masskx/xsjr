@@ -1,0 +1,41 @@
+{
+  "title": "实验日志与版本管理（Experiment Log & Versioning）",
+  "summary": "为每次实验运行定义必填记录字段、目录结构与版本标识，把「跑过但说不清怎么跑的」变成可追溯记录，并给出交接检查清单。",
+  "category": "数据处理",
+  "tags": ["实验记录", "版本管理", "可复现", "数据管理", "交接"],
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "compat": [
+    {
+      "tool": "claude-code",
+      "supportedRange": "Claude Code 1.x 及以上",
+      "installPath": "~/.claude/skills/experiment-log-versioning/SKILL.md"
+    },
+    {
+      "tool": "codex",
+      "supportedRange": "需改造",
+      "installPath": "—",
+      "note": "Codex 使用 AGENTS.md，需把正文改写为约定片段"
+    },
+    {
+      "tool": "generic",
+      "supportedRange": "通用",
+      "installPath": "把 SKILL.md 正文作为系统提示粘贴"
+    }
+  ],
+  "files": [
+    {
+      "path": "SKILL.md",
+      "desc": "记录字段规范、命名与目录约定、交接自查表"
+    }
+  ],
+  "risks": [
+    "技能不接入 git、不自动提交，也不读你的目录，所有落地动作需要你手工执行。",
+    "不替你决定大文件存储方案（对象存储、数据版本工具），只给判定依据。",
+    "无法重建已经丢失的记录，只能给出补救与防复发的规范。"
+  ]
+}

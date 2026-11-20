@@ -1,0 +1,41 @@
+{
+  "title": "学术主页与学术社交维护（Academic Profile Maintenance）",
+  "summary": "按「三十秒判断能否合作」重建个人学术主页信息架构，核对姓名、单位、ORCID 与成果一致性，并给出更新触发点与合规红线。",
+  "category": "学术写作",
+  "tags": ["学术主页", "ORCID", "个人品牌", "成果管理", "一致性核对"],
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "compat": [
+    {
+      "tool": "claude-code",
+      "supportedRange": "Claude Code 1.x 及以上",
+      "installPath": "~/.claude/skills/academic-profile-maintenance/SKILL.md"
+    },
+    {
+      "tool": "codex",
+      "supportedRange": "需改造",
+      "installPath": "—",
+      "note": "Codex 使用 AGENTS.md，需把正文改写为约定片段"
+    },
+    {
+      "tool": "generic",
+      "supportedRange": "通用",
+      "installPath": "把 SKILL.md 正文作为系统提示粘贴"
+    }
+  ],
+  "files": [
+    {
+      "path": "SKILL.md",
+      "desc": "页面结构模板、一致性核对表与维护触发点清单"
+    }
+  ],
+  "risks": [
+    "技能不联网，无法抓取你的真实发表记录，所有成果需你提供并自行核对。",
+    "不判断宣传性表述是否符合单位口径，对外发布前须经单位审核。",
+    "不代注册或代填任何平台账号，也不处理登录与权限问题。"
+  ]
+}

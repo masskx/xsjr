@@ -1,0 +1,53 @@
+{
+  "title": "答辩讲稿：按分钟切分的口播稿与预判问答",
+  "summary": "把论文内容切成按分钟分配的口播稿，附过渡句、停顿提示与十五个预判问题的三十秒回答骨架，让答辩不靠临场发挥。",
+  "category": "学术写作",
+  "tags": ["答辩", "讲稿", "口头表达", "问答准备", "学位论文"],
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "variables": [
+    {
+      "key": "thesis_title",
+      "label": "论文题目",
+      "type": "text",
+      "required": true,
+      "help": "写答辩通知上的题目"
+    },
+    {
+      "key": "total_minutes",
+      "label": "汇报时长（分钟）",
+      "type": "text",
+      "required": true,
+      "default": "20",
+      "help": "只说数字，例如 15 或 20；超时是答辩最常见扣分项"
+    },
+    {
+      "key": "key_results",
+      "label": "核心结果",
+      "type": "textarea",
+      "required": true,
+      "help": "三到五条必须让评委记住的结果，带数值"
+    },
+    {
+      "key": "committee_focus",
+      "label": "评委关注点",
+      "type": "textarea",
+      "help": "答辩委员的研究背景、往年提问习惯、导师提醒要避开的点"
+    },
+    {
+      "key": "weak_points",
+      "label": "薄弱环节",
+      "type": "textarea",
+      "help": "你自己知道站不住的地方：样本少、缺对照、创新性有限。写出来才能准备说法"
+    }
+  ],
+  "notes": [
+    "讲稿是口播底稿，必须按你的语速二次删改；照读会超时。",
+    "预判问答给的是回答骨架，不要背诵整段，背稿在追问下会崩。",
+    "涉及未发表数据或合作方数据，答辩前确认能否公开讲到。"
+  ]
+}

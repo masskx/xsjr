@@ -1,0 +1,59 @@
+{
+  "title": "开题报告生成器：从选题依据到进度与风险",
+  "summary": "把零散的选题想法、预实验和方法设想，整理成含研究空白论证、技术路线、可行性与备选方案的开题报告骨架，并标注哪些论据需要补证据。",
+  "category": "基金申请",
+  "tags": ["开题报告", "研究方案", "学位论文", "技术路线", "研究空白"],
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "variables": [
+    {
+      "key": "topic",
+      "label": "拟定题目",
+      "type": "text",
+      "required": true,
+      "help": "工作题目即可，可在输出中给出优化后的候选"
+    },
+    {
+      "key": "degree_level",
+      "label": "学位层次",
+      "type": "select",
+      "required": true,
+      "default": "硕士",
+      "options": ["硕士", "博士", "直博/硕博连读", "博士后进站"]
+    },
+    {
+      "key": "background_material",
+      "label": "背景与已有认识",
+      "type": "textarea",
+      "required": true,
+      "help": "你读过的关键结论、领域公认的难点、导师方向积累。直接贴笔记片段即可"
+    },
+    {
+      "key": "preliminary_work",
+      "label": "预实验或前期工作",
+      "type": "textarea",
+      "help": "做过的预实验、拿到的初步数据、已有的数据或设备渠道。没有就写「无」"
+    },
+    {
+      "key": "method_plan",
+      "label": "方法设想",
+      "type": "textarea",
+      "help": "打算用什么数据、什么手段、怎么分析；不确定的写不确定"
+    },
+    {
+      "key": "timeline",
+      "label": "可用时间",
+      "type": "text",
+      "help": "例如「2 年，第一年 9 月前要出中期结果」"
+    }
+  ],
+  "notes": [
+    "文献与数据一律不生成，缺口处会是 [待补：…]，需你自行检索补全并核对。",
+    "创新点表述容易过度承诺，模板会主动压低调门，答辩前请与导师对齐口径。",
+    "各校开题报告有固定表格，请把本节内容映射到本校模板字段。"
+  ]
+}

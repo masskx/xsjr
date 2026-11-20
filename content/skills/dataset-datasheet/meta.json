@@ -1,0 +1,41 @@
+{
+  "title": "数据集文档撰写（Dataset Datasheet）",
+  "summary": "按八个维度为数据集写 Datasheet：动机、构成、采集、预处理、偏差、用途边界、分发与维护，附字段字典与引用块，让外人能正确用。",
+  "category": "数据处理",
+  "tags": ["数据集文档", "数据发布", "Datasheet", "字段字典", "开放数据"],
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "compat": [
+    {
+      "tool": "claude-code",
+      "supportedRange": "Claude Code 1.x 及以上",
+      "installPath": "~/.claude/skills/dataset-datasheet/SKILL.md"
+    },
+    {
+      "tool": "codex",
+      "supportedRange": "需改造",
+      "installPath": "—",
+      "note": "Codex 使用 AGENTS.md，需把正文改写为约定片段"
+    },
+    {
+      "tool": "generic",
+      "supportedRange": "通用",
+      "installPath": "把 SKILL.md 正文作为系统提示粘贴"
+    }
+  ],
+  "files": [
+    {
+      "path": "SKILL.md",
+      "desc": "Datasheet 八节结构、字段字典规范与许可引用块"
+    }
+  ],
+  "risks": [
+    "技能不计算任何数据统计量，规模、分布、缺失率都需你提供或跑脚本得到。",
+    "不判断数据是否涉及个人信息或需伦理审批，这必须走机构审查流程。",
+    "不提供许可证法律意见，许可选择建议咨询机构法务或数据管理专员。"
+  ]
+}

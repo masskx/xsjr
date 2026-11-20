@@ -1,0 +1,46 @@
+{
+  "title": "审稿意见解读：读懂审稿人真正在问什么",
+  "summary": "把审稿意见逐条翻译成「表面说法—真实关切—最低可接受回应」，分清哪条必须补实验、哪条只需补论证，避免把精力花在措辞上。",
+  "category": "论文投稿",
+  "tags": ["审稿意见", "同行评议", "修回策略", "投稿", "沟通"],
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "variables": [
+    {
+      "key": "reviewer_comments",
+      "label": "审稿意见原文",
+      "type": "textarea",
+      "required": true,
+      "help": "整段粘贴，保留编号与语气词；多位审稿人请标明 Reviewer 1/2。不要自己概括"
+    },
+    {
+      "key": "decision",
+      "label": "编辑决定",
+      "type": "select",
+      "required": true,
+      "default": "Major Revision",
+      "options": ["Major Revision", "Minor Revision", "Reject and Resubmit", "Reject"]
+    },
+    {
+      "key": "manuscript_context",
+      "label": "稿件关键信息",
+      "type": "textarea",
+      "help": "研究问题、数据类型、样本量、已经做过的实验，以及有意没做的部分及原因"
+    },
+    {
+      "key": "editor_letter",
+      "label": "编辑信要点",
+      "type": "textarea",
+      "help": "编辑单独强调的要求、暗示的口径、提到的期刊范围问题。没有可留空"
+    }
+  ],
+  "notes": [
+    "输出的是诊断与策略，不是最终回复稿；写回复请配合「审稿意见回复」模板一起用。",
+    "模型无法判断审稿人的真实身份与学派立场，涉及「他是不是敌意评审」的推断只能作参考。",
+    "审稿意见属未公开材料，粘贴前请确认所用工具的数据条款。"
+  ]
+}

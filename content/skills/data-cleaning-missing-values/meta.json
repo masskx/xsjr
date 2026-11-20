@@ -1,0 +1,41 @@
+{
+  "title": "数据清洗与缺失值处理（Data Cleaning Playbook）",
+  "summary": "先定缺失机制再选填补方法，产出清洗方案表、决策日志与敏感性分析清单，并强制先划分后插补，避免数据泄漏与「适当处理」这类空话。",
+  "category": "数据处理",
+  "tags": ["数据清洗", "缺失值", "多重插补", "数据泄漏", "数据预处理"],
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "compat": [
+    {
+      "tool": "claude-code",
+      "supportedRange": "Claude Code 1.x 及以上",
+      "installPath": "~/.claude/skills/data-cleaning-missing-values/SKILL.md"
+    },
+    {
+      "tool": "codex",
+      "supportedRange": "需改造",
+      "installPath": "—",
+      "note": "Codex 使用 AGENTS.md，需把正文改写为约定片段"
+    },
+    {
+      "tool": "generic",
+      "supportedRange": "通用",
+      "installPath": "把 SKILL.md 正文作为系统提示粘贴"
+    }
+  ],
+  "files": [
+    {
+      "path": "SKILL.md",
+      "desc": "缺失机制判定口径、清洗流程与输出模板"
+    }
+  ],
+  "risks": [
+    "技能不执行任何代码，看不到真实的数据分布与缺失模式，缺失机制只能给检验方向，最终判定要你结合领域知识做。",
+    "不实现复杂模型（多层模型、生存分析）下的插补，也不保证插补后估计无偏；敏感性分析必须你自己跑。",
+    "不判断数据采集与使用是否合规，涉及个人信息时须走所在机构流程。"
+  ]
+}

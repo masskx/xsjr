@@ -1,0 +1,41 @@
+{
+  "title": "统计功效与样本量估算（Power & Sample Size）",
+  "summary": "按设计与效应量口径推导样本量，给出参数表、敏感性网格与可直接粘贴的方法段，并区分事前估算与事后功效的误用。",
+  "category": "统计方法",
+  "tags": ["统计功效", "样本量", "效应量", "研究设计", "敏感性分析"],
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "compat": [
+    {
+      "tool": "claude-code",
+      "supportedRange": "Claude Code 1.x 及以上",
+      "installPath": "~/.claude/skills/power-sample-size/SKILL.md"
+    },
+    {
+      "tool": "codex",
+      "supportedRange": "需改造",
+      "installPath": "—",
+      "note": "Codex 使用 AGENTS.md，需把正文改写为约定片段"
+    },
+    {
+      "tool": "generic",
+      "supportedRange": "通用",
+      "installPath": "把 SKILL.md 正文作为系统提示粘贴"
+    }
+  ],
+  "files": [
+    {
+      "path": "SKILL.md",
+      "desc": "参数口径、公式选择、敏感性网格与报告写法"
+    }
+  ],
+  "risks": [
+    "技能不调用 R 或 Python 的功效包，也不联网，给出的数值需你用自己的工具复核后再写进方案。",
+    "不替你确定效应量：效应量必须来自文献、预实验或最小临床意义差值，编造会直接毁掉整个估算。",
+    "对多层模型、复杂抽样与生存数据只能给近似思路，精确计算需用专用软件或请统计合作者复核。"
+  ]
+}

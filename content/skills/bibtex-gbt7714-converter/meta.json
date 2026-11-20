@@ -1,0 +1,41 @@
+{
+  "title": "参考文献格式批量转换（BibTeX ↔ GB/T 7714）",
+  "summary": "在 BibTeX 与 GB/T 7714 之间做字段级映射转换，输出转换结果与缺失字段清单，缺作者、卷期或页码时暴露问题而不是编造补全。",
+  "category": "文献检索",
+  "tags": ["参考文献", "BibTeX", "GB/T 7714", "格式转换", "文献管理"],
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "compat": [
+    {
+      "tool": "claude-code",
+      "supportedRange": "Claude Code 1.x 及以上",
+      "installPath": "~/.claude/skills/bibtex-gbt7714-converter/SKILL.md"
+    },
+    {
+      "tool": "codex",
+      "supportedRange": "需改造",
+      "installPath": "—",
+      "note": "Codex 使用 AGENTS.md，需把正文改写为约定片段"
+    },
+    {
+      "tool": "generic",
+      "supportedRange": "通用",
+      "installPath": "把 SKILL.md 正文作为系统提示粘贴"
+    }
+  ],
+  "files": [
+    {
+      "path": "SKILL.md",
+      "desc": "字段映射表、类型标识对照与转换后校验规则"
+    }
+  ],
+  "risks": [
+    "不联网，无法核对 DOI、卷期页码与作者拼写；转换结果必须回原库逐条核对。",
+    "不同版本的 GB/T 7714 在文献类型标识与电子资源著录细节上有差异，需你指定版本，技能不替你做版本裁量。",
+    "不从 PDF 直接提取信息，需要你先把文献信息整理成结构化文本。"
+  ]
+}

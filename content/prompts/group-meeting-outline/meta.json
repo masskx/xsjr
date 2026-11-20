@@ -1,0 +1,54 @@
+{
+  "title": "组会汇报提纲：三句话结论先行 + 明确求助项",
+  "summary": "把一周工作整理成结论先行、卡点具体、求助明确的组会提纲，附每节时长与预判提问，避免汇报完导师仍不知道你在做什么。",
+  "category": "学术写作",
+  "tags": ["组会", "汇报", "学术表达", "进度管理", "科研沟通"],
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "variables": [
+    {
+      "key": "period_work",
+      "label": "本期做了什么",
+      "type": "textarea",
+      "required": true,
+      "help": "按事列：跑了什么、读了几篇、改了什么；写上可核查的产出（数据、图、代码）"
+    },
+    {
+      "key": "blockers",
+      "label": "卡住的地方",
+      "type": "textarea",
+      "required": true,
+      "help": "具体到现象：报错原文、指标异常的范围、看不明白的段落。不要写「进展不顺利」"
+    },
+    {
+      "key": "minutes",
+      "label": "汇报时长（分钟）",
+      "type": "text",
+      "required": true,
+      "default": "10",
+      "help": "只说数字；10 分钟和 30 分钟组织方式不同"
+    },
+    {
+      "key": "audience",
+      "label": "听众",
+      "type": "select",
+      "default": "本课题组",
+      "options": ["本课题组", "跨组联合组会", "导师一对一", "学院汇报"]
+    },
+    {
+      "key": "next_plan",
+      "label": "下周计划",
+      "type": "textarea",
+      "help": "打算做什么、预期能出什么；写不出来的部分留空让模型提问"
+    }
+  ],
+  "notes": [
+    "卡点写得越具体，得到的求助建议越可用；笼统描述会得到笼统建议。",
+    "提纲只组织你提供的内容，不会替你补实验进度。",
+    "涉及未发表结果时注意组会范围，跨组汇报前确认可公开程度。"
+  ]
+}

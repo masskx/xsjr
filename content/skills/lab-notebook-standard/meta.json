@@ -1,0 +1,41 @@
+{
+  "title": "实验记录本规范（Lab Notebook Standard）",
+  "summary": "定义实验记录的必填要素、编号规则、只追加与修改留痕要求，输出记录页模板、归档结构与检查清单，让记录经得起追溯与专利核查。",
+  "category": "学术写作",
+  "tags": ["实验记录", "科研规范", "归档", "专利", "可追溯"],
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "compat": [
+    {
+      "tool": "claude-code",
+      "supportedRange": "Claude Code 1.x 及以上",
+      "installPath": "~/.claude/skills/lab-notebook-standard/SKILL.md"
+    },
+    {
+      "tool": "codex",
+      "supportedRange": "需改造",
+      "installPath": "—",
+      "note": "Codex 使用 AGENTS.md，需把正文改写为约定片段"
+    },
+    {
+      "tool": "generic",
+      "supportedRange": "通用",
+      "installPath": "把 SKILL.md 正文作为系统提示粘贴"
+    }
+  ],
+  "files": [
+    {
+      "path": "SKILL.md",
+      "desc": "记录要素、编号规则、归档与合规检查清单"
+    }
+  ],
+  "risks": [
+    "技能只给格式规范，不提供 GLP、21 CFR Part 11 等法规意义上的合规认证。",
+    "不能追溯已丢失或已覆盖的记录，只能建立防复发规范。",
+    "不替代所在单位对记录格式、保存期限与权限的强制规定。"
+  ]
+}

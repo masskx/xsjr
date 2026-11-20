@@ -1,0 +1,41 @@
+{
+  "title": "投稿前格式合规检查（Submission Compliance Check）",
+  "summary": "按目标期刊投稿指南逐项核对字数、结构、图表、参考文献与各类声明，输出合规核对表、阻断项与提交前复查清单，减少格式性退修。",
+  "category": "论文投稿",
+  "tags": ["投稿检查", "期刊要求", "格式规范", "退修", "投稿材料"],
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "compat": [
+    {
+      "tool": "claude-code",
+      "supportedRange": "Claude Code 1.x 及以上",
+      "installPath": "~/.claude/skills/submission-compliance-check/SKILL.md"
+    },
+    {
+      "tool": "codex",
+      "supportedRange": "需改造",
+      "installPath": "—",
+      "note": "Codex 使用 AGENTS.md，需把正文改写为约定片段"
+    },
+    {
+      "tool": "generic",
+      "supportedRange": "通用",
+      "installPath": "把 SKILL.md 正文作为系统提示粘贴"
+    }
+  ],
+  "files": [
+    {
+      "path": "SKILL.md",
+      "desc": "逐项核对口径、合规表模板与阻断项判定"
+    }
+  ],
+  "risks": [
+    "技能不联网，取不到期刊最新投稿指南；期刊要求必须由你复制原文提供，否则结论只基于通用惯例。",
+    "无法检查匿名版是否真的匿名，PDF 元数据、致谢与自引仍需人工处理。",
+    "不构成伦理或法律合规意见，涉及审批、许可与署名的判断须走机构流程。"
+  ]
+}

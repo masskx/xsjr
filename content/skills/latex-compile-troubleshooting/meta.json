@@ -1,0 +1,41 @@
+{
+  "title": "LaTeX 编译排错（LaTeX Compile Troubleshooting）",
+  "summary": "按「读第一条错误—分类—最小复现—定序修复」处理 LaTeX 编译失败，给错误与警告分级口径、常见成因对照与修复步骤。",
+  "category": "论文写作",
+  "tags": ["LaTeX", "编译错误", "排版", "论文模板", "排错"],
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "compat": [
+    {
+      "tool": "claude-code",
+      "supportedRange": "Claude Code 1.x 及以上",
+      "installPath": "~/.claude/skills/latex-compile-troubleshooting/SKILL.md"
+    },
+    {
+      "tool": "codex",
+      "supportedRange": "需改造",
+      "installPath": "—",
+      "note": "Codex 使用 AGENTS.md，需把正文改写为约定片段"
+    },
+    {
+      "tool": "generic",
+      "supportedRange": "通用",
+      "installPath": "把 SKILL.md 正文作为系统提示粘贴"
+    }
+  ],
+  "files": [
+    {
+      "path": "SKILL.md",
+      "desc": "错误分类表、分级口径与最小复现排查法"
+    }
+  ],
+  "risks": [
+    "技能不执行编译，看不到真实日志，诊断依赖你粘贴的 .log 片段；只给一句报错时结论只能是概率性的。",
+    "不修改 .cls/.sty 模板文件，也不保证与特定期刊模板兼容。",
+    "不提供完整的论文模板，只做排错与最小示例。"
+  ]
+}

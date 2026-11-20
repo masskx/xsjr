@@ -1,0 +1,59 @@
+{
+  "title": "论文标题生成：给结论、方法与期刊口味各出一版",
+  "summary": "围绕核心发现生成结论型、方法型、描述型、问题型四类标题候选，逐条标注字数、检索友好度与过度声称风险，并给出推荐组合。",
+  "category": "论文写作",
+  "tags": ["论文标题", "写作", "检索优化", "投稿", "表达"],
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "variables": [
+    {
+      "key": "core_finding",
+      "label": "核心发现",
+      "type": "text",
+      "required": true,
+      "help": "一句话写出最重要的结果，含方向与量级更好的写法（例如「A 在 B 条件下使 C 下降约 30%」）"
+    },
+    {
+      "key": "study_type",
+      "label": "研究类型",
+      "type": "select",
+      "required": true,
+      "default": "实验研究",
+      "options": ["实验研究", "观察性研究", "方法开发", "综述", "Meta 分析", "案例报告"]
+    },
+    {
+      "key": "style",
+      "label": "偏好的风格",
+      "type": "select",
+      "default": "结论型",
+      "options": ["结论型", "方法型", "描述型", "问题型", "都给我挑"]
+    },
+    {
+      "key": "keywords",
+      "label": "必须出现的关键词",
+      "type": "text",
+      "help": "用于检索命中的对象名、方法名、人群名；逗号分隔"
+    },
+    {
+      "key": "target_journal",
+      "label": "目标期刊或领域",
+      "type": "text",
+      "help": "用于对齐标题长度与信息密度习惯；不确定可写领域"
+    },
+    {
+      "key": "avoid_terms",
+      "label": "需要避开的表述",
+      "type": "text",
+      "help": "导师或期刊不喜欢用的词，例如 novel、首次、突破"
+    }
+  ],
+  "notes": [
+    "候选标题都基于你给的核心发现，发现本身表述不清时标题也不会准。",
+    "期刊对标题字数与是否允许结论式标题有硬规定，投稿前须查投稿指南。",
+    "标题里的数字必须与你结果部分一致，改标题时记得同步改摘要。"
+  ]
+}

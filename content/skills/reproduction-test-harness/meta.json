@@ -1,0 +1,41 @@
+{
+  "title": "代码复现测试（Reproduction Test Harness）",
+  "summary": "为论文或他人代码设计冒烟测试、数值对齐容差与模块级对拍矩阵，输出复现报告模板与差异归因表，把「我跑通了」变成可验证的测试。",
+  "category": "数据处理",
+  "tags": ["复现测试", "回归测试", "数值容差", "代码质量", "可复现"],
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "compat": [
+    {
+      "tool": "claude-code",
+      "supportedRange": "Claude Code 1.x 及以上",
+      "installPath": "~/.claude/skills/reproduction-test-harness/SKILL.md"
+    },
+    {
+      "tool": "codex",
+      "supportedRange": "需改造",
+      "installPath": "—",
+      "note": "Codex 使用 AGENTS.md，需把正文改写为约定片段"
+    },
+    {
+      "tool": "generic",
+      "supportedRange": "通用",
+      "installPath": "把 SKILL.md 正文作为系统提示粘贴"
+    }
+  ],
+  "files": [
+    {
+      "path": "SKILL.md",
+      "desc": "测试分层、容差判定口径、对拍矩阵与复现报告模板"
+    }
+  ],
+  "risks": [
+    "技能不运行代码，只给测试设计与脚本骨架；实际执行与数值判断需你自己完成。",
+    "跨硬件与跨版本的完全一致无法保证，只能界定容差并记录环境差异。",
+    "不能判断「结果一致」在领域内是否意味着方法有效。"
+  ]
+}

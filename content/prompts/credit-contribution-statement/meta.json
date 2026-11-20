@@ -1,0 +1,46 @@
+{
+  "title": "作者贡献声明（CRediT）：按角色逐人核对",
+  "summary": "用 CRediT 十四个角色逐位核对作者的真实贡献，输出贡献矩阵与中英双语声明，并标出需要作者本人确认的分工争议点。",
+  "category": "学术写作",
+  "tags": ["CRediT", "作者署名", "贡献声明", "学术规范", "投稿"],
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "variables": [
+    {
+      "key": "author_list",
+      "label": "作者名单与顺序",
+      "type": "textarea",
+      "required": true,
+      "help": "按署名顺序列出，注明通讯作者、共同一作标注方式"
+    },
+    {
+      "key": "contribution_facts",
+      "label": "各人实际做了什么",
+      "type": "textarea",
+      "required": true,
+      "help": "按人写具体动作：谁提的想法、谁做的实验、谁写的代码、谁改的稿。写得越具体，矩阵越准"
+    },
+    {
+      "key": "output_style",
+      "label": "输出形式",
+      "type": "select",
+      "default": "中英对照",
+      "options": ["英文 CRediT 标准句", "中英对照", "中文期刊署名格式"]
+    },
+    {
+      "key": "funding_info",
+      "label": "基金与致谢",
+      "type": "textarea",
+      "help": "基金编号与致谢对象；用于检查「仅提供经费/仅提供样本」者是否应列为作者"
+    }
+  ],
+  "notes": [
+    "贡献划分属于作者的共同事实认定，模型只做整理与提问，不做裁决。",
+    "不掌握真实分工时它会连续追问，请如实回答，否则矩阵会失真。",
+    "署名争议请按所在单位与目标期刊的署名政策处理，本模板不构成仲裁意见。"
+  ]
+}

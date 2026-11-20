@@ -1,0 +1,58 @@
+{
+  "title": "中文学位论文摘要：目的—方法—结果—结论四段式",
+  "summary": "按学位论文摘要规范生成四段式中文摘要与关键词，控制字数、处理缩写与图表引用禁忌，并标出需要你回填的具体数据。",
+  "category": "论文写作",
+  "tags": ["学位论文", "摘要", "中文写作", "关键词", "答辩"],
+  "author": "平台原创",
+  "license": "MIT",
+  "redistribution": true,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "variables": [
+    {
+      "key": "thesis_title",
+      "label": "论文题目",
+      "type": "text",
+      "required": true,
+      "help": "写最终定稿题目；摘要要与题目口径一致"
+    },
+    {
+      "key": "chapter_summaries",
+      "label": "各章主要内容",
+      "type": "textarea",
+      "required": true,
+      "help": "按章列：这一章解决什么、用了什么、得到什么结论。贴笔记片段即可"
+    },
+    {
+      "key": "methods",
+      "label": "方法与数据",
+      "type": "textarea",
+      "help": "研究对象、数据来源与规模、关键方法、实验设置"
+    },
+    {
+      "key": "results",
+      "label": "主要结果",
+      "type": "textarea",
+      "help": "带数值的结果请一并给出；没有数值时摘要里会留占位符"
+    },
+    {
+      "key": "degree",
+      "label": "学位层次",
+      "type": "select",
+      "default": "硕士",
+      "options": ["硕士", "博士"]
+    },
+    {
+      "key": "word_limit",
+      "label": "字数上限",
+      "type": "text",
+      "help": "例如「1000 字」「不超过 800 字」；不同学校差异很大"
+    }
+  ],
+  "notes": [
+    "摘要中不得出现图表编号、参考文献引用与公式，模板会主动检查。",
+    "结果数值必须来自你的正文，缺失处为 [待补]，不要用模型给的数字凑。",
+    "关键词与中图分类号请按本校模板核对，各校要求不一。"
+  ]
+}
