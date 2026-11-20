@@ -165,12 +165,14 @@ function UploadButton() {
   );
 }
 
-function DiagramCard({
+export function DiagramCard({
   id,
   diagram,
   upload,
   remove,
+  labels = {},
 }: {
+  labels?: { title?: string; description?: string; empty?: string; placeholder?: string };
   id: number;
   diagram: { src: string; width: number | null; height: number | null; alt: string | null; bytes: number } | null;
   upload: (state: AdminFormState, fd: FormData) => Promise<AdminFormState>;
@@ -178,7 +180,7 @@ function DiagramCard({
 }) {
   const [state, action] = useActionState(upload, {});
   return (
-    <Card title="结构图" description="PNG、JPEG 或 WebP，最大 2 MB；JPEG 的 EXIF（含定位）会被去除。没有上传时，详情页自动显示文件结构图。结构图对所有人可见。">
+    <Card title={labels.title ?? "结构图"} description={labels.description ?? "PNG、JPEG 或 WebP，最大 2 MB；JPEG 的 EXIF（含定位）会被去除。没有上传时，详情页自动显示文件结构图。结构图对所有人可见。"}>
       {diagram ? (
         <figure className="mb-4">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -188,13 +190,13 @@ function DiagramCard({
           </figcaption>
         </figure>
       ) : (
-        <p className="mb-4 text-[13px] text-zinc-500">尚未上传，详情页显示自动生成的文件结构图。</p>
+        <p className="mb-4 text-[13px] text-zinc-500">{labels.empty ?? "尚未上传，详情页显示自动生成的文件结构图。"}</p>
       )}
       <form action={action} className="flex flex-wrap items-end gap-2" encType="multipart/form-data">
         <input type="hidden" name="id" value={id} />
         <label className="min-w-0 flex-1 basis-56 text-[12.5px] font-medium text-zinc-700">
           图片说明（替代文字）
-          <input name="alt" required maxLength={200} defaultValue={diagram?.alt ?? ""} placeholder="例如：统计检验工具包的模块结构" className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-[13.5px] font-normal" />
+          <input name="alt" required maxLength={200} defaultValue={diagram?.alt ?? ""} placeholder={labels.placeholder ?? "例如：统计检验工具包的模块结构"} className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-[13.5px] font-normal" />
         </label>
         <label className="text-[12.5px] font-medium text-zinc-700">
           文件

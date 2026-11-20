@@ -106,13 +106,14 @@ async function diagramTarget(db: Db, resourceId: number) {
     .select({ type: s.resources.type, mediaId: s.resources.structureMediaId })
     .from(s.resources)
     .where(eq(s.resources.id, resourceId));
-  return row?.type === "MODULE" ? row : null;
+  // modules: structure diagram; navigation sites: their icon
+  return row?.type === "MODULE" || row?.type === "SITE" ? row : null;
 }
 
 /** Upload (or replace) a module's structure diagram. Returns a user-facing error on bad input. */
 export async function setDiagram(ctx: R.AdminCtx, resourceId: number, file: Buffer, alt: string): Promise<{ ok: true } | { ok: false; error: string }> {
   const target = await diagramTarget(ctx.db, resourceId);
-  if (!target) return { ok: false, error: "模块不存在" };
+  if (!target) return { ok: false, error: "资源不存在" };
   let media;
   try {
     media = await saveImage(ctx.db, file, { prefix: "diagrams", alt, createdBy: ctx.actorId });

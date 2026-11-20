@@ -13,7 +13,11 @@ import * as members from "@/lib/admin/members";
 import * as R from "@/lib/admin/resources";
 import { moduleAdapter, removeDiagram, setDiagram } from "@/lib/admin/modules";
 import { skillAdapter } from "@/lib/admin/skills";
+import { siteAdapter } from "@/lib/admin/sites";
 import * as ingest from "@/lib/ingest/jobs";
+import * as announcements from "@/lib/announcements";
+import * as apiTokens from "@/lib/admin/api-tokens";
+import { invalidateAnnouncement } from "@/lib/repo";
 
 export interface AdminFormState {
   ok?: boolean;
@@ -179,9 +183,9 @@ export async function setModuleTierAction(fd: FormData): Promise<void> {
 
 // ── modules and skills (shared lifecycle in lib/admin/resources.ts) ──
 
-type Kind = "MODULE" | "SKILL";
-const ADAPTER = { MODULE: moduleAdapter, SKILL: skillAdapter } as const;
-const BASE: Record<Kind, string> = { MODULE: "modules", SKILL: "skills" };
+type Kind = "MODULE" | "SKILL" | "SITE";
+const ADAPTER = { MODULE: moduleAdapter, SKILL: skillAdapter, SITE: siteAdapter } as const;
+const BASE: Record<Kind, string> = { MODULE: "modules", SKILL: "skills", SITE: "sites" };
 const backTo = (kind: Kind, id: number, q: string) => redirect(`/admin/${BASE[kind]}/${id}/?${q}`);
 const errQ = (errors: Record<string, string>) => `err=${encodeURIComponent(Object.values(errors).join("；"))}`;
 
@@ -291,4 +295,83 @@ export async function retryIngestItemAction(fd: FormData): Promise<void> {
   const r = await ingest.retryItem(ctx.db, ctx.actorId, itemId);
   const q = r.ok ? "msg=retry" : `err=${encodeURIComponent(Object.values(r.errors).join("；"))}`;
   redirect(`/admin/ingest/${Number.isInteger(jobId) && jobId > 0 ? `${jobId}/` : ""}?${q}`);
+}
+
+// ── announcements ──
+
+function parseLocal(v: string): Date | null {
+  // <input type="datetime-local"> gives "YYYY-MM-DDTHH:mm" in Beijing time
+  if (!v) return null;
+  const d = new Date(`${v}:00+08:00`);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+export async function saveAnnouncementAction(fd: FormData): Promise<void> {
+  const { ctx } = await adminContext();
+  const id = Number(str(fd, "id")) || null;
+  const r = await announcements.saveAnnouncement(ctx.db, ctx.actorId, id, {
+    title: str(fd, "title"),
+    bodyMd: str(fd, "bodyMd"),
+    isActive: fd.get("isActive") === "on",
+    startsAt: parseLocal(str(fd, "startsAt")),
+    endsAt: parseLocal(str(fd, "endsAt")),
+  });
+  invalidateAnnouncement();
+  redirect(r.ok ? `/admin/announcements/?msg=saved` : `/admin/announcements/${id ? `?edit=${id}&` : "?"}err=${encodeURIComponent(r.error)}`);
+}
+
+export async function deleteAnnouncementAction(fd: FormData): Promise<void> {
+  const { ctx } = await adminContext();
+  await announcements.deleteAnnouncement(ctx.db, ctx.actorId, idOf(fd));
+  invalidateAnnouncement();
+  redirect(`/admin/announcements/?msg=deleted`);
+}
+
+// ── research-navigation sites ──
+
+export async function createSiteAction(_: AdminFormState, fd: FormData) { return createOf("SITE", fd); }
+export async function saveSiteAction(id: number, input: unknown, version: string): Promise<SaveResult> {
+  const { ctx } = await adminContext();
+  return R.saveResource(ctx, siteAdapter, id, input, version);
+}
+export async function publishSiteAction(fd: FormData) { await publishOf("SITE", fd); }
+export async function unpublishSiteAction(fd: FormData) { await statusOf("SITE", fd, "unpublish"); }
+export async function archiveSiteAction(fd: FormData) { await statusOf("SITE", fd, "archive"); }
+export async function restoreSiteAction(fd: FormData) { await statusOf("SITE", fd, "restore"); }
+export async function moveSiteAction(fd: FormData) { await moveOf("SITE", fd); }
+
+export async function uploadSiteIconAction(_: AdminFormState, fd: FormData): Promise<AdminFormState> {
+  const { ctx } = await adminContext();
+  const id = idOf(fd);
+  const file = fd.get("file");
+  if (!(file instanceof File) || file.size === 0) return { error: "请选择图片文件" };
+  if (file.size > 2 * 1024 * 1024) return { error: "图片不能超过 2 MB" };
+  const alt = str(fd, "alt").trim() || "站点图标";
+  const r = await setDiagram(ctx, id, Buffer.from(await file.arrayBuffer()), alt);
+  if (!r.ok) return { error: r.error };
+  redirect(`/admin/sites/${id}/?msg=icon`);
+}
+
+export async function removeSiteIconAction(fd: FormData): Promise<void> {
+  const { ctx } = await adminContext();
+  const id = idOf(fd);
+  await removeDiagram(ctx, id);
+  redirect(`/admin/sites/${id}/?msg=icon-removed`);
+}
+
+// ── API tokens ──
+
+export async function createApiTokenAction(_: AdminFormState, fd: FormData): Promise<AdminFormState> {
+  const { viewer, ctx } = await adminContext();
+  requireRecentReauth(viewer, "/admin/api/");
+  const days = Number(str(fd, "days"));
+  const r = await apiTokens.createApiToken(ctx.db, ctx.actorId, str(fd, "name"), days > 0 ? days : null);
+  if (!r.ok) return { error: r.error, field: "name", values: { name: str(fd, "name") } };
+  return { ok: true, message: "令牌已创建。它只显示这一次，请立即复制保存。", link: r.token };
+}
+
+export async function revokeApiTokenAction(fd: FormData): Promise<void> {
+  const { ctx } = await adminContext();
+  await apiTokens.revokeApiToken(ctx.db, ctx.actorId, idOf(fd));
+  redirect("/admin/api/?msg=revoked");
 }

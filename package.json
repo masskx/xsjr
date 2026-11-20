@@ -14,14 +14,17 @@
     "bulk": "tsx --env-file-if-exists=.env.local scripts/bulk-import.ts",
     "release": "node scripts/build-release.mjs",
     "parity": "node tools/parity/compare.mjs",
-    "e2e": "node tests/e2e/auth-flow.mjs && node tests/e2e/admin-prompts.mjs && node tests/e2e/tiers.mjs && node tests/e2e/gallery.mjs && node tests/e2e/analytics.mjs && node tests/e2e/ingest.mjs"
+    "e2e": "node tests/e2e/auth-flow.mjs && node tests/e2e/admin-prompts.mjs && node tests/e2e/tiers.mjs && node tests/e2e/gallery.mjs && node tests/e2e/analytics.mjs && node tests/e2e/ingest.mjs && node tests/e2e/v23.mjs"
   },
   "dependencies": {
     "@fontsource-variable/albert-sans": "^5.3.0",
     "@fontsource-variable/alumni-sans": "^5.3.0",
     "@fontsource-variable/jetbrains-mono": "^5.3.0",
+    "@fontsource-variable/source-serif-4": "^5.3.0",
+    "@fontsource/noto-serif-sc": "^5.3.1",
     "@mozilla/readability": "^0.6.0",
     "drizzle-orm": "^0.45.4",
+    "fflate": "^0.8.2",
     "hash-wasm": "^4.13.0",
     "linkedom": "^0.18.15",
     "markdown-it": "^15.0.3",

@@ -7,6 +7,7 @@ import * as s from "../db/schema";
 import * as R from "../admin/resources";
 import { moduleAdapter, setDiagram } from "../admin/modules";
 import { skillAdapter } from "../admin/skills";
+import { promptAdapter } from "../admin/prompts";
 import { setModuleTier } from "../admin/members";
 import type { Plan, PlanEntry } from "./plan";
 
@@ -18,7 +19,7 @@ export interface Applied {
   messages: string[];
 }
 
-const adapterOf = (e: PlanEntry) => (e.type === "skill" ? skillAdapter : moduleAdapter) as unknown as R.Adapter<R.CommonInput>;
+const adapterOf = (e: PlanEntry) => (e.type === "skill" ? skillAdapter : e.type === "prompt" ? promptAdapter : moduleAdapter) as unknown as R.Adapter<R.CommonInput>;
 const fail = (r: { errors: Record<string, string> } | { error: string }) => ("errors" in r ? Object.values(r.errors).join("；") : r.error);
 
 async function applyOne(ctx: R.AdminCtx, e: PlanEntry, publish: boolean): Promise<Applied> {

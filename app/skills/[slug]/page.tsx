@@ -10,6 +10,9 @@ import { Markdown } from "@/components/markdown";
 import { CodeBlock } from "@/components/code-block";
 import { CopyButton } from "@/components/copy-button";
 import { TOOL_LABEL, type SkillResource } from "@/lib/types";
+import { SkillInstall } from "@/components/skill-install";
+import { skillDirName } from "@/lib/stats/zip";
+import { SITE_URL } from "@/lib/site";
 
 export async function generateMetadata({
   params,
@@ -43,6 +46,7 @@ export default async function SkillDetail({
   return (
     <DetailShell
       resource={resource}
+      download={resource.redistribution && skillMd ? { href: `/api/download/skills/${resource.slug}/`, label: "下载 Skill（ZIP）" } : undefined}
       extraMeta={[
         {
           label: "兼容",
@@ -54,44 +58,6 @@ export default async function SkillDetail({
       ]}
     >
       {body && <Markdown source={body} />}
-
-      {/* 兼容矩阵 */}
-      <section className="mt-8">
-        <h2 className="mb-3 text-[15px] font-semibold text-zinc-900">
-          兼容工具
-        </h2>
-        <div className="overflow-hidden rounded-xl border border-zinc-200">
-          <table className="w-full text-[12.5px]">
-            <thead className="bg-zinc-50 text-left text-[11px] uppercase tracking-wide text-zinc-400">
-              <tr>
-                <th className="px-3 py-2 font-medium">工具</th>
-                <th className="px-3 py-2 font-medium">支持版本</th>
-                <th className="px-3 py-2 font-medium">安装位置</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-100">
-              {resource.compat.map((c) => (
-                <tr key={c.tool}>
-                  <td className="px-3 py-2.5 font-medium text-zinc-800">
-                    {TOOL_LABEL[c.tool] ?? c.tool}
-                  </td>
-                  <td className="px-3 py-2.5 text-zinc-600">
-                    {c.supportedRange}
-                  </td>
-                  <td className="px-3 py-2.5 font-mono text-[11.5px] text-zinc-500">
-                    {c.installPath ?? "—"}
-                    {c.note && (
-                      <div className="mt-0.5 font-sans text-[11px] text-amber-600">
-                        {c.note}
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
 
       {/* 文件树 */}
       <section className="mt-8">
@@ -178,6 +144,12 @@ export default async function SkillDetail({
           )}
         </section>
       )}
+
+      <SkillInstall
+        resource={resource}
+        skillDir={skillDirName(skillMd, resource.slug)}
+        zipUrl={resource.redistribution && skillMd ? `${SITE_URL}/api/download/skills/${resource.slug}/` : null}
+      />
 
       {resource.dependencies && resource.dependencies.length > 0 && (
         <section className="mt-6">

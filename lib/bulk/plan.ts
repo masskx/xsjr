@@ -9,6 +9,8 @@ import * as s from "../db/schema";
 import { issuesByField } from "../content/validation";
 import { moduleAdapter, type ModuleInput } from "../admin/modules";
 import { skillAdapter, type SkillInput } from "../admin/skills";
+import { promptAdapter } from "../admin/prompts";
+import type { PromptInput } from "../content/validation";
 import { todayShanghai } from "../admin/resources";
 import { canonicalSpdx, PERMISSIVE, UNKNOWN_LICENSE_LABEL } from "../ingest/license";
 import { normalizeSourceUrl } from "../ingest/url";
@@ -37,15 +39,17 @@ export const COLUMNS: Record<string, string[]> = {
   compat: ["兼容工具"],
   tasks: ["适用任务"],
   featured: ["精选"],
+  variables: ["变量"],
 };
 const FIELD_LABEL: Record<string, string> = {
   slug: "网址标识", title: "标题", summary: "摘要", category: "分类", tags: "标签", author: "作者", license: "许可证",
   sourceUrl: "来源链接", language: "语言", entry: "入口文件", env: "环境要求", dependencies: "依赖", compat: "兼容工具",
   applicableTasks: "适用任务", files: "文件", skillMd: "SKILL.md", body: "正文", licenseNote: "版权说明", tier: "会员等级",
+  template: "模板", variables: "变量",
 };
 
-const TYPE_WORDS: Record<string, ItemType> = { skill: "skill", skills: "skill", 技能: "skill", module: "module", modules: "module", 模块: "module" };
-const TYPE_LABEL: Record<ItemType, string> = { skill: "技能", module: "模块" };
+const TYPE_WORDS: Record<string, ItemType> = { skill: "skill", skills: "skill", 技能: "skill", module: "module", modules: "module", 模块: "module", prompt: "prompt", prompts: "prompt", 提示词: "prompt" };
+const TYPE_LABEL: Record<ItemType, string> = { skill: "技能", module: "模块", prompt: "提示词" };
 const DEFAULT_ENV: Record<string, string[]> = { Python: ["Python 3.9+"], R: ["R 4.0+"], MATLAB: ["MATLAB R2020a+"], Julia: ["Julia 1.6+"] };
 
 const splitList = (v: string | undefined, sep = /[、，,;；\n]+/) => (v ?? "").split(sep).map((x) => x.trim()).filter(Boolean);
@@ -58,7 +62,7 @@ export interface PlanEntry {
   slug: string;
   title: string;
   action: Action;
-  input?: SkillInput | ModuleInput;
+  input?: SkillInput | ModuleInput | PromptInput;
   tier: string;
   licenseSource: "PLATFORM" | "ADMIN_DECLARED" | "UNKNOWN";
   diagram?: { file: string; bytes: Buffer };
@@ -110,6 +114,7 @@ export function suggestedList(items: ScannedItem[]): Buffer {
       entry: it.entry ?? "",
       dependencies: (it.dependencies ?? []).join("；"),
       compat: it.type === "skill" ? "claude-code" : "",
+      variables: (it.placeholders ?? []).map((k) => `${k}=${k}`).join("；"),
     };
     return Object.keys(COLUMNS).map((k) => row[k] ?? "");
   });
@@ -146,7 +151,7 @@ export async function buildPlan(db: Db, root: string, items: ScannedItem[], scan
   for (const e of entries) {
     const hit = existing.find((x) => x.slug === e.slug);
     if (hit) {
-      const want = e.type === "skill" ? "SKILL" : "MODULE";
+      const want = e.type === "skill" ? "SKILL" : e.type === "prompt" ? "PROMPT" : "MODULE";
       if (hit.type !== want) e.errors.push(`网址标识“${e.slug}”已被其他类型的资源使用`);
       else if (hit.status === "ARCHIVED") e.errors.push(`网址标识“${e.slug}”属于一条已归档的资源；先在后台恢复，或换一个网址标识`);
       else e.existingId = hit.id;
@@ -180,8 +185,8 @@ function planItem(it: ScannedItem, row: Record<string, string>, activeTiers: Set
   // tier
   let tier = (pick("tier", "FREE") ?? "FREE").toUpperCase();
   if (tier === "PRO" || tier === "免费") tier = tier === "PRO" ? "EI" : "FREE";
-  if (it.type === "skill" && tier !== "FREE") {
-    errors.push("会员等级：Skills 始终免费，请留空或填 FREE");
+  if (it.type !== "module" && tier !== "FREE") {
+    errors.push(`会员等级：${it.type === "skill" ? "Skills 始终免费" : "提示词始终免费"}，请留空或填 FREE`);
     tier = "FREE";
   } else if (!activeTiers.has(tier)) {
     errors.push(`会员等级“${tier}”无效（可用：${[...activeTiers].join("、")}）`);
@@ -228,7 +233,7 @@ function planItem(it: ScannedItem, row: Record<string, string>, activeTiers: Set
     licenseDeclared: licenseSource === "ADMIN_DECLARED" ? true : undefined,
   };
 
-  let input: SkillInput | ModuleInput | undefined;
+  let input: SkillInput | ModuleInput | PromptInput | undefined;
   const validate = <I>(adapter: { schema: { safeParse(v: unknown): { success: true; data: I } | { success: false; error: Parameters<typeof issuesByField>[0] } }; publishProblems?(i: I): Record<string, string> }, raw: unknown) => {
     const parsed = adapter.schema.safeParse(raw);
     if (!parsed.success) {
@@ -247,6 +252,22 @@ function planItem(it: ScannedItem, row: Record<string, string>, activeTiers: Set
         compat: compat.length ? compat : [{ tool: "claude-code", supportedRange: "当前版本" }],
         files: it.files.map((f) => ({ path: f.path, size: f.size })),
         dependencies: splitList(row.dependencies).length ? splitList(row.dependencies) : undefined,
+      });
+    }
+  } else if (it.type === "prompt") {
+    if (it.template !== undefined) {
+      // 变量 column: "topic=研究主题；draft=初稿" (display names); default label = key
+      const labels = new Map(splitList(row.variables, /[;；\n]+/).map((pair) => { const [k, ...v] = pair.split(/[=＝:：]/); return [k.trim(), v.join("=").trim()] as const; }));
+      const longText = /text|content|draft|abstract|paper|passage|original|body|section/i;
+      input = validate<PromptInput>(promptAdapter as never, {
+        ...common,
+        template: it.template,
+        variables: (it.placeholders ?? []).map((key) => ({
+          key,
+          label: (labels.get(key) || key).slice(0, 30),
+          type: longText.test(key) ? "textarea" : "text",
+          required: true,
+        })),
       });
     }
   } else if (it.files.length) {

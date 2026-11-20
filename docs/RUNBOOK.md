@@ -437,3 +437,46 @@ powershell -ExecutionPolicy Bypass -File infra/bulk.ps1 -Folder D:\我的批量 
 npm.cmd run bulk -- --dir D:\我的批量 --as owner@example.com            # 检查
 npm.cmd run bulk -- --dir D:\我的批量 --as owner@example.com --apply    # 保存到本机开发库
 ```
+
+## 16. 2.3 版新增功能的运维要点
+
+部署方式不变（第 2 节）。本版带一个数据库迁移（`0005`：浏览/下载计数、公告、API 令牌），部署时自动执行，只增不删。
+`content/` 未改动。新增依赖都是纯 JavaScript（fflate、字体包），发布包约 10 MB（上限 15 MB）。
+
+**公告**（后台 → 公告，`/admin/announcements/`）：写标题和 Markdown 正文、可设起止时间（北京时间）。访客每天第一次打开网站时弹出一次；
+同时只显示“启用中、在时间范围内、最近修改”的一条；修改后当天会再显示一次。网站上 1 分钟内生效。后台页面不弹。
+
+**科研导航**（后台 → 导航，`/admin/sites/`）：新建站点、填网址/收费方式/地区、上传图标（PNG/JPEG/WebP，≤ 2 MB，建议正方形 128 px 以上；
+不上传则显示自动生成的字母图标）、发布。导航页按分类显示图标卡片，点击进入详情页，详情页上“打开 xxx”按钮跳转官网。
+请只上传你有权使用的图标（多数网站的 favicon 受商标保护，用于导航链接通常没问题，但不要修改或用于其他用途）。
+
+**API 批量上传**（后台 → API，`/admin/api/`）：
+1. 创建令牌（需 10 分钟内验证过两步验证码）。令牌只显示一次，服务器只存散列；可设有效期，可随时撤销；你不再是管理员时自动失效。
+2. 把批量文件夹（目录结构同第 15 节，支持 `skills/`、`modules/`、`prompts/` 和 `清单.csv`）打成 ZIP，调用：
+```bash
+curl -X POST "https://你的域名/api/admin/bulk/" -H "Authorization: Bearer rhk_..." -H "Content-Type: application/zip" --data-binary @batch.zip
+```
+   不带参数只检查（返回每项结果和中文报告，状态码 200 或 422）；`?apply=1` 保存为草稿，`&publish=1` 同时发布，`&update=1` 覆盖同名资源。
+3. 限制：ZIP ≤ 30 MB、解压后 ≤ 200 MB、单文件 ≤ 10 MB、≤ 5000 个文件；每个令牌每小时 30 次；接口只在开通账户（HTTPS）后可用。
+
+**提示词也能批量上传**：`prompts/<文件夹>/template.md`（必需，变量写成 `{{topic}}`，只能用英文字母数字下划线）+ 可选 `README.md`；
+变量的中文显示名在清单的“变量”列填写，如 `topic=研究主题；draft=初稿`。
+
+**浏览量与下载量**：详情页按“访客 + 资源 + 当天”去重计数（访客标识与统计相同：IP 与浏览器标识加每日随机盐的散列，不保存 IP）。
+不计入：爬虫、开启“请勿追踪/GPC”的访问；浏览量另外不计非浏览器客户端，下载量允许 curl/PowerShell（安装命令用它们下载）。
+下载地址 `/api/download/skills/<slug>/`、`/api/download/modules/<slug>/`：先检查权限（会员模块需相应等级、仅索引的 Skill 不提供下载）再计数、再返回 ZIP。
+
+**Skill 安装说明**：由各 Skill 的 `compat` 列表驱动，工具的目录与命令写在 `lib/skills/install.ts`，每个工具附官方文档出处
+（2026-11-20 核实：Claude Code、Codex、Cursor、Gemini CLI）。没有核实的工具（如 Trae）显示“未验证”，不给路径。
+核实新工具：读官方文档 → 在该文件补上目录和出处 → `verified: true`。
+
+**外部聚合检索**：七类检索的引擎和 URL 模板在 `lib/external-search.ts`，增删引擎只改这个表（模板里用 `{q}` 表示搜索词）。
+只在新标签页打开第三方网站，本站不抓取、不代理、不保存任何结果。
+
+**更新日志**：公开页 `/changelog/` 的内容在 `lib/changelog.ts`，发布新版本时在最前面加一条。
+
+**普通用户注册**：密码至少 8 位（常见密码表已覆盖 8–9 位的弱密码），邮箱验证可选（只在开通会员时需要），不需要两步验证；
+管理员仍是 14 位密码 + 两步验证。
+
+**草稿批次（办公技能 11 个、降重降AI 6 个、提示词 6 个）**：`tools/seed-batches/office-and-writing/`，用第 15 节的命令先检查再 `-Apply`，
+到后台审核后逐条发布。

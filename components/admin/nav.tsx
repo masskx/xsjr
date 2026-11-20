@@ -8,6 +8,9 @@ const ITEMS = [
   { href: "/admin/modules/", label: "模块" },
   { href: "/admin/skills/", label: "Skills" },
   { href: "/admin/ingest/", label: "导入" },
+  { href: "/admin/announcements/", label: "公告" },
+  { href: "/admin/sites/", label: "导航" },
+  { href: "/admin/api/", label: "API" },
   { href: "/admin/users/", label: "用户" },
   { href: "/admin/analytics/", label: "统计" },
 ];

@@ -2,6 +2,46 @@
 
 ## Unreleased
 
+### 2.3: 学术蒟蒻 (Academic Juruo)
+
+Added
+- Brand: the site is now 学术蒟蒻. New logo (vermilion seal with a book and a konjac sprout, SVG,
+  favicon/apple icon) and an Easter egg on 蒟蒻 in the wordmark (hover/focus/tap: pinyin jǔ ruò,
+  slang meaning “weak/beginner”, the plant origin).
+- Home: an artistic AI timeline (1943–2025, 21 milestones in five eras, ink axis on graph paper,
+  horizontal scroll with buttons, works without JS) across the upper half.
+- External aggregated search (home and /search/): seven modes, engines configured as name → URL
+  template with {q} (lib/external-search.ts); opens in a new tab; nothing fetched or proxied.
+- Skill install guides replace the compatibility table: per tool from the compat array, verified
+  directories + download-and-unzip commands for macOS/Linux and PowerShell with the official source
+  (Claude Code, Codex, Cursor, Gemini CLI); unknown tools are labelled 未验证 with no invented paths.
+- ZIP downloads for skills (only when redistributable) and modules (members-only gated), and view
+  / download counters (resources.view_count, download_count; dedup by visitor hash + resource +
+  Shanghai day in resource_daily_visitors; bots and DNT/GPC excluded; never touches updated_at).
+- Detail pages: “继续浏览” with the next item of the same type and related resources.
+- Public /changelog/ page (lib/changelog.ts), in the footer and sitemap.
+- Daily announcements managed in the back office (/admin/announcements/), shown once per browser
+  per day as a dialog (Markdown, html:false), with time windows.
+- Research navigation as icon cards grouped by category; uploaded icon or a generated monogram;
+  back-office editor for sites (/admin/sites/) with icon upload.
+- Module gallery: free modules without a diagram show an entry-code preview (members-only code is
+  never sent to the list).
+- Admin API tokens (/admin/api/, hashed, expiring, revocable, admin-only, re-auth to create) and
+  POST /api/admin/bulk/ accepting a ZIP of the bulk folder layout (check, apply, publish, update),
+  with streaming, capped decompression (zip-bomb and path-traversal safe).
+- Bulk upload supports prompts (prompts/<name>/template.md, variables from {{placeholders}}).
+- Draft batch tools/seed-batches/office-and-writing: 11 office skills, 6 rewriting / AI-draft
+  revision skills (written for revising one's own work, with integrity and disclosure notes), 6
+  prompts.
+- Migration 0005. Tests: 222 unit/DB tests (19 new), e2e v23.mjs (34 checks).
+
+Changed
+- Typography: headlines in serif (Source Serif 4 + Noto Serif SC, both bundled; the CJK font is
+  sliced by unicode-range, WOFF2 only, so pages download only the characters they use), a faint
+  paper grain and a vermilion accent; the paper-and-ink palette and labels stay.
+- Regular users: password minimum 8 (common-password list regenerated to cover 8–9 characters),
+  email verification optional, no two-step section on their account page. Admins unchanged.
+
 ### Visual redesign: "paper and ink"
 
 Changed

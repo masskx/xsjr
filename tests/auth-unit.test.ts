@@ -46,9 +46,14 @@ describe("passwords", () => {
   });
 
   it.each([
-    ["short", "至少 10"],
+    ["short", "至少 8"],
     ["aaaaaaaaaaaaaa", "过于简单"],
     ["password123", "常见密码"],
+    // 8 and 9 characters are allowed now, so the common-password list must cover them
+    ["password", "常见密码"],
+    ["12345678", "常见密码"],
+    ["iloveyou", "常见密码"],
+    ["Kq7#mVt2", null],
     ["Correct-Horse-27", null],
   ])("policy %j", (pw, expected) => {
     const problem = passwordProblem(pw);

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CONSENT_VERSION } from "@/lib/auth/service";
 import { authConfig } from "@/lib/auth/server";
-import { OPERATOR } from "@/lib/site";
+import { OPERATOR, SITE_NAME } from "@/lib/site";
 
 export const metadata: Metadata = { title: "隐私政策" };
 
@@ -17,7 +17,7 @@ export default function PrivacyPage() {
 
       <Section title="一、我们是谁">
         <p>
-          本站（科研 AI 资源工作台）由 {OPERATOR.name} 运营。个人信息相关问题请联系：{OPERATOR.contact}。
+          本站（{SITE_NAME}，科研 AI 资源工作台）由 {OPERATOR.name} 运营。个人信息相关问题请联系：{OPERATOR.contact}。
         </p>
       </Section>
 

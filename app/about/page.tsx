@@ -4,7 +4,7 @@ import { SITE_NAME } from "@/lib/site";
 export const metadata: Metadata = {
   title: "平台说明与边界",
   description:
-    "科研 AI 资源工作台做什么、不做什么，资源来源与版权规则，以及侵权与失效链接的举报渠道。",
+    "学术蒟蒻（科研 AI 资源工作台）做什么、不做什么，资源来源与版权规则，以及侵权与失效链接的举报渠道。",
 };
 
 export default function AboutPage() {

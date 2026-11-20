@@ -1,4 +1,4 @@
-# 科研 AI 资源工作台（Research Hub）
+# 学术蒟蒻（Academic Juruo）· 科研 AI 资源工作台
 
 面向科研人员的 AI 资源发现与分发站点：提示词、Agent Skills、可复用代码模块、科研网站导航。
 

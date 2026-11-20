@@ -3,12 +3,18 @@ import Link from "next/link";
 import "@fontsource-variable/albert-sans";
 import "@fontsource-variable/alumni-sans";
 import "@fontsource-variable/jetbrains-mono";
+import "@fontsource-variable/source-serif-4";
+import "./noto-serif-sc.css";
 import "./globals.css";
-import { SITE_DESC, SITE_NAME, SITE_TAGLINE, SITE_URL, NAV, filingNumbers } from "@/lib/site";
+import { SITE_DESC, SITE_KIND, SITE_NAME, SITE_TAGLINE, SITE_URL, NAV, filingNumbers } from "@/lib/site";
+import { LogoMark } from "@/components/brand/logo-mark";
+import { NameEgg } from "@/components/brand/name-egg";
 import { HeaderSearch } from "@/components/header-search";
 import { AccountLink } from "@/components/account-link";
 import { Analytics } from "@/components/analytics";
 import { SiteNav } from "@/components/site-nav";
+import { DailyAnnouncement } from "@/components/daily-announcement";
+import { getAnnouncement } from "@/lib/repo";
 
 // Every page renders per request: content comes from PostgreSQL and SITE_URL (canonical URLs,
 // metadataBase) is runtime configuration, so nothing may be frozen at build time.
@@ -40,28 +46,30 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const filing = filingNumbers();
+  const announcement = await getAnnouncement();
   return (
     <html lang="zh-CN" className="h-full">
       <body className="flex min-h-full flex-col">
         <header className="sticky top-0 z-40 border-b border-rule bg-paper/90 backdrop-blur">
-          <div className="mx-auto flex h-[62px] w-full max-w-6xl items-center gap-6 px-4 sm:px-6">
-            <Link
-              href="/"
-              className="flex shrink-0 items-center gap-2.5 no-underline"
-            >
-              <span className="grid h-8 w-8 place-items-center rounded-[3px] bg-ink text-[15px] font-medium text-white">
-                研
-              </span>
-              <span className="hidden text-[15px] font-medium tracking-[0.12em] text-zinc-900 sm:block">
-                {SITE_NAME}
-              </span>
-            </Link>
+          <div className="mx-auto flex h-[62px] w-full max-w-6xl items-center gap-3 px-4 sm:gap-6 sm:px-6">
+            <div className="flex shrink-0 items-center gap-2.5">
+              <Link href="/" aria-label={`${SITE_NAME} 首页`} className="no-underline">
+                <LogoMark size={34} />
+              </Link>
+              <div className="leading-none">
+                <span className="font-display text-[19px] font-semibold tracking-[0.06em] text-zinc-900">
+                  <Link href="/" className="text-zinc-900 no-underline">学术</Link>
+                  <NameEgg />
+                </span>
+                <span className="mt-1 hidden font-mono text-[10px] tracking-[0.18em] text-zinc-500 sm:block">{SITE_KIND}</span>
+              </div>
+            </div>
 
             <nav className="hidden items-center gap-1 md:ml-auto md:flex">
               <SiteNav />
@@ -81,17 +89,17 @@ export default function RootLayout({
 
         <main className="flex-1">{children}</main>
         <Analytics />
+        {announcement && <DailyAnnouncement key={`${announcement.id}:${announcement.version}`} {...announcement} />}
 
         <footer className="mt-24 border-t border-rule bg-paper-deep">
           <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.6fr_1fr_1fr]">
             <div>
               <div className="flex items-center gap-2.5">
-                <span className="grid h-7 w-7 place-items-center rounded-[3px] bg-ink text-sm font-medium text-white">
-                  研
-                </span>
-                <span className="text-sm font-medium tracking-[0.12em] text-zinc-900">
+                <LogoMark size={30} />
+                <span className="font-display text-[17px] font-semibold tracking-[0.06em] text-zinc-900">
                   {SITE_NAME}
                 </span>
+                <span className="font-mono text-[10px] tracking-[0.16em] text-zinc-500">{SITE_KIND}</span>
               </div>
               <p className="mt-4 max-w-sm text-sm font-light leading-7 text-zinc-600">
                 平台只负责筛选、规范化描述与分发，不内置大模型、不执行任何第三方脚本。资源在你自己的
@@ -128,6 +136,11 @@ export default function RootLayout({
                 <li>
                   <Link href="/about/#report" className="link-line text-zinc-700 no-underline hover:underline">
                     举报侵权 / 失效链接
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/changelog/" className="link-line text-zinc-700 no-underline hover:underline">
+                    更新日志
                   </Link>
                 </li>
               </ul>

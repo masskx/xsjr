@@ -50,7 +50,7 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
 
       {welcome && (
         <div className="mt-6">
-          <Alert tone="ok">注册成功，欢迎！{user.emailVerifiedAt ? "" : "请查收验证邮件完成邮箱验证。"}</Alert>
+          <Alert tone="ok">注册成功，欢迎！现在就可以浏览、复制和下载全部免费资源。</Alert>
         </div>
       )}
 
@@ -75,7 +75,7 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
             <p className="text-[13.5px] text-zinc-700">已验证（{fmtDate.format(user.emailVerifiedAt)}）</p>
           ) : (
             <ActionForm action={resendVerificationAction}>
-              <p className="text-[13.5px] text-zinc-700">邮箱尚未验证。验证后才能开通会员。</p>
+              <p className="text-[13.5px] text-zinc-700">邮箱尚未验证（可选）。只有开通会员时才需要验证邮箱。</p>
               <Submit>重新发送验证邮件</Submit>
             </ActionForm>
           )}
@@ -126,6 +126,7 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
             </form>
           )}
 
+          {user.role === "ADMIN" && (<>
           <h3 className="mt-8 text-[13.5px] font-semibold text-zinc-900">两步验证</h3>
           <p className="mt-2 text-[13.5px] text-zinc-700">
             {user.totpEnabledAt ? (
@@ -136,10 +137,11 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
                 <Link href="/account/mfa/" className="font-medium text-zinc-900">
                   立即设置
                 </Link>
-                {user.role === "ADMIN" && "（管理员必须启用）"}
+                （管理员必须启用）
               </>
             )}
           </p>
+          </>)}
         </Panel>
 
         <Panel title="注销账户" description="永久删除账户、登录记录和收藏。此操作不可恢复。">

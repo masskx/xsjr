@@ -1,0 +1,9 @@
+草稿批次：办公技能 11 个、降重降AI 6 个（Skills），以及 6 个提示词。
+参照 yanweb.top/sci-skills/ 的分类分布，补齐本站缺失的“办公”和“改写/AIGC 修订”类资源。
+
+上传为草稿（审核后再到后台逐条发布）：
+  powershell -ExecutionPolicy Bypass -File infra\bulk.ps1 -Folder tools\seed-batches\office-and-writing
+  powershell -ExecutionPolicy Bypass -File infra\bulk.ps1 -Folder tools\seed-batches\office-and-writing -Apply
+
+“降重降AI”类内容按学术规范编写：用于改写本人写作、规范引用、把 AI 起草的文字修订成反映作者本人研究的表达，
+并提醒按学校/期刊要求披露 AI 使用；不提供冒充原创或规避检测的承诺。

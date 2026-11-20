@@ -204,6 +204,9 @@ export const resources = pgTable(
     origin: resourceOrigin("origin").notNull(),
     contentHash: bytea("content_hash"),
     contentUpdatedOn: date("content_updated_on", { mode: "string" }).notNull(),
+    /** public counters: one per visitor per day (resource_daily_visitors); never touch updated_at */
+    viewCount: integer("view_count").notNull().default(0),
+    downloadCount: integer("download_count").notNull().default(0),
     verifiedOn: date("verified_on", { mode: "string" }),
     publishedAt: ts("published_at"),
     createdAt: createdAt(),
@@ -515,3 +518,49 @@ export const entitlements = pgTable(
   },
   (t) => [index("entitlements_user_idx").on(t.userId, t.startsAt.desc())],
 );
+
+// ── resource counters (dedup: visitor hash + resource + day) ──
+export const resourceDailyVisitors = pgTable(
+  "resource_daily_visitors",
+  {
+    resourceId: ref("resource_id").notNull().references(() => resources.id, { onDelete: "cascade" }),
+    day: date("day", { mode: "string" }).notNull(),
+    /** "view" | "download" */
+    kind: text("kind").notNull(),
+    visitorHash: bytea("visitor_hash").notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.resourceId, t.day, t.kind, t.visitorHash] }),
+    index("resource_daily_visitors_day_idx").on(t.day),
+    check("resource_daily_visitors_kind", sql`${t.kind} IN ('view','download')`),
+  ],
+);
+
+// ── site announcements (shown once per visitor per day) ──
+export const announcements = pgTable("announcements", {
+  id: id(),
+  title: text("title").notNull(),
+  bodyMd: text("body_md").notNull().default(""),
+  isActive: boolean("is_active").notNull().default(false),
+  startsAt: ts("starts_at"),
+  endsAt: ts("ends_at"),
+  createdBy: ref("created_by").references(() => users.id),
+  updatedBy: ref("updated_by").references(() => users.id),
+  createdAt: createdAt(),
+  updatedAt: ts("updated_at").notNull().defaultNow(),
+});
+
+// ── admin API tokens (bulk upload over HTTPS); only the SHA-256 is stored ──
+export const apiTokens = pgTable("api_tokens", {
+  id: id(),
+  userId: ref("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  tokenHash: bytea("token_hash").notNull().unique(),
+  /** first characters of the token, shown in the list so the owner can tell tokens apart */
+  prefix: text("prefix").notNull(),
+  scopes: text("scopes").array().notNull(),
+  lastUsedAt: ts("last_used_at"),
+  expiresAt: ts("expires_at"),
+  revokedAt: ts("revoked_at"),
+  createdAt: createdAt(),
+});

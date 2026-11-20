@@ -127,5 +127,9 @@ export const TOOL_LABEL: Record<string, string> = {
   codex: "Codex",
   cursor: "Cursor",
   "gemini-cli": "Gemini CLI",
+  trae: "Trae",
+  windsurf: "Windsurf",
+  cline: "Cline",
+  copilot: "GitHub Copilot",
   generic: "通用",
 };

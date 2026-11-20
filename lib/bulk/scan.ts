@@ -17,7 +17,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { pinyin } from "pinyin-pro";
 
-export type ItemType = "skill" | "module";
+export type ItemType = "skill" | "module" | "prompt";
 
 export interface ScannedFile {
   path: string;
@@ -37,6 +37,9 @@ export interface ScannedItem {
   bodyAfterSummary?: string;
   /** skills: SKILL.md text; modules: code files with content */
   skillMd?: string;
+  /** prompts: template.md text and the {{placeholders}} it uses */
+  template?: string;
+  placeholders?: string[];
   files: ScannedFile[];
   entry?: string;
   language?: string;
@@ -244,7 +247,41 @@ function scanModule(dir: string, folder: string): ScannedItem {
   return item;
 }
 
-const TYPE_DIRS: Record<string, ItemType> = { skills: "skill", skill: "skill", 技能: "skill", modules: "module", module: "module", 模块: "module" };
+const TYPE_DIRS: Record<string, ItemType> = {
+  skills: "skill", skill: "skill", 技能: "skill",
+  modules: "module", module: "module", 模块: "module",
+  prompts: "prompt", prompt: "prompt", 提示词: "prompt",
+};
+
+/** prompts/<name>/template.md (required) + README.md (title, summary, body). */
+function scanPrompt(dir: string, folder: string): ScannedItem {
+  const item: ScannedItem = { type: "prompt", folder, slug: slugify(folder), body: "", files: [], warnings: [], errors: [] };
+  const top = listDir(dir);
+  const tpl = top.find((e) => e.isFile() && /^(template|prompt)\.(md|txt)$/i.test(e.name));
+  if (!tpl) {
+    item.errors.push("缺少 template.md（提示词模板）");
+    return item;
+  }
+  const t = readText(path.join(dir, tpl.name));
+  if (!t.text) {
+    item.errors.push(`${tpl.name} 无法读取：${t.problem}`);
+    return item;
+  }
+  item.template = t.text.trim();
+  item.placeholders = [...new Set([...item.template.matchAll(/\{\{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\}\}/g)].map((m) => m[1]))];
+  if ([...item.template.matchAll(/\{\{\s*([^}\s]+)\s*\}\}/g)].some((m) => !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(m[1]))) {
+    item.errors.push("模板里的变量名只能用字母、数字和下划线，例如 {{topic}}（中文显示名在清单的“变量”列填写）");
+  }
+  const readme = top.find((e) => e.isFile() && README.test(e.name));
+  if (readme) {
+    const parts = readmeParts(readText(path.join(dir, readme.name)).text ?? "");
+    item.title = parts.title;
+    item.summary = parts.summary;
+    item.body = parts.body;
+    item.bodyAfterSummary = parts.bodyAfterSummary;
+  }
+  return item;
+}
 
 export function scanBatch(root: string): { items: ScannedItem[]; problems: string[] } {
   const items: ScannedItem[] = [];
@@ -254,19 +291,19 @@ export function scanBatch(root: string): { items: ScannedItem[]; problems: strin
   for (const e of listDir(root)) {
     const type = e.isDirectory() ? TYPE_DIRS[e.name.toLowerCase()] : undefined;
     if (!type) {
-      if (e.isDirectory() && !e.name.startsWith(".")) problems.push(`未识别的文件夹“${e.name}”：只处理 skills/（技能）和 modules/（模块）`);
+      if (e.isDirectory() && !e.name.startsWith(".")) problems.push(`未识别的文件夹“${e.name}”：只处理 skills/（技能）、modules/（模块）和 prompts/（提示词）`);
       continue;
     }
     sawTypeDir = true;
     for (const d of listDir(path.join(root, e.name))) {
       if (!d.isDirectory() || d.name.startsWith(".")) continue;
       const dir = path.join(root, e.name, d.name);
-      const item = type === "skill" ? scanSkill(dir, d.name) : scanModule(dir, d.name);
+      const item = type === "skill" ? scanSkill(dir, d.name) : type === "module" ? scanModule(dir, d.name) : scanPrompt(dir, d.name);
       if (/^example-/i.test(d.name)) item.errors.unshift("这是模板里的示例，请删除这个文件夹或换成你自己的内容");
       items.push(item);
     }
   }
-  if (!sawTypeDir) problems.push("文件夹里没有 skills/ 或 modules/ 子文件夹（见运维手册第 15 节的目录结构）");
+  if (!sawTypeDir) problems.push("文件夹里没有 skills/、modules/ 或 prompts/ 子文件夹（见运维手册第 15 节的目录结构）");
   if (items.length > LIMITS.maxItems) problems.push(`一次最多 ${LIMITS.maxItems} 个资源（当前 ${items.length} 个），请分批上传`);
   return { items, problems };
 }

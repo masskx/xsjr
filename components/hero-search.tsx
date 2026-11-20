@@ -20,7 +20,7 @@ export function HeroSearch() {
   }
 
   return (
-    <div className="mt-8 max-w-xl">
+    <div className="mt-3 max-w-xl">
       <form onSubmit={submit} className="relative">
         <svg
           viewBox="0 0 24 24"

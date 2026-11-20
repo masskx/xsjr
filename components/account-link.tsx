@@ -11,7 +11,7 @@ export async function AccountLink() {
   return (
     <Link
       href={href}
-      className="max-w-[8rem] shrink-0 truncate rounded-[3px] border border-rule bg-paper-raised px-3 py-1.5 text-sm text-zinc-800 no-underline shadow-xs transition-shadow hover:shadow-md"
+      className="max-w-[5.5rem] shrink-0 truncate rounded-[3px] border border-rule bg-paper-raised px-2 py-1.5 sm:max-w-[8rem] sm:px-3 text-sm text-zinc-800 no-underline shadow-xs transition-shadow hover:shadow-md"
     >
       {label}
     </Link>

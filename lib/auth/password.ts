@@ -32,7 +32,9 @@ function isCommon(password: string): boolean {
   return common.has(password.toLowerCase());
 }
 
-export const MIN_LENGTH = { USER: 10, ADMIN: 14 } as const;
+// Regular users: 8 characters (NIST SP 800-63B minimum) plus the common-password and
+// email checks below; administrators keep 14 and TOTP.
+export const MIN_LENGTH = { USER: 8, ADMIN: 14 } as const;
 export const MAX_LENGTH = 128;
 
 /** Returns a user-facing (Chinese) problem description, or null when the password is acceptable. */

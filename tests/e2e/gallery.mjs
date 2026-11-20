@@ -60,7 +60,8 @@ try {
   const pg1 = await anon.newPage();
   await pg1.goto(`${BASE}/modules/`);
   check("gallery lists 3 modules", (await pg1.locator("main a[href^='/modules/'] h3").count()) === 3);
-  check("cards without a diagram show a file-tree thumbnail", (await pg1.locator("main a[href^='/modules/'] [role=tree]").count()) === 3);
+  // free modules without a diagram preview their entry code; members-only ones fall back to the file tree
+  check("cards without a diagram show a code preview or file-tree thumbnail", (await pg1.locator("main a[href^='/modules/'] pre, main a[href^='/modules/'] [role=tree]").count()) === 3);
   await Promise.all([pg1.waitForURL(/category=/), pg1.getByRole("link", { name: /^统计方法/ }).click()]);
   check("category filter is a shareable URL and filters", (await pg1.locator("main a[href^='/modules/'] h3").count()) === 1 && pg1.url().includes("category="));
   await Promise.all([pg1.waitForURL(/tag=/), pg1.getByRole("link", { name: /^APA 报告/ }).click()]);

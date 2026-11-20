@@ -16,8 +16,11 @@ import * as members from "./members";
 import * as resources from "./resources";
 import * as modules from "./modules";
 import * as skills from "./skills";
+import * as sites from "./sites";
 import * as analytics from "../analytics/queries";
 import * as ingest from "../ingest/jobs";
+import * as announcements from "../announcements";
+import * as apiTokens from "./api-tokens";
 
 export async function adminContext(): Promise<{ viewer: ActiveSession; ctx: AdminCtx }> {
   const viewer = await requireAdmin();
@@ -58,11 +61,14 @@ export const adminData = {
   listResources: (type: resources.ResourceType, filter: Parameters<typeof resources.listResources>[2]) => resources.listResources(getDb(), type, filter),
   moduleForEdit: (id: number) => modules.getModuleForEdit(getDb(), id),
   skillForEdit: (id: number) => skills.getSkillForEdit(getDb(), id),
+  siteForEdit: (id: number) => sites.getSiteForEdit(getDb(), id),
   diagramOf: (id: number) => modules.diagramOf(getDb(), id),
   ingestStatus: async () => ({ ...ingest.ingestStatus(), tokensToday: await ingest.tokensToday(getDb()) }),
   ingestJobs: () => ingest.listJobs(getDb()),
   ingestJob: (id: number) => ingest.getJob(getDb(), id),
   provenance: (id: number) => ingest.provenanceOf(getDb(), id),
+  announcements: () => announcements.listAnnouncements(getDb()),
+  apiTokens: (userId: number) => apiTokens.listApiTokens(getDb(), userId),
   analytics: async () => {
     const db = getDb();
     const [trend, copied, locked, viewed, searches, referrers, accounts, tiersDist, tierRows] = await Promise.all([

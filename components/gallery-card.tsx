@@ -5,7 +5,8 @@ import { FileTree } from "./file-tree";
 import { TierBadge } from "./resource-card";
 
 /** Module gallery card: a visual thumbnail (structure diagram or file tree) above the text. */
-export function GalleryCard({ module, diagram, files }: { module: ModuleResource; diagram: Diagram | null; files: FileMeta[] }) {
+export function GalleryCard({ module, diagram, files, preview }: { module: ModuleResource; diagram: Diagram | null; files: FileMeta[]; preview?: string }) {
+  const snippet = preview?.split("\n").slice(0, 14).join("\n");
   return (
     <Link
       href={`/modules/${module.slug}/`}
@@ -15,6 +16,10 @@ export function GalleryCard({ module, diagram, files }: { module: ModuleResource
         {diagram ? (
           // eslint-disable-next-line @next/next/no-img-element -- images.unoptimized; served by Caddy
           <img src={diagram.src} width={diagram.width} height={diagram.height} alt="" loading="lazy" decoding="async" className="h-full w-full object-contain" />
+        ) : snippet ? (
+          <pre aria-hidden className="m-0 h-full w-full overflow-hidden bg-[oklch(17%_0_0)] px-4 pb-3 pt-9 font-mono text-[10.5px] leading-[1.55] text-zinc-300 [mask-image:linear-gradient(to_bottom,black_70%,transparent)]">
+            {snippet}
+          </pre>
         ) : (
           <div aria-hidden className="w-full max-w-full overflow-hidden px-4 py-3">
             <FileTree files={files} root={module.slug} compact />

@@ -14,6 +14,14 @@ import { canAccess, effectiveTier, isExpired, viewerRank } from "../auth/entitle
 import { authConfig, getViewer } from "../auth/server";
 import type { Resource, ResourceType } from "../types";
 import { ensureContentListener } from "./listen";
+import { headers } from "next/headers";
+import { clientIp } from "../auth/server";
+import { countOnce, countsOf } from "../stats/counters";
+import { moduleZip, skillZip } from "../stats/zip";
+import { SITE_URL } from "../site";
+import { activeAnnouncement } from "../announcements";
+import { renderMarkdown } from "../markdown";
+import type { ModuleResource } from "../types";
 import { categoriesOf, loadAttachment, loadAttachments, loadSnapshot, relatedOf, tagsOf, type Diagram, type FileMeta, type Snapshot } from "./store";
 export type { Diagram, FileMeta };
 
@@ -175,4 +183,88 @@ export async function resourceForPath(path: string): Promise<{ id: number; slug:
   const r = snap.bySlug.get(m[2]);
   if (!r || r.type !== PREFIX_TYPE[m[1]]) return null;
   return { id: snap.ids.get(r.slug)!, slug: r.slug, tier: r.tier, resource: r };
+}
+
+// ── counters and downloads (task: ZIP downloads + resource statistics) ──
+
+async function visitor() {
+  const h = await headers();
+  return { ip: await clientIp(), userAgent: h.get("user-agent") ?? "", headers: h };
+}
+
+/** Count a detail-page view (once per visitor per resource per day) and return the counts. */
+export async function recordViewAndGetStats(resource: Resource): Promise<{ views: number; downloads: number }> {
+  const snap = await snapshot();
+  const id = snap.ids.get(resource.slug);
+  if (!id) return { views: 0, downloads: 0 };
+  try {
+    await countOnce(getDb(), id, "view", await visitor());
+  } catch (err) {
+    // a counter must never break the page
+    console.error("[stats] view count failed", err);
+  }
+  return countsOf(getDb(), id);
+}
+
+/** Whether a resource offers a ZIP at all (independent of the viewer's tier). */
+export function downloadable(resource: Resource): boolean {
+  return (resource.type === "SKILL" && resource.redistribution) || resource.type === "MODULE";
+}
+
+export type DownloadResult =
+  | { ok: true; filename: string; bytes: Uint8Array }
+  | { ok: false; status: 403 | 404; reason: string };
+
+/** Build the ZIP for a resource the current viewer may download, counting the download first. */
+export async function downloadResource(type: string, slug: string): Promise<DownloadResult> {
+  const snap = await snapshot();
+  const r = snap.bySlug.get(slug);
+  const want = type === "skills" ? "SKILL" : type === "modules" ? "MODULE" : null;
+  if (!r || !want || r.type !== want || !downloadable(r)) return { ok: false, status: 404, reason: "没有可下载的文件" };
+  let pkg: { filename: string; bytes: Uint8Array };
+  if (r.type === "SKILL") {
+    const md = await getAttachment(r, "SKILL.md");
+    if (!md) return { ok: false, status: 404, reason: "没有可下载的文件" };
+    pkg = skillZip(r, md, SITE_URL);
+  } else {
+    const files = await getModuleFiles(r);
+    if (!files) return { ok: false, status: r.tier === "FREE" ? 404 : 403, reason: r.tier === "FREE" ? "没有可下载的文件" : "这是会员模块，需要相应会员等级才能下载" };
+    pkg = moduleZip(r as ModuleResource, files, SITE_URL);
+  }
+  const id = snap.ids.get(slug)!;
+  try {
+    await countOnce(getDb(), id, "download", await visitor());
+  } catch (err) {
+    console.error("[stats] download count failed", err);
+  }
+  return { ok: true, ...pkg };
+}
+
+/** Next resource of the same type in display order (wraps around), for "下一篇". */
+export async function getNext(resource: Resource): Promise<Resource | null> {
+  const list = (await snapshot()).all.filter((r) => r.type === resource.type);
+  if (list.length < 2) return null;
+  const i = list.findIndex((r) => r.slug === resource.slug);
+  return list[(i + 1) % list.length] ?? null;
+}
+
+// ── announcement (shown once a day; cached for a minute per process) ──
+let annCache: { at: number; value: { id: number; version: string; title: string; html: string } | null } | null = null;
+
+export async function getAnnouncement() {
+  await connection();
+  if (annCache && Date.now() - annCache.at < 60_000) return annCache.value;
+  try {
+    const row = await activeAnnouncement(getDb());
+    const value = row ? { id: row.id, version: String(row.updatedAt.getTime()), title: row.title, html: renderMarkdown(row.bodyMd) } : null;
+    annCache = { at: Date.now(), value };
+    return value;
+  } catch (err) {
+    console.error("[announcement] load failed", err);
+    return null;
+  }
+}
+
+export function invalidateAnnouncement() {
+  annCache = null;
 }

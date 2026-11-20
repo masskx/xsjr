@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getBody, getResource } from "@/lib/repo";
+import { getBody, getDiagram, getResource } from "@/lib/repo";
+import { SiteIcon } from "@/components/site-icon";
 import { DetailShell } from "@/components/detail-shell";
 import { Markdown } from "@/components/markdown";
 import type { SiteResource } from "@/lib/types";
@@ -30,7 +31,7 @@ export default async function SiteDetail({
   if (!r || r.type !== "SITE") notFound();
 
   const resource = r as SiteResource;
-  const body = await getBody(resource);
+  const [body, icon] = await Promise.all([getBody(resource), getDiagram(resource)]);
 
   return (
     <DetailShell
@@ -48,8 +49,10 @@ export default async function SiteDetail({
     >
       {body && <Markdown source={body} />}
 
-      <section className="mt-8 rounded-xl border border-zinc-200 bg-zinc-50/60 p-5">
-        <h2 className="text-[13px] font-semibold text-zinc-900">
+      <section className="surface mt-8 flex flex-col gap-4 p-5 sm:flex-row sm:items-center">
+        <SiteIcon title={resource.title} slug={resource.slug} icon={icon} size={72} />
+        <div className="min-w-0 flex-1">
+        <h2 className="text-[15px] font-semibold text-zinc-900">
           前往官网
         </h2>
         <p className="mt-1.5 text-[12.5px] leading-6 text-zinc-500">
@@ -60,7 +63,7 @@ export default async function SiteDetail({
           href={resource.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-4 inline-flex items-center gap-2 rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white no-underline transition-colors hover:bg-zinc-800"
+          className="btn-ink mt-4"
         >
           打开 {safeHost(resource.url)}
           <svg
@@ -76,6 +79,7 @@ export default async function SiteDetail({
             <path d="M10 14 21 3" />
           </svg>
         </a>
+        </div>
       </section>
     </DetailShell>
   );

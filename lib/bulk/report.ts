@@ -2,8 +2,8 @@
 import type { Applied } from "./apply";
 import { LIST_FILE, type Plan, type PlanEntry } from "./plan";
 
-const TYPE: Record<string, string> = { skill: "技能", module: "模块" };
-const DIR: Record<string, string> = { skill: "skills", module: "modules" };
+const TYPE: Record<string, string> = { skill: "技能", module: "模块", prompt: "提示词" };
+const DIR: Record<string, string> = { skill: "skills", module: "modules", prompt: "prompts" };
 const fmt = new Intl.DateTimeFormat("zh-CN", { timeZone: "Asia/Shanghai", dateStyle: "medium", timeStyle: "short" });
 
 function head(e: PlanEntry) {

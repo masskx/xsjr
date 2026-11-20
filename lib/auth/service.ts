@@ -13,7 +13,7 @@ import { base32Encode, newTotpSecret, otpauthUri, verifyTotp } from "./totp";
 
 // bump whenever the privacy policy or terms change materially (2026-11-19.2: first-party statistics)
 export const CONSENT_VERSION = "2026-11-19.2";
-const SITE_NAME = "科研 AI 资源工作台";
+const SITE_NAME = "学术蒟蒻";
 const VERIFY_TTL_MS = 24 * 3600_000;
 const RESET_TTL_MS = 3600_000;
 /** consecutive failures before an account is locked; each further batch doubles the lock */

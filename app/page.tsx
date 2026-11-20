@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { getAllResources, getCategories } from "@/lib/repo";
-import { NAV, SITE_NAME } from "@/lib/site";
+import { NAV, SITE_KIND, SITE_NAME } from "@/lib/site";
+import { AiTimeline } from "@/components/ai-timeline";
+import { ExternalSearch } from "@/components/external-search";
 import { TYPE_LABEL, type ResourceType } from "@/lib/types";
-import { ResourceCard, type CardData } from "@/components/resource-card";
+import { ResourceCard } from "@/components/resource-card";
 import { HeroSearch } from "@/components/hero-search";
 
 const ENTRY_META: Record<string, { type: ResourceType; hint: string }> = {
@@ -26,31 +28,6 @@ function SectionTag({ n, children }: { n: string; children: React.ReactNode }) {
   );
 }
 
-/** Hero illustration: a real resource card annotated with what the platform checks. */
-function AnnotatedCard({ resource }: { resource: CardData }) {
-  const notes = [
-    { label: "类型 · 一眼可辨", top: "14%" },
-    { label: "许可证 · 已核验", top: "44%" },
-    { label: "来源 · 可追溯", top: "74%" },
-  ];
-  return (
-    <div className="relative mx-auto w-full max-w-[400px] pl-[124px]">
-      {notes.map((n) => (
-        <div key={n.label} aria-hidden className="absolute left-0 flex items-center" style={{ top: n.top }}>
-          <span className="tag-gold whitespace-nowrap normal-case tracking-[0.04em]">{n.label}</span>
-          <span className="h-px w-6 bg-gold-rich" />
-        </div>
-      ))}
-      <div className="relative border-l-2 border-gold-rich shadow-lg">
-        <ResourceCard resource={resource} />
-      </div>
-      <span aria-hidden className="eyebrow absolute -bottom-7 right-0 text-zinc-500">
-        样张 / sample
-      </span>
-    </div>
-  );
-}
-
 export default async function HomePage() {
   const all = await getAllResources();
   const featured = all.filter((r) => r.featured).slice(0, 3);
@@ -58,51 +35,56 @@ export default async function HomePage() {
   const recent = [...all].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).slice(0, 9);
   const categories = (await getCategories()).slice(0, 10);
   const latest = all[0]?.updatedAt ?? "";
-  const sample = featured[0] ?? all[0];
 
   return (
     <div>
       <section className="border-b border-rule">
-        <div className="mx-auto grid w-full max-w-6xl items-center gap-14 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[minmax(0,1.75fr)_minmax(0,1fr)]">
+        <div className="mx-auto grid w-full max-w-6xl items-end gap-10 px-4 pb-12 pt-14 sm:px-6 sm:pt-20 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
           <div>
             <span className="eyebrow inline-flex items-center gap-2 text-zinc-600">
               <span className="dot" aria-hidden />
-              面向科研人员的 AI 资源工作台
+              {SITE_KIND} · Academic Juruo
             </span>
-
-            <h1 className="display mt-6 max-w-3xl text-[38px] sm:text-[50px] lg:text-[54px]">
-              找到能直接用的科研 AI 资源，复制或下载，回到你自己的工具里用。
+            <h1 className="display mt-6 text-[40px] sm:text-[56px] lg:text-[60px]">
+              给学术新手的
+              <br />
+              AI 工具箱。
             </h1>
-
-            <p className="mt-6 max-w-2xl text-[16px] font-light leading-[1.75] text-zinc-700">
-              提示词模板、Agent Skills、可复用代码模块与科研网站导航。平台只做筛选、
-              规范化描述与分发——不内置模型、不替你跑结果、不执行任何第三方脚本。
+            <p className="mt-6 max-w-xl text-[16px] font-light leading-[1.8] text-zinc-700">
+              找到能直接用的科研 AI 资源，复制或下载，回到你自己的工具里用：提示词模板、Agent Skills、可复用代码模块与科研网站导航。平台只做筛选、规范化描述与分发——不内置模型、不替你跑结果、不执行任何第三方脚本。
             </p>
-
+          </div>
+          <div>
+            <span className="eyebrow text-zinc-500">站内搜索</span>
             <HeroSearch />
-
-            <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 font-mono text-[12px] tracking-wide text-zinc-500">
+            <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 font-mono text-[12px] tracking-wide text-zinc-500">
               <span>
                 共 <b className="font-semibold text-zinc-900">{all.length}</b> 项资源
               </span>
               <span>
-                <b className="font-semibold text-zinc-900">{categories.length}</b>{" "}
-                个分类
+                <b className="font-semibold text-zinc-900">{categories.length}</b> 个分类
               </span>
               <span>最近更新 {latest}</span>
             </div>
           </div>
+        </div>
+      </section>
 
-          {sample && (
-            <div className="hidden pb-6 lg:block">
-              <AnnotatedCard resource={sample} />
-            </div>
-          )}
+      <AiTimeline />
+
+      <section className="mx-auto w-full max-w-6xl px-4 pt-16 sm:px-6">
+        <SectionTag n="01">外部聚合检索</SectionTag>
+        <div className="mt-5 flex flex-wrap items-end justify-between gap-2">
+          <h2 className="headline text-[34px] sm:text-[40px]">一个框，搜遍常用学术站点</h2>
+          <Link href="/search/" className="link-line text-[14px]">站内资源搜索 →</Link>
+        </div>
+        <div className="mt-6">
+          <ExternalSearch />
         </div>
       </section>
 
       <section className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6">
-        <SectionTag n="01">四类资源</SectionTag>
+        <SectionTag n="02">四类资源</SectionTag>
         <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {NAV.map((n) => {
             const meta = ENTRY_META[n.href];
@@ -134,7 +116,7 @@ export default async function HomePage() {
 
       {featured.length > 0 && (
         <section className="mx-auto w-full max-w-6xl px-4 pt-16 sm:px-6">
-          <SectionTag n="02">人工核验</SectionTag>
+          <SectionTag n="03">人工核验</SectionTag>
           <div className="mt-5 flex flex-wrap items-end justify-between gap-2">
             <h2 className="headline text-[36px] sm:text-[44px]">编辑精选</h2>
             <span className="text-[13px] font-light text-zinc-600">
@@ -150,7 +132,7 @@ export default async function HomePage() {
       )}
 
       <section className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6">
-        <SectionTag n={featured.length > 0 ? "03" : "02"}>新近收录</SectionTag>
+        <SectionTag n={featured.length > 0 ? "04" : "03"}>新近收录</SectionTag>
         <div className="mt-5 flex flex-wrap items-end justify-between gap-2">
           <h2 className="headline text-[36px] sm:text-[44px]">最近更新</h2>
           <Link href="/search/" className="link-line inline-flex items-center gap-1.5 text-[14px]">
@@ -167,7 +149,7 @@ export default async function HomePage() {
       <div className="rule-dots" aria-hidden />
 
       <section className="mx-auto w-full max-w-6xl px-4 pb-8 pt-16 sm:px-6">
-        <SectionTag n={featured.length > 0 ? "04" : "03"}>分类索引</SectionTag>
+        <SectionTag n={featured.length > 0 ? "05" : "04"}>分类索引</SectionTag>
         <h2 className="headline mt-5 text-[36px] sm:text-[44px]">按分类浏览</h2>
         <div className="mt-6 flex flex-wrap gap-2">
           {categories.map((c) => (

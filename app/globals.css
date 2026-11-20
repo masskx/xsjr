@@ -13,8 +13,12 @@
 @theme {
   --font-sans: "Albert Sans Variable", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
     "Noto Sans SC", "Noto Sans CJK SC", system-ui, sans-serif;
-  --font-display: "Alumni Sans Variable", "PingFang SC", "Hiragino Sans GB",
-    "Microsoft YaHei Light", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  /* academic serif for headlines: Source Serif 4 for Latin and Noto Serif SC (sliced, only the
+     needed characters download) for Chinese, both bundled; system Song faces as fallback */
+  --font-display: "Source Serif 4 Variable", "Noto Serif SC", "Songti SC", "STSong",
+    "Noto Serif CJK SC", "Source Han Serif SC", serif;
+  /* the condensed sans kept for small numeric accents */
+  --font-condensed: "Alumni Sans Variable", "Albert Sans Variable", sans-serif;
   --font-mono: "JetBrains Mono Variable", ui-monospace, "SF Mono", "Cascadia Code", Consolas,
     "Liberation Mono", monospace;
 
@@ -33,6 +37,10 @@
   --color-gold-rich: oklch(77% 0.13 82);
   --color-gold-deep: oklch(61% 0.085 78);
   --color-on-gold: oklch(14% 0.018 95);
+
+  /* vermilion: the seal in the logo, era accents */
+  --color-vermilion: oklch(52% 0.16 35);
+  --color-vermilion-pale: oklch(90% 0.04 40);
 
   /* teal: state, focus, links */
   --color-patina: oklch(70% 0.12 188);
@@ -90,9 +98,16 @@
     scroll-behavior: smooth;
   }
 
+  :root {
+    --logo-seal: oklch(52% 0.16 35);
+    --logo-paper: oklch(98.5% 0.008 85);
+  }
+
   body {
     @apply antialiased;
     background-color: var(--color-paper);
+    /* a barely visible paper grain */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
     color: oklch(22% 0 0);
     font-family: var(--font-sans);
     font-feature-settings: "kern";
@@ -136,16 +151,16 @@
   /* thin display headline (hero) */
   .display {
     font-family: var(--font-display);
-    font-weight: 300;
-    line-height: 1.02;
-    letter-spacing: 0;
+    font-weight: 500;
+    line-height: 1.12;
+    letter-spacing: -0.005em;
     color: var(--color-ink);
   }
   /* section / page headline */
   .headline {
     font-family: var(--font-display);
-    font-weight: 300;
-    line-height: 1.08;
+    font-weight: 500;
+    line-height: 1.18;
     color: var(--color-ink);
   }
   /* small monospace uppercase label */
@@ -256,7 +271,7 @@
   @apply mt-8 text-2xl;
 }
 .md h2 {
-  @apply mt-10 border-b border-zinc-200 pb-2 text-[26px] font-light;
+  @apply mt-10 border-b border-zinc-200 pb-2 text-[24px] font-medium;
   font-family: var(--font-display);
   letter-spacing: 0;
 }
@@ -320,4 +335,16 @@
 }
 .thin-scroll::-webkit-scrollbar-thumb {
   @apply rounded-full bg-zinc-300;
+}
+
+/* timeline: the ink axis draws itself in once */
+@keyframes tl-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.timeline-draw {
+  stroke-dasharray: 7000;
+  stroke-dashoffset: 7000;
+  animation: tl-draw 2.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s forwards;
 }

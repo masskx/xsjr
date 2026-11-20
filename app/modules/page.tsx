@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getDiagram, getFileIndex, getResourcesByType } from "@/lib/repo";
+import { getAttachment, getDiagram, getFileIndex, getResourcesByType } from "@/lib/repo";
 import { PageHeader } from "@/components/page-header";
 import { GalleryCard } from "@/components/gallery-card";
 import type { ModuleResource } from "@/lib/types";
@@ -30,7 +30,14 @@ export default async function ModulesPage({ searchParams }: { searchParams: Prom
   const tags = [...tagCounts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "zh-CN")).slice(0, 12);
   const tag = tagCounts.has(sp.tag ?? "") ? sp.tag! : null;
   const list = tag ? inCategory.filter((m) => m.tags.includes(tag)) : inCategory;
-  const cards = await Promise.all(list.map(async (m) => ({ m, diagram: await getDiagram(m), files: await getFileIndex(m) })));
+  // code preview only for free modules without a diagram: members-only code never reaches a list
+  const cards = await Promise.all(
+    list.map(async (m) => {
+      const diagram = await getDiagram(m);
+      const preview = !diagram && m.tier === "FREE" ? ((await getAttachment(m, m.entry.replace(/^files\//, ""))) ?? undefined) : undefined;
+      return { m, diagram, files: await getFileIndex(m), preview };
+    }),
+  );
 
   const href = (c: string | null, t: string | null) => {
     const q = new URLSearchParams({ ...(c ? { category: c } : {}), ...(t ? { tag: t } : {}) }).toString();
@@ -71,8 +78,8 @@ export default async function ModulesPage({ searchParams }: { searchParams: Prom
         <div className="mt-10 rounded-xl border border-dashed border-zinc-300 py-16 text-center text-sm text-zinc-500">这个筛选组合下还没有模块。</div>
       ) : (
         <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {cards.map(({ m, diagram, files }) => (
-            <GalleryCard key={m.slug} module={m} diagram={diagram} files={files} />
+          {cards.map(({ m, diagram, files, preview }) => (
+            <GalleryCard key={m.slug} module={m} diagram={diagram} files={files} preview={preview} />
           ))}
         </div>
       )}

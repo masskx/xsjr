@@ -1,6 +1,16 @@
-export const SITE_NAME = "科研 AI 资源工作台";
+export const SITE_NAME = "学术蒟蒻";
+/** what the site is, shown next to the name */
+export const SITE_KIND = "科研 AI 资源工作台";
+/** the Easter egg behind the name (logo hover card) */
+export const NAME_NOTE = {
+  word: "蒟蒻",
+  pinyin: "jǔ ruò",
+  meaning: "网络用语，“弱”的谐音自嘲，指新手、菜鸟。",
+  origin: "本义是魔芋（一种植物）。",
+  motto: "学术蒟蒻：给学术新手准备的、拿来就能用的 AI 工具箱。",
+};
 export const SITE_TAGLINE =
-  "科研提示词、Agent Skills、即插即用代码模块与科研网站导航";
+  "科研 AI 资源工作台：提示词、Agent Skills、即插即用代码模块与科研网站导航";
 export const SITE_DESC =
   "面向科研人员的 AI 资源发现与分发平台：按场景筛选可用的提示词、Skills、代码模块与科研网站，复制或下载后在你自己的 Agent / IDE 里使用。";
 

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getRelated } from "@/lib/repo";
+import { getNext, getRelated, recordViewAndGetStats } from "@/lib/repo";
 import { TYPE_LABEL, TYPE_HREF, type Resource } from "@/lib/types";
 import { ResourceCard, TypeBadge, TierBadge } from "./resource-card";
 
@@ -7,12 +7,15 @@ export async function DetailShell({
   resource,
   children,
   extraMeta,
+  download,
 }: {
   resource: Resource;
   children: React.ReactNode;
   extraMeta?: { label: string; value: React.ReactNode }[];
+  /** ZIP download (skills and modules the viewer may download) */
+  download?: { href: string; label: string };
 }) {
-  const related = await getRelated(resource, 3);
+  const [related, next, stats] = await Promise.all([getRelated(resource, 3), getNext(resource), recordViewAndGetStats(resource)]);
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6">
@@ -38,6 +41,14 @@ export async function DetailShell({
           <span className="font-mono text-[11px] text-zinc-500">
             更新于 {resource.updatedAt}
           </span>
+          <span className="font-mono text-[11px] text-zinc-500" aria-label={`浏览 ${stats.views} 次`}>
+            · 浏览 {stats.views}
+          </span>
+          {(resource.type === "SKILL" || resource.type === "MODULE") && (
+            <span className="font-mono text-[11px] text-zinc-500" aria-label={`下载 ${stats.downloads} 次`}>
+              · 下载 {stats.downloads}
+            </span>
+          )}
         </div>
 
         <h1 className="headline mt-4 max-w-4xl text-[36px] sm:text-[48px]">
@@ -68,6 +79,14 @@ export async function DetailShell({
         <div className="min-w-0">{children}</div>
 
         <aside className="lg:sticky lg:top-24 lg:self-start">
+          {download && (
+            <a href={download.href} className="btn-ink mb-4 w-full" download>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4" aria-hidden>
+                <path d="M12 4v11m-5-5 5 5 5-5M5 20h14" />
+              </svg>
+              {download.label}
+            </a>
+          )}
           <div className="surface shadow-sm">
             <h2 className="eyebrow border-b border-rule px-4 py-3 text-zinc-600">
               资源信息
@@ -113,42 +132,37 @@ export async function DetailShell({
             </dl>
           </div>
 
-          {related.length > 0 && (
-            <div className="mt-4">
-              <h2 className="eyebrow mb-2 px-1 text-zinc-500">
-                相关资源
-              </h2>
-              <div className="space-y-2">
-                {related.map((r) => (
-                  <Link
-                    key={r.slug}
-                    href={`${TYPE_HREF[r.type]}/${r.slug}/`}
-                    className="surface block p-3 no-underline transition-shadow hover:shadow-md"
-                  >
-                    <div className="flex items-center gap-1.5">
-                      <TypeBadge type={r.type} />
-                    </div>
-                    <div className="mt-1.5 text-[13px] font-medium leading-5 text-zinc-800">
-                      {r.title}
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
         </aside>
       </div>
 
-      {related.length > 0 && (
-        <section className="mt-10 lg:hidden">
-          <h2 className="eyebrow mb-3 text-zinc-500">
-            相关资源
-          </h2>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {related.map((r) => (
-              <ResourceCard key={r.slug} resource={r} />
-            ))}
-          </div>
+      {(next || related.length > 0) && (
+        <section aria-labelledby="continue-h" className="mt-16 border-t border-rule pt-10">
+          <h2 id="continue-h" className="headline text-[30px]">继续浏览</h2>
+          {next && (
+            <Link
+              href={`${TYPE_HREF[next.type]}/${next.slug}/`}
+              className="surface group mt-5 flex items-center gap-4 p-5 no-underline transition-shadow hover:shadow-md"
+            >
+              <span className="eyebrow shrink-0 text-zinc-500">下一篇</span>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-[16px] font-semibold text-zinc-900 decoration-gold underline-offset-4 group-hover:underline">{next.title}</span>
+                <span className="mt-0.5 block truncate text-[13px] font-light text-zinc-600">{next.summary}</span>
+              </span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-5 w-5 shrink-0 text-zinc-700 transition-transform group-hover:translate-x-1" aria-hidden>
+                <path d="M4 12h15m-5-6 6 6-6 6" />
+              </svg>
+            </Link>
+          )}
+          {related.length > 0 && (
+            <>
+              <h3 className="eyebrow mb-3 mt-8 text-zinc-500">相关资源</h3>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {related.map((r) => (
+                  <ResourceCard key={r.slug} resource={r} />
+                ))}
+              </div>
+            </>
+          )}
         </section>
       )}
     </div>
