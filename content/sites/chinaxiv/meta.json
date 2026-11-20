@@ -1,0 +1,22 @@
+{
+  "title": "ChinaXiv 中国预印本平台",
+  "summary": "中国科学院建设的预印本发布与交流平台，中英文稿件均可提交，适合在正式投稿前抢占首发与获取反馈。",
+  "category": "预印本",
+  "tags": [
+    "预印本",
+    "中科院",
+    "首发",
+    "开放交流"
+  ],
+  "author": "平台整理",
+  "sourceUrl": "https://chinaxiv.org/",
+  "license": "服务条款（以官网为准）",
+  "redistribution": false,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "url": "https://chinaxiv.org/",
+  "pricing": "免费",
+  "region": "中国大陆可访问",
+  "loginRequired": false
+}

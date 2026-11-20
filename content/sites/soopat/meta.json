@@ -1,0 +1,21 @@
+{
+  "title": "SooPAT 专利搜索",
+  "summary": "中英文专利检索入口，界面简洁、支持批量导出，适合做技术调研与专利态势的初步摸底。",
+  "category": "专利检索",
+  "tags": [
+    "专利检索",
+    "技术调研",
+    "中英文"
+  ],
+  "author": "平台整理",
+  "sourceUrl": "https://www.soopat.com/",
+  "license": "服务条款（以官网为准）",
+  "redistribution": false,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "url": "https://www.soopat.com/",
+  "pricing": "部分免费",
+  "region": "中国大陆可访问",
+  "loginRequired": false
+}

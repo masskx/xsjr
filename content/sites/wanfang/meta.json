@@ -1,0 +1,22 @@
+{
+  "title": "万方数据知识服务平台",
+  "summary": "综合性的中文学术资源平台，期刊、学位论文、会议与科技报告齐全，与知网互补，部分文献只有其中一家收录。",
+  "category": "文献检索",
+  "tags": [
+    "中文文献",
+    "学位论文",
+    "科技报告",
+    "机构订阅"
+  ],
+  "author": "平台整理",
+  "sourceUrl": "https://www.wanfangdata.com.cn/",
+  "license": "服务条款（以官网为准）",
+  "redistribution": false,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "url": "https://www.wanfangdata.com.cn/",
+  "pricing": "机构订阅",
+  "region": "中国大陆可访问",
+  "loginRequired": true
+}

@@ -1,0 +1,21 @@
+{
+  "title": "科学网",
+  "summary": "国内科研人员聚集的博客与资讯平台，政策解读、科研方法与学界讨论较多，适合了解行业动态。",
+  "category": "学术社区",
+  "tags": [
+    "学术资讯",
+    "科研博客",
+    "政策解读"
+  ],
+  "author": "平台整理",
+  "sourceUrl": "https://www.sciencenet.cn/",
+  "license": "服务条款（以官网为准）",
+  "redistribution": false,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "url": "https://www.sciencenet.cn/",
+  "pricing": "免费",
+  "region": "中国大陆可访问",
+  "loginRequired": false
+}

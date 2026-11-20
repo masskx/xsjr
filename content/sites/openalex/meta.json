@@ -1,0 +1,22 @@
+{
+  "title": "OpenAlex 开放学术图谱",
+  "summary": "完全开放的学术知识图谱，提供论文、作者、机构、主题的关联数据与免费 API，适合做计量分析与批量检索。",
+  "category": "文献检索",
+  "tags": [
+    "开放数据",
+    "API",
+    "文献计量",
+    "知识图谱"
+  ],
+  "author": "平台整理",
+  "sourceUrl": "https://openalex.org/",
+  "license": "服务条款（以官网为准）",
+  "redistribution": false,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "url": "https://openalex.org/",
+  "pricing": "免费",
+  "region": "全球可访问",
+  "loginRequired": false
+}

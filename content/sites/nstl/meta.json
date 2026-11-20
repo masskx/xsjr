@@ -1,0 +1,21 @@
+{
+  "title": "国家科技图书文献中心 NSTL",
+  "summary": "国家级科技文献保障体系，外文文献的检索与文献传递服务齐全，可弥补机构订阅不足。",
+  "category": "文献检索",
+  "tags": [
+    "外文文献",
+    "文献传递",
+    "国家级平台"
+  ],
+  "author": "平台整理",
+  "sourceUrl": "https://www.nstl.gov.cn/",
+  "license": "服务条款（以官网为准）",
+  "redistribution": false,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "url": "https://www.nstl.gov.cn/",
+  "pricing": "部分免费",
+  "region": "中国大陆可访问",
+  "loginRequired": true
+}

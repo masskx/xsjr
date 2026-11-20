@@ -1,0 +1,22 @@
+{
+  "title": "medRxiv 医学预印本",
+  "summary": "临床与健康科学领域的预印本平台，未同行评审，适合追踪最新临床证据，引用时须注明预印本身份。",
+  "category": "预印本",
+  "tags": [
+    "预印本",
+    "医学",
+    "临床研究",
+    "开放获取"
+  ],
+  "author": "平台整理",
+  "sourceUrl": "https://www.medrxiv.org/",
+  "license": "服务条款（以官网为准）",
+  "redistribution": false,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "url": "https://www.medrxiv.org/",
+  "pricing": "免费",
+  "region": "全球可访问",
+  "loginRequired": false
+}

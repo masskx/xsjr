@@ -1,0 +1,22 @@
+{
+  "title": "CORE 开放获取聚合",
+  "summary": "聚合全球开放获取论文的搜索引擎，提供全文下载与 API，适合查找可合法获取的全文副本。",
+  "category": "文献检索",
+  "tags": [
+    "开放获取",
+    "全文下载",
+    "API",
+    "机构仓储"
+  ],
+  "author": "平台整理",
+  "sourceUrl": "https://core.ac.uk/",
+  "license": "服务条款（以官网为准）",
+  "redistribution": false,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "url": "https://core.ac.uk/",
+  "pricing": "免费",
+  "region": "全球可访问",
+  "loginRequired": false
+}

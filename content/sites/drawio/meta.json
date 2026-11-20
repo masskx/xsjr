@@ -1,0 +1,22 @@
+{
+  "title": "draw.io 在线图表",
+  "summary": "免费在线绘图工具，流程图、架构图、实验设计图都能画，可导出矢量图，是论文示意图的常用选择。",
+  "category": "科研绘图",
+  "tags": [
+    "流程图",
+    "架构图",
+    "矢量导出",
+    "免费"
+  ],
+  "author": "平台整理",
+  "sourceUrl": "https://app.diagrams.net/",
+  "license": "服务条款（以官网为准）",
+  "redistribution": false,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "url": "https://app.diagrams.net/",
+  "pricing": "免费",
+  "region": "全球可访问",
+  "loginRequired": false
+}

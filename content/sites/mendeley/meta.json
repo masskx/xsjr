@@ -1,0 +1,22 @@
+{
+  "title": "Mendeley 文献管理",
+  "summary": "爱思唯尔旗下的文献管理与阅读工具，PDF 阅读标注体验好，适合需要大量精读与批注的场景。",
+  "category": "文献管理",
+  "tags": [
+    "文献管理",
+    "PDF 阅读",
+    "标注",
+    "引用"
+  ],
+  "author": "平台整理",
+  "sourceUrl": "https://www.mendeley.com/",
+  "license": "服务条款（以官网为准）",
+  "redistribution": false,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "url": "https://www.mendeley.com/",
+  "pricing": "部分免费",
+  "region": "全球可访问",
+  "loginRequired": true
+}

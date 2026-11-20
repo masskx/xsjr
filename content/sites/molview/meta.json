@@ -1,0 +1,22 @@
+{
+  "title": "MolView 分子结构可视化",
+  "summary": "在浏览器里绘制与查看分子结构的三维模型，适合化学、材料方向快速做结构示意与截图。",
+  "category": "科研绘图",
+  "tags": [
+    "化学结构",
+    "三维可视化",
+    "分子",
+    "免费"
+  ],
+  "author": "平台整理",
+  "sourceUrl": "https://molview.org/",
+  "license": "服务条款（以官网为准）",
+  "redistribution": false,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "url": "https://molview.org/",
+  "pricing": "免费",
+  "region": "全球可访问",
+  "loginRequired": false
+}

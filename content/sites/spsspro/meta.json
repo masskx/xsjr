@@ -1,0 +1,22 @@
+{
+  "title": "SPSSPRO 在线统计分析",
+  "summary": "国内在线统计分析平台，覆盖常见检验、回归与问卷分析，输出带解释的报表，适合不想写代码的场景。",
+  "category": "数据分析",
+  "tags": [
+    "统计分析",
+    "在线分析",
+    "问卷",
+    "免代码"
+  ],
+  "author": "平台整理",
+  "sourceUrl": "https://www.spsspro.com/",
+  "license": "服务条款（以官网为准）",
+  "redistribution": false,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "url": "https://www.spsspro.com/",
+  "pricing": "部分免费",
+  "region": "中国大陆可访问",
+  "loginRequired": true
+}

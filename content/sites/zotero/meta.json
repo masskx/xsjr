@@ -1,0 +1,22 @@
+{
+  "title": "Zotero 文献管理",
+  "summary": "免费开源的文献管理工具，一键抓取网页元数据、与 Word/LaTeX 联动插入引用，是研究生最值得先装的软件之一。",
+  "category": "文献管理",
+  "tags": [
+    "文献管理",
+    "引用插入",
+    "开源",
+    "跨平台"
+  ],
+  "author": "平台整理",
+  "sourceUrl": "https://www.zotero.org/",
+  "license": "服务条款（以官网为准）",
+  "redistribution": false,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "url": "https://www.zotero.org/",
+  "pricing": "免费",
+  "region": "全球可访问",
+  "loginRequired": false
+}

@@ -1,0 +1,22 @@
+{
+  "title": "百度学术",
+  "summary": "中英文文献的聚合搜索入口，能一次性看到来自多个数据库的条目与免费全文链接，适合做初步摸底。",
+  "category": "文献检索",
+  "tags": [
+    "聚合检索",
+    "中英文",
+    "免费全文",
+    "引文"
+  ],
+  "author": "平台整理",
+  "sourceUrl": "https://xueshu.baidu.com/",
+  "license": "服务条款（以官网为准）",
+  "redistribution": false,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "url": "https://xueshu.baidu.com/",
+  "pricing": "免费",
+  "region": "中国大陆可访问",
+  "loginRequired": false
+}

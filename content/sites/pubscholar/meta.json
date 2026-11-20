@@ -1,0 +1,22 @@
+{
+  "title": "PubScholar 公益学术平台",
+  "summary": "中国科学院文献情报中心建设的公益性学术资源平台，聚合开放获取资源与中科院自有资源，免费使用。",
+  "category": "文献检索",
+  "tags": [
+    "开放获取",
+    "公益平台",
+    "中科院",
+    "免费"
+  ],
+  "author": "平台整理",
+  "sourceUrl": "https://pubscholar.cn/",
+  "license": "服务条款（以官网为准）",
+  "redistribution": false,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "url": "https://pubscholar.cn/",
+  "pricing": "免费",
+  "region": "中国大陆可访问",
+  "loginRequired": false
+}

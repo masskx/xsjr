@@ -1,0 +1,22 @@
+{
+  "title": "Excalidraw 手绘风格白板",
+  "summary": "开源的手绘风格在线白板，适合画概念图、思路草图和组会讨论用的示意图，可导出 PNG 与 SVG。",
+  "category": "科研绘图",
+  "tags": [
+    "白板",
+    "手绘风",
+    "概念图",
+    "开源"
+  ],
+  "author": "平台整理",
+  "sourceUrl": "https://excalidraw.com/",
+  "license": "服务条款（以官网为准）",
+  "redistribution": false,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "url": "https://excalidraw.com/",
+  "pricing": "免费",
+  "region": "全球可访问",
+  "loginRequired": false
+}

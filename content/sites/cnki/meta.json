@@ -1,0 +1,22 @@
+{
+  "title": "中国知网 CNKI",
+  "summary": "国内规模最大的中文学术文献数据库，期刊、学位论文、会议与专利齐备，全文通常需要机构订阅。",
+  "category": "文献检索",
+  "tags": [
+    "中文文献",
+    "学位论文",
+    "期刊",
+    "机构订阅"
+  ],
+  "author": "平台整理",
+  "sourceUrl": "https://www.cnki.net/",
+  "license": "服务条款（以官网为准）",
+  "redistribution": false,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "url": "https://www.cnki.net/",
+  "pricing": "机构订阅",
+  "region": "中国大陆可访问",
+  "loginRequired": true
+}

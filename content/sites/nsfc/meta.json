@@ -1,0 +1,22 @@
+{
+  "title": "国家自然科学基金委员会",
+  "summary": "国家自然科学基金的官方门户，可查询历年资助项目、下载申请书模板与查阅当年申报指南。",
+  "category": "基金课题",
+  "tags": [
+    "基金申请",
+    "国自然",
+    "项目查询",
+    "官方"
+  ],
+  "author": "平台整理",
+  "sourceUrl": "https://www.nsfc.gov.cn/",
+  "license": "服务条款（以官网为准）",
+  "redistribution": false,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "url": "https://www.nsfc.gov.cn/",
+  "pricing": "免费",
+  "region": "中国大陆可访问",
+  "loginRequired": false
+}

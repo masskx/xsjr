@@ -1,0 +1,22 @@
+{
+  "title": "PubMed 生物医学文献检索",
+  "summary": "美国国立医学图书馆维护的生物医学文献库，收录三千多万条记录，检索语法强大，是医学与生命科学检索的起点。",
+  "category": "文献检索",
+  "tags": [
+    "生物医学",
+    "文献检索",
+    "MeSH",
+    "开放接口"
+  ],
+  "author": "平台整理",
+  "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/",
+  "license": "服务条款（以官网为准）",
+  "redistribution": false,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "url": "https://pubmed.ncbi.nlm.nih.gov/",
+  "pricing": "免费",
+  "region": "全球可访问",
+  "loginRequired": false
+}

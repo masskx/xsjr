@@ -1,0 +1,22 @@
+{
+  "title": "Journal Citation Reports（JCR）",
+  "summary": "科睿唯安发布的期刊评价数据库，提供影响因子、分区与引用指标，是选刊与投稿定位的常用依据。",
+  "category": "期刊检索",
+  "tags": [
+    "影响因子",
+    "分区",
+    "选刊",
+    "评价指标"
+  ],
+  "author": "平台整理",
+  "sourceUrl": "https://jcr.clarivate.com/",
+  "license": "服务条款（以官网为准）",
+  "redistribution": false,
+  "tier": "FREE",
+  "updatedAt": "2026-11-20",
+  "verifiedAt": "2026-11-20",
+  "url": "https://jcr.clarivate.com/",
+  "pricing": "机构订阅",
+  "region": "全球可访问",
+  "loginRequired": true
+}
