@@ -110,8 +110,18 @@ export function HomeDiscover({ recent, skills }: { recent: HomeItem[]; skills: H
               </div>
             </div>
           ) : (
-            <div aria-hidden className="relative mt-auto pt-8 font-mono text-[64px] font-semibold leading-none text-white/10">
-              {TYPE_LABEL[feature.type].slice(0, 1)}
+            <div className="relative mt-auto pt-6">
+              {feature.type === "SKILL" ? (
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4 font-mono text-[11px] leading-6 text-zinc-300">
+                  <div className="text-white">SKILL.md</div>
+                  <div>templates/</div>
+                  <div>scripts/</div>
+                </div>
+              ) : (
+                <div aria-hidden className="pt-2 font-mono text-[64px] font-semibold leading-none text-white/10">
+                  {TYPE_LABEL[feature.type].slice(0, 1)}
+                </div>
+              )}
             </div>
           )}
 

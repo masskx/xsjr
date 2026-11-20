@@ -169,8 +169,8 @@ export default async function HomePage() {
   ];
 
   return (
-    <div>
-      <section className="relative overflow-hidden border-b border-rule">
+    <div className="bg-white">
+      <section className="relative overflow-hidden border-b border-rule bg-white">
         <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[460px] bg-[radial-gradient(ellipse_at_top,rgba(0,0,0,0.055),transparent_65%)]" />
         <div className="relative mx-auto flex w-full max-w-6xl flex-col items-center px-4 pb-16 pt-16 text-center sm:px-6 sm:pb-20 sm:pt-24">
           <span className="eyebrow inline-flex items-center gap-2 text-zinc-500">
@@ -222,7 +222,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="border-y border-rule bg-paper-raised">
+      <section className="border-y border-rule bg-zinc-50">
         <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
