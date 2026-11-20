@@ -15,6 +15,7 @@ import { moduleAdapter, removeDiagram, setDiagram } from "@/lib/admin/modules";
 import { skillAdapter } from "@/lib/admin/skills";
 import { siteAdapter } from "@/lib/admin/sites";
 import * as ingest from "@/lib/ingest/jobs";
+import { saveLlmSettings } from "@/lib/admin/llm";
 import * as announcements from "@/lib/announcements";
 import * as apiTokens from "@/lib/admin/api-tokens";
 import { invalidateAnnouncement } from "@/lib/repo";
@@ -374,4 +375,21 @@ export async function revokeApiTokenAction(fd: FormData): Promise<void> {
   const { ctx } = await adminContext();
   await apiTokens.revokeApiToken(ctx.db, ctx.actorId, idOf(fd));
   redirect("/admin/api/?msg=revoked");
+}
+
+// ── 模型服务设置 ──
+
+export async function saveLlmSettingsAction(fd: FormData): Promise<void> {
+  const { ctx } = await adminContext();
+  const r = await saveLlmSettings(ctx.db, ctx.actorId, {
+    label: str(fd, "label"),
+    baseUrl: str(fd, "baseUrl"),
+    model: str(fd, "model"),
+    apiKey: str(fd, "apiKey"),
+    dailyTokenLimit: Number(str(fd, "dailyTokenLimit")) || 0,
+    enabled: fd.get("enabled") === "on",
+    clearKey: fd.get("clearKey") === "on",
+  });
+  if (!r.ok) redirect(`/admin/settings/llm/?err=${encodeURIComponent(r.error)}`);
+  redirect("/admin/settings/llm/?msg=saved");
 }

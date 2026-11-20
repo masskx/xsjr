@@ -6,5 +6,5 @@ export async function register() {
   if (process.env.INGEST_WORKER === "0" || !process.env.DATABASE_URL) return;
   if (!process.env.DEEPSEEK_API_KEY) return;
   const { startIngestWorker } = await import("./lib/ingest/worker");
-  startIngestWorker();
+  await startIngestWorker();
 }

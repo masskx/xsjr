@@ -80,7 +80,7 @@ function nextShanghaiMidnight(now = new Date()): Date {
 export async function runItem(db: Db, item: Item, deps: PipelineDeps = {}) {
   const [job] = await db.select({ createdBy: s.ingestionJobs.createdBy }).from(s.ingestionJobs).where(eq(s.ingestionJobs.id, item.jobId));
   const llm = deps.llm ?? (async (text: string, url: string, categories: string[]) => {
-    if ((await tokensToday(db)) >= llmConfig().dailyTokenLimit) throw new BudgetError();
+    if ((await tokensToday(db)) >= (await llmConfig()).dailyTokenLimit) throw new BudgetError();
     return extractWithLlm(text, url, categories);
   });
   try {
@@ -180,9 +180,9 @@ declare global {
   var __rhIngestWorker: { running: boolean; wake: () => void } | undefined;
 }
 
-export function startIngestWorker() {
+export async function startIngestWorker() {
   if (globalThis.__rhIngestWorker) return;
-  if (!llmConfig().enabled) return;
+  if (!(await llmConfig()).enabled) return;
   if (testAllowedHosts().length) console.warn(`[ingest] WARNING: INGEST_TEST_ALLOW_PRIVATE_HOSTS is set (${testAllowedHosts().join(",")}); this must never be set in production`);
   let wakeUp: (() => void) | null = null;
   const state = { running: true, wake: () => wakeUp?.() };

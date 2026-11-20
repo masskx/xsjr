@@ -564,3 +564,21 @@ export const apiTokens = pgTable("api_tokens", {
   revokedAt: ts("revoked_at"),
   createdAt: createdAt(),
 });
+
+// ── LLM provider settings ──
+// One row (id = 1) so the admin can point ingestion at any OpenAI-compatible endpoint — DeepSeek,
+// a coding-plan subscription such as opencode GO, or a self-hosted gateway — without shell access
+// to the server. The API key is sealed with a key derived from AUTH_SECRET (lib/crypto/secret-box),
+// so a database dump on its own does not expose it. When no row is enabled the ingestion worker
+// falls back to the DEEPSEEK_* environment variables, so an existing deployment keeps working.
+export const llmProvider = pgTable("llm_provider", {
+  id: smallint("id").primaryKey(),
+  label: text("label").notNull().default("DeepSeek"),
+  baseUrl: text("base_url").notNull().default("https://api.deepseek.com"),
+  model: text("model").notNull().default("deepseek-chat"),
+  apiKeySealed: text("api_key_sealed"),
+  dailyTokenLimit: integer("daily_token_limit").notNull().default(2000000),
+  enabled: boolean("enabled").notNull().default(false),
+  updatedBy: ref("updated_by").references(() => users.id, { onDelete: "set null" }),
+  updatedAt: ts("updated_at").notNull().defaultNow(),
+});

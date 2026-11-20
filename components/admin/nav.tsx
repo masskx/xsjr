@@ -11,6 +11,7 @@ const ITEMS = [
   { href: "/admin/announcements/", label: "公告" },
   { href: "/admin/sites/", label: "导航" },
   { href: "/admin/api/", label: "API" },
+  { href: "/admin/settings/llm/", label: "设置" },
   { href: "/admin/users/", label: "用户" },
   { href: "/admin/analytics/", label: "统计" },
 ];

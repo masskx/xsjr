@@ -4,18 +4,63 @@
 //   (markdown-it runs with html:false everywhere);
 // - its output only ever fills a DRAFT that an admin must review; there is no path to publish;
 // - its opinion of the licence is stored for the reviewer but never decides redistribution.
-// The API key is read from the server environment only (DEEPSEEK_API_KEY).
+//
+// The endpoint and key are resolved at call time: the admin panel stores any OpenAI-compatible
+// provider (DeepSeek, a coding-plan subscription such as opencode GO, or a self-hosted gateway) in
+// the database, sealed with a key derived from AUTH_SECRET. When no such row is enabled we fall back
+// to the DEEPSEEK_* environment variables, so an existing deployment keeps working unchanged.
 import { z } from "zod";
+import { eq } from "drizzle-orm";
+import { getDb } from "../db/client";
+import * as s from "../db/schema";
+import { openSecret } from "../crypto/secret-box";
 
-export function llmConfig() {
+export type LlmSource = "database" | "environment" | "none";
+
+export interface LlmRuntimeConfig {
+  enabled: boolean;
+  key: string;
+  baseUrl: string;
+  model: string;
+  dailyTokenLimit: number;
+  source: LlmSource;
+  /** human label for the current provider, shown in the admin panel */
+  label: string;
+}
+
+const cleanUrl = (v: string) => v.trim().replace(/\/+$/, "");
+
+export async function llmConfig(): Promise<LlmRuntimeConfig> {
+  try {
+    const db = getDb();
+    const [row] = await db.select().from(s.llmProvider).where(eq(s.llmProvider.id, 1)).limit(1);
+    if (row?.enabled && row.apiKeySealed) {
+      const opened = openSecret(row.apiKeySealed);
+      if (opened && opened.trim().length >= 8) {
+        return {
+          enabled: true,
+          key: opened.trim(),
+          baseUrl: cleanUrl(row.baseUrl),
+          model: row.model.trim() || "deepseek-chat",
+          dailyTokenLimit: row.dailyTokenLimit,
+          source: "database",
+          label: row.label || "自定义服务",
+        };
+      }
+    }
+  } catch {
+    // No table yet (older database) or a transient error: fall through to the environment.
+  }
   const key = process.env.DEEPSEEK_API_KEY?.trim() ?? "";
   return {
     enabled: key.length >= 10,
     key,
-    baseUrl: (process.env.DEEPSEEK_BASE_URL?.trim() || "https://api.deepseek.com").replace(/\/$/, ""),
+    baseUrl: cleanUrl(process.env.DEEPSEEK_BASE_URL?.trim() || "https://api.deepseek.com"),
     model: process.env.DEEPSEEK_MODEL?.trim() || "deepseek-chat",
     /** stop calling the API for the rest of the day (Asia/Shanghai) once this many tokens were used */
     dailyTokenLimit: Number(process.env.DEEPSEEK_DAILY_TOKEN_LIMIT ?? 2_000_000) || 2_000_000,
+    source: key.length >= 10 ? "environment" : "none",
+    label: "DeepSeek（环境变量）",
   };
 }
 
@@ -105,7 +150,7 @@ export interface LlmResult {
 }
 
 export async function extractWithLlm(text: string, sourceUrl: string, categories: string[], fetchImpl: typeof fetch = fetch): Promise<LlmResult> {
-  const cfg = llmConfig();
+  const cfg = await llmConfig();
   if (!cfg.enabled) throw new LlmError("未配置 DEEPSEEK_API_KEY", true);
   let res: Response;
   try {

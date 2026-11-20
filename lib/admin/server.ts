@@ -21,6 +21,7 @@ import * as analytics from "../analytics/queries";
 import * as ingest from "../ingest/jobs";
 import * as announcements from "../announcements";
 import * as apiTokens from "./api-tokens";
+import * as llm from "./llm";
 
 export async function adminContext(): Promise<{ viewer: ActiveSession; ctx: AdminCtx }> {
   const viewer = await requireAdmin();
@@ -63,7 +64,8 @@ export const adminData = {
   skillForEdit: (id: number) => skills.getSkillForEdit(getDb(), id),
   siteForEdit: (id: number) => sites.getSiteForEdit(getDb(), id),
   diagramOf: (id: number) => modules.diagramOf(getDb(), id),
-  ingestStatus: async () => ({ ...ingest.ingestStatus(), tokensToday: await ingest.tokensToday(getDb()) }),
+  ingestStatus: async () => ({ ...(await ingest.ingestStatus()), tokensToday: await ingest.tokensToday(getDb()) }),
+  llmSettings: () => llm.readLlmSettings(getDb()),
   ingestJobs: () => ingest.listJobs(getDb()),
   ingestJob: (id: number) => ingest.getJob(getDb(), id),
   provenance: (id: number) => ingest.provenanceOf(getDb(), id),

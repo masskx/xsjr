@@ -43,6 +43,13 @@
       "when": 1795141965457,
       "tag": "0005_counters_announcements_tokens",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1795163016565,
+      "tag": "0006_broken_sphinx",
+      "breakpoints": true
     }
   ]
 }

@@ -11,10 +11,18 @@ import { MAX_QUERY_RESULTS, MAX_URLS_PER_JOB } from "./limits";
 export { MAX_QUERY_RESULTS, MAX_URLS_PER_JOB };
 export const NOTIFY_CHANNEL = "ingest_queued";
 
-export function ingestStatus() {
-  const llm = llmConfig();
+export async function ingestStatus() {
+  const llm = await llmConfig();
   const search = searchProvider();
-  return { enabled: llm.enabled, model: llm.model, dailyTokenLimit: llm.dailyTokenLimit, searchProvider: search?.name ?? null };
+  return {
+    enabled: llm.enabled,
+    model: llm.model,
+    baseUrl: llm.baseUrl,
+    label: llm.label,
+    source: llm.source,
+    dailyTokenLimit: llm.dailyTokenLimit,
+    searchProvider: search?.name ?? null,
+  };
 }
 
 type Fail = { ok: false; errors: Record<string, string> };
@@ -24,7 +32,7 @@ async function audit(db: Db, actorId: number, action: string, jobId: number, dif
 }
 
 export async function createUrlJob(db: Db, actorId: number, text: string): Promise<{ ok: true; jobId: number; queued: number; skipped: string[] } | Fail> {
-  if (!llmConfig().enabled) return { ok: false, errors: { _form: "服务器未配置 DEEPSEEK_API_KEY，导入功能未开启" } };
+  if (!(await llmConfig()).enabled) return { ok: false, errors: { _form: "未配置模型服务，请先在「设置」里填写 API Key" } };
   const { urls, invalid } = parseUrlList(text);
   if (invalid.length) return { ok: false, errors: { urls: `这些不是有效的 http(s) 网址：${invalid.slice(0, 3).join("、")}${invalid.length > 3 ? " 等" : ""}` } };
   if (!urls.length) return { ok: false, errors: { urls: "请至少填写一个网址" } };
@@ -53,7 +61,7 @@ export async function createUrlJob(db: Db, actorId: number, text: string): Promi
 }
 
 export async function createQueryJob(db: Db, actorId: number, raw: { query: string; domains: string; limit: number }): Promise<{ ok: true; jobId: number } | Fail> {
-  if (!llmConfig().enabled) return { ok: false, errors: { _form: "服务器未配置 DEEPSEEK_API_KEY，导入功能未开启" } };
+  if (!(await llmConfig()).enabled) return { ok: false, errors: { _form: "未配置模型服务，请先在「设置」里填写 API Key" } };
   if (!searchProvider()) return { ok: false, errors: { _form: "服务器未配置搜索服务（SEARCH_PROVIDER），只能按网址导入" } };
   const query = raw.query.trim();
   if ([...query].length < 2 || [...query].length > 100) return { ok: false, errors: { query: "搜索词需要 2–100 个字" } };
