@@ -348,3 +348,33 @@
   stroke-dashoffset: 7000;
   animation: tl-draw 2.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s forwards;
 }
+
+/* timeline flow: a soft halo marks the node the flow is currently resting on */
+.tl-dot::after {
+  content: "";
+  position: absolute;
+  inset: -7px;
+  border-radius: 9999px;
+  border: 1px solid oklch(13% 0 0 / 0.32);
+  box-shadow: 0 0 0 6px oklch(13% 0 0 / 0.045);
+  opacity: 0;
+  transform: scale(0.55);
+  pointer-events: none;
+  transition:
+    opacity 0.45s ease,
+    transform 0.5s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+[data-tl-item][data-active="true"] .tl-dot::after {
+  opacity: 0.75;
+  transform: scale(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .timeline-draw {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+  .tl-dot::after {
+    transition: none;
+  }
+}

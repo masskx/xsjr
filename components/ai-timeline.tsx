@@ -58,7 +58,10 @@ export function AiTimeline() {
         </div>
       </div>
 
-      <TimelineScroller label="人工智能发展时间线，可横向滚动">
+      <TimelineScroller
+        label="人工智能发展时间线，可横向滚动，也可自动播放"
+        count={MILESTONES.length + 1}
+      >
         <div className="relative" style={{ width, height: 430 }}>
           {/* era washes */}
           <div aria-hidden className="absolute inset-y-6 left-0 flex">
@@ -83,11 +86,16 @@ export function AiTimeline() {
               const era = ERAS.find((e) => e.key === m.era)!;
               const tone = TONE[era.tone];
               return (
-                <li key={`${m.year}-${m.title}`} className="relative h-full shrink-0" style={{ width: COL }}>
+                <li
+                  key={`${m.year}-${m.title}`}
+                  data-tl-item
+                  className="relative h-full shrink-0"
+                  style={{ width: COL }}
+                >
                   {/* dot on the axis */}
                   <span
                     aria-hidden
-                    className="absolute left-6 top-[211px] -translate-x-1/2 rounded-full ring-4 ring-paper"
+                    className="tl-dot absolute left-6 top-[211px] -translate-x-1/2 rounded-full ring-4 ring-paper"
                     style={{ width: m.major ? 13 : 8, height: m.major ? 13 : 8, background: tone.ink }}
                   />
                   {/* stem */}
@@ -102,8 +110,8 @@ export function AiTimeline() {
                 </li>
               );
             })}
-            <li className="relative h-full shrink-0" style={{ width: COL }}>
-              <span aria-hidden className="absolute left-6 top-[208px] h-3.5 w-3.5 -translate-x-1/2 rotate-45 bg-vermilion ring-4 ring-paper" />
+            <li data-tl-item className="relative h-full shrink-0" style={{ width: COL }}>
+              <span aria-hidden className="tl-dot absolute left-6 top-[208px] h-3.5 w-3.5 -translate-x-1/2 rotate-45 bg-vermilion ring-4 ring-paper" />
               <div className="absolute left-2 right-3 top-[34px]">
                 <div className="font-display text-[40px] leading-none text-vermilion">今天</div>
                 <h3 className="mt-2 text-[14.5px] font-semibold text-zinc-900">轮到你了</h3>
