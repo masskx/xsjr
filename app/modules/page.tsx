@@ -17,30 +17,26 @@ const chip = (active: boolean) =>
     active ? "bg-zinc-900 text-white" : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
   }`;
 
-// Gallery: server-rendered, filters are plain links (?category=&tag=), so every filtered view
-// is shareable and crawlable without JavaScript.
-export default async function ModulesPage({ searchParams }: { searchParams: Promise<{ category?: string; tag?: string }> }) {
+// Gallery: server-rendered, category filters are plain links (?category=), so every filtered view
+// is shareable and crawlable without JavaScript. Tags are display-only here; category is the
+// single selection axis so the two UIs cannot drift apart.
+export default async function ModulesPage({ searchParams }: { searchParams: Promise<{ category?: string }> }) {
   const all = (await getResourcesByType("MODULE")) as ModuleResource[];
   const sp = await searchParams;
   const categories = [...new Map(all.map((m) => [m.category, all.filter((x) => x.category === m.category).length]))];
   const category = categories.some(([c]) => c === sp.category) ? sp.category! : null;
   const inCategory = category ? all.filter((m) => m.category === category) : all;
-  const tagCounts = new Map<string, number>();
-  for (const m of inCategory) for (const t of m.tags) tagCounts.set(t, (tagCounts.get(t) ?? 0) + 1);
-  const tags = [...tagCounts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "zh-CN")).slice(0, 12);
-  const tag = tagCounts.has(sp.tag ?? "") ? sp.tag! : null;
-  const list = tag ? inCategory.filter((m) => m.tags.includes(tag)) : inCategory;
   // code preview only for free modules without a diagram: members-only code never reaches a list
   const cards = await Promise.all(
-    list.map(async (m) => {
+    inCategory.map(async (m) => {
       const diagram = await getDiagram(m);
       const preview = !diagram && m.tier === "FREE" ? ((await getAttachment(m, m.entry.replace(/^files\//, ""))) ?? undefined) : undefined;
       return { m, diagram, files: await getFileIndex(m), preview };
     }),
   );
 
-  const href = (c: string | null, t: string | null) => {
-    const q = new URLSearchParams({ ...(c ? { category: c } : {}), ...(t ? { tag: t } : {}) }).toString();
+  const href = (c: string | null) => {
+    const q = new URLSearchParams(c ? { category: c } : {}).toString();
     return `/modules/${q ? `?${q}` : ""}`;
   };
 
@@ -50,29 +46,15 @@ export default async function ModulesPage({ searchParams }: { searchParams: Prom
 
       <nav aria-label="按分类筛选" className="flex flex-wrap items-center gap-1.5 border-b border-zinc-200 pb-3">
         <span className="mr-1 text-[11px] font-medium uppercase tracking-wider text-zinc-400">分类</span>
-        <Link href={href(null, null)} className={chip(!category)} aria-current={!category ? "page" : undefined}>
+        <Link href={href(null)} className={chip(!category)} aria-current={!category ? "page" : undefined}>
           全部 {all.length}
         </Link>
         {categories.map(([c, n]) => (
-          <Link key={c} href={href(c, null)} className={chip(category === c)} aria-current={category === c ? "page" : undefined}>
+          <Link key={c} href={href(c)} className={chip(category === c)} aria-current={category === c ? "page" : undefined}>
             {c} {n}
           </Link>
         ))}
       </nav>
-
-      {tags.length > 0 && (
-        <nav aria-label="按标签筛选" className="flex flex-wrap items-center gap-1.5 border-b border-zinc-100 py-2.5">
-          <span className="mr-1 text-[11px] font-medium uppercase tracking-wider text-zinc-400">标签</span>
-          <Link href={href(category, null)} className={chip(!tag)} aria-current={!tag ? "page" : undefined}>
-            全部
-          </Link>
-          {tags.map(([t, n]) => (
-            <Link key={t} href={href(category, t)} className={chip(tag === t)} aria-current={tag === t ? "page" : undefined}>
-              {t} {n}
-            </Link>
-          ))}
-        </nav>
-      )}
 
       {cards.length === 0 ? (
         <div className="mt-10 rounded-xl border border-dashed border-zinc-300 py-16 text-center text-sm text-zinc-500">这个筛选组合下还没有模块。</div>

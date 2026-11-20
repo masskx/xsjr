@@ -8,12 +8,18 @@ export async function DetailShell({
   children,
   extraMeta,
   download,
+  categoryHref,
+  linkTags = true,
 }: {
   resource: Resource;
   children: React.ReactNode;
   extraMeta?: { label: string; value: React.ReactNode }[];
   /** ZIP download (skills and modules the viewer may download) */
   download?: { href: string; label: string };
+  /** Optional gallery link for the category; when omitted the category is plain text. */
+  categoryHref?: string;
+  /** Tags are display-only when false (e.g. modules select by category only). */
+  linkTags?: boolean;
 }) {
   const [related, next, stats] = await Promise.all([getRelated(resource, 3), getNext(resource), recordViewAndGetStats(resource)]);
 
@@ -60,18 +66,30 @@ export async function DetailShell({
         </p>
 
         <div className="mt-4 flex flex-wrap items-center gap-2">
-          <span className="tag-mono">
-            {resource.category}
-          </span>
-          {resource.tags.map((t) => (
-            <Link
-              key={t}
-              href={`/search/?q=${encodeURIComponent(t)}`}
-              className="rounded-[2px] border border-rule bg-paper-raised px-2 py-0.5 text-[12.5px] text-zinc-700 no-underline transition-shadow hover:shadow-md"
-            >
-              {t}
+          {categoryHref ? (
+            <Link href={categoryHref} className="tag-mono no-underline transition-colors hover:text-zinc-900">
+              {resource.category}
             </Link>
-          ))}
+          ) : (
+            <span className="tag-mono">
+              {resource.category}
+            </span>
+          )}
+          {resource.tags.map((t) =>
+            linkTags ? (
+              <Link
+                key={t}
+                href={`/search/?q=${encodeURIComponent(t)}`}
+                className="rounded-[2px] border border-rule bg-paper-raised px-2 py-0.5 text-[12.5px] text-zinc-700 no-underline transition-shadow hover:shadow-md"
+              >
+                {t}
+              </Link>
+            ) : (
+              <span key={t} className="rounded-[2px] border border-rule bg-paper-raised px-2 py-0.5 text-[12.5px] text-zinc-700">
+                {t}
+              </span>
+            ),
+          )}
         </div>
       </header>
 
