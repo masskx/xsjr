@@ -38,6 +38,19 @@ caddy_reload() {
   dc exec -T caddy caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile
 }
 
+# Wait until Caddy answers HTTP on this host (any status). A freshly created Caddy container
+# needs a moment before it listens; smoke-testing earlier fails a perfectly good deploy.
+wait_caddy() { # wait_caddy [SECONDS]
+  local limit=${1:-30} code
+  for _ in $(seq 1 "$limit"); do
+    code=$(curl -s --noproxy '*' -o /dev/null --max-time 2 -w '%{http_code}' http://127.0.0.1/ 2>/dev/null || true)
+    [ -n "$code" ] && [ "$code" != 000 ] && return 0
+    sleep 1
+  done
+  log "WARNING: Caddy did not answer on :80 within ${limit}s"
+  return 1
+}
+
 wait_healthy() { # wait_healthy SERVICE [SECONDS]
   local svc=$1 limit=${2:-60} cid status
   for _ in $(seq 1 "$limit"); do

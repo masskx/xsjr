@@ -162,6 +162,29 @@ services:
         limits:
           memory: 256M
 
+  # Bulk upload of skills/modules (infra/remote/bulk.sh): reads the uploaded batch from
+  # ./data/bulk and writes structure diagrams into ./data/uploads, like the app does.
+  bulk:
+    <<: *node
+    profiles: [tools]
+    working_dir: /release
+    command: ["node", "--version"]
+    environment:
+      <<: *node-env
+      UPLOADS_DIR: /data/uploads
+      RH_PROCESS_NAME: research-hub-bulk
+    volumes:
+      - ${RELEASE_DIR:-./current}:/release:ro
+      - ./data/bulk:/bulk
+      - ./data/uploads:/data/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 384M
+
   # General command runner for maintenance scripts, e.g.
   #   docker compose ... run --rm cli node scripts/create-admin.mjs --email admin@example.cn
   cli:

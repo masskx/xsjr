@@ -2,6 +2,30 @@
 
 ## Unreleased
 
+### Bulk upload of skills and modules
+
+Added
+- `infra/bulk.ps1` (Windows): uploads a folder of skills and modules (code + structure diagrams)
+  over SSH and runs the importer on the server; check by default, `-Apply` to save as drafts,
+  `-Publish`, `-Update`, `-New` for an example folder (`tools/bulk-template`). The report and,
+  on the first check, a pre-filled `清单.csv` come back into the folder.
+- `infra/remote/bulk.sh` + compose service `bulk`: copies the batch to `data/bulk`, drops
+  symlinks, runs `scripts/bulk-import.mjs`, returns the outputs, deletes the batch.
+- `lib/bulk/`: folder scanner (titles/summaries from README or SKILL.md front matter, entry file,
+  language, requirements.txt, diagram by name or the only image, pinyin slugs for Chinese folder
+  names, UTF-8 or GBK text, skips junk/binary/symlinks), the batch list (Excel CSV in UTF-8 or
+  GBK, Chinese or English headers), a plan validated with the editors' schemas and the licence
+  rules, and an apply step through the back office's own create/save/tier/diagram/publish code.
+  All-or-nothing: any error and nothing is saved.
+- Tests: 13 (CSV, scanning, plan rules, apply/publish/update, third-party licences); rehearsed
+  through `bulk.sh` and the real container against a simulated server (pages, diagram via Caddy,
+  members-only code absent for anonymous visitors, no batch files left behind).
+
+Fixed
+- First deploy on a brand-new server failed its smoke test: Caddy was smoke-tested the moment
+  its container was created, before it listened. Deploy, rollback and apply-config now wait for
+  Caddy to answer first. (The upgrade path from the Phase 1 static site was not affected.)
+
 ### Phase 2, slice 7: DeepSeek-assisted ingestion
 
 Added

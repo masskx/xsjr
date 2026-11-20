@@ -41,6 +41,7 @@ lib/
   db/                   Drizzle schema 与连接池
   import/               content/ → PostgreSQL 导入器
   ingest/               DeepSeek 导入：抓取（SSRF/robots 防护）、许可证识别、抽取、去重、后台任务
+  bulk/                 批量上传：扫描文件夹、清单.csv、校验计划、保存（infra/bulk.ps1 → infra/remote/bulk.sh）
   content-files.ts      content/ 文件格式的读取与校验（导入器使用）
   search.ts             搜索索引（拼音/首字母）
   markdown.ts           Markdown 渲染（html:false 防 XSS）
@@ -88,6 +89,8 @@ content/prompts/my-prompt/
 - 导入规则：内容没变 → 跳过；后台改过的资源 → 不覆盖（需 `--force`）；文件被删 → 只报告，不删库。
 - 提示词可在后台 `/admin/prompts/` 编辑（RUNBOOK 第 10 节）；后台改过的资源以数据库为准，文件导入会跳过它。
 - 第三方 Skill 也可以在后台 `/admin/ingest/` 按网址导入成草稿（RUNBOOK 第 14 节）。
+- **批量上传**自己的 Skills 和模块（代码 + 结构图）：整理成文件夹，在 Windows 上运行
+  `infra/bulk.ps1 -Folder D:\我的批量`，先检查、再 `-Apply` 保存（RUNBOOK 第 15 节）。
 
 ## 本地开发（Windows）
 

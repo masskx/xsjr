@@ -111,7 +111,7 @@ else
   if [ -n "$(dc ps -q caddy)" ]; then caddy_reload; else dc up -d --no-deps caddy; fi
 fi
 
-if wait_healthy app 60 && bash "$RH_HOME/current/infra/remote/smoke.sh"; then
+if wait_healthy app 60 && wait_caddy 30 && bash "$RH_HOME/current/infra/remote/smoke.sh"; then
   ls -1dt "$RH_HOME"/releases/rh-* | tail -n +6 | while read -r d; do
     [ "$d" = "$(readlink -f "$RH_HOME/previous" || true)" ] || rm -rf "$d"
   done

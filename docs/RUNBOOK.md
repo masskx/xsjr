@@ -358,3 +358,82 @@ robots.txt 禁止、内网地址、4xx、超过 2 MB、DeepSeek key 无效（401
 
 > 测试专用变量 `INGEST_TEST_ALLOW_PRIVATE_HOSTS` 会放开内网地址检查，**生产环境绝不能设置**；
 > 部署脚本发现 `.env` 里有它会拒绝部署。
+
+## 15. 批量上传 Skills 与模块（代码 + 结构图）
+
+在自己的 Windows 电脑上整理好一个文件夹，一条命令传到服务器：先**检查**（不保存任何东西），
+全部通过后再**保存**为草稿或直接发布。走的是和部署一样的 SSH 通道，不开放新的网页接口。
+每一项都经过与后台编辑器相同的校验，保存后有版本记录和审计日志，和在后台手工创建的完全一样。
+
+**准备（一次）**：与第 1 节相同的 `RH_TARGET`，再设置你的管理员邮箱：
+```powershell
+setx RH_ADMIN_EMAIL "admin@example.cn"
+```
+
+**目录结构**（`-New` 会生成一个带示例的文件夹）：
+```
+D:\我的批量\
+├── skills\                      （也可以叫 技能\）
+│   └── 审稿回复\                 每个 Skill 一个文件夹，文件夹名任意（中文会转成拼音网址）
+│       ├── SKILL.md             必须有；头部 name → 网址标识，description → 摘要
+│       └── templates\...        其他文件：显示在“包内文件”清单里（不保存内容）
+├── modules\                     （也可以叫 模块\）
+│   └── 统计工具\
+│       ├── main.py              代码文件，可以有子文件夹；main.py / index.ts 等自动识别为入口
+│       ├── requirements.txt     自动读取为依赖
+│       ├── README.md            可选：第一行 # 标题，第一段 → 摘要，其余 → 正文
+│       └── diagram.png          可选：结构图（也可叫 结构图.png / architecture.png；png/jpg/webp，≤ 2 MB，不支持 SVG）
+└── 清单.csv                      第一次检查后自动生成，用 Excel 填写
+```
+自动跳过：`node_modules`、`.git`、`__pycache__`、`.venv`、`dist`、`build`、隐藏文件、二进制文件、符号链接。
+限制：一次最多 200 项、200 MB；每个模块最多 20 个代码文件、单个文件 20 万字符。文本文件可以是 UTF-8 或 GBK。
+
+**步骤**
+```powershell
+# 1. 生成示例文件夹（可选），把示例换成你自己的内容（example-* 示例文件夹不会被导入）
+powershell -ExecutionPolicy Bypass -File infra/bulk.ps1 -New D:\我的批量
+# 2. 检查：报告显示在屏幕上，同时保存为文件夹里的 检查报告.txt；第一次还会生成 清单.csv
+powershell -ExecutionPolicy Bypass -File infra/bulk.ps1 -Folder D:\我的批量
+# 3. 用 Excel 打开 清单.csv 补全空白（“分类”必填），保存（“CSV UTF-8”或普通 CSV 都可以），再检查一次
+# 4. 全部通过后保存：草稿（到后台审核后发布）……
+powershell -ExecutionPolicy Bypass -File infra/bulk.ps1 -Folder D:\我的批量 -Apply
+#    ……或直接发布
+powershell -ExecutionPolicy Bypass -File infra/bulk.ps1 -Folder D:\我的批量 -Apply -Publish
+```
+只要有一项标 ✗，`-Apply` 就不会保存任何内容（避免半批上线）。已存在同一网址标识的资源会被**跳过**；
+本地改了代码想覆盖线上版本时加 `-Update`（已发布的会留下版本快照）。
+
+**清单.csv 的列**（第一次检查时按文件内容预填；留空 = 用自动识别的值或默认值）
+
+| 列 | 说明 |
+|---|---|
+| 类型、文件夹 | 对应哪个文件夹，不要改 |
+| 网址标识 | 小写字母、数字、连字符；发布后不能再改 |
+| 标题 / 摘要 | 摘要 20–110 字 |
+| 分类 | **必填**，例如 统计分析、论文写作 |
+| 标签 | 用顿号或逗号分隔，最多 12 个 |
+| 会员等级 | 模块：FREE / EI / SCI（默认 FREE）；Skills 始终免费 |
+| 作者 | 默认“平台原创” |
+| 许可证 | 自己的内容默认：免费模块 MIT，会员模块 All rights reserved |
+| 来源链接 | **填了就表示第三方内容**，见下 |
+| 语言 / 入口文件 / 环境要求 / 依赖 | 模块用；自动识别不了时填写，环境要求、依赖用分号分隔 |
+| 兼容工具 | Skill 用，例如 claude-code、codex（默认 claude-code） |
+| 适用任务 | 用分号分隔 |
+| 精选 | 填“是”表示精选 |
+
+**第三方内容**（填了“来源链接”）：许可证由你在清单里声明（记为“管理员核实声明”）。
+- 第三方**模块**必须是允许转载的许可证（MIT、Apache-2.0、BSD、ISC 等），否则拒绝上传代码。
+- 第三方 **Skill** 许可证不允许转载或没填时，只建索引：不保存 SKILL.md 原文，详情页链接到来源。
+
+**会员模块的许可证**：用 MIT 等开源许可证发布的会员模块，拿到代码的人可以合法转载；检查报告会提醒。
+默认的 “All rights reserved” 不授予转载权；如需正式的会员许可条款，请自行拟定后填入“许可证”列。
+
+**服务器上发生了什么**：上传到 `/tmp/rh-bulk-<编号>`，`infra/remote/bulk.sh` 复制到 `data/bulk/`（删除其中的符号链接），
+在一次性的 `bulk` 容器里运行 `scripts/bulk-import.mjs`，把报告放回给你的电脑，然后删除这批文件。
+服务器上只留下导入的结果（数据库记录、`data/uploads/` 里的结构图）。
+
+**在本机开发库上试运行**（不经过服务器）：
+```powershell
+npm.cmd run bulk -- --dir D:\我的批量 --as owner@example.com            # 检查
+npm.cmd run bulk -- --dir D:\我的批量 --as owner@example.com --apply    # 保存到本机开发库
+```

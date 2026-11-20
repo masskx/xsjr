@@ -8,5 +8,5 @@ source "$(dirname "$(readlink -f "$0")")/lib.sh"
 write_in_place "$RH_HOME/current/infra/Caddyfile" "$RH_HOME/Caddyfile"
 dc up -d --no-deps --force-recreate app caddy
 wait_healthy app 60 || die "app not healthy"
-sleep 2
+wait_caddy 30 || true
 bash "$RH_HOME/current/infra/remote/smoke.sh"

@@ -11,6 +11,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx --env-file-if-exists=.env.local scripts/migrate.ts",
     "content:import": "tsx --env-file-if-exists=.env.local scripts/import-content.ts",
+    "bulk": "tsx --env-file-if-exists=.env.local scripts/bulk-import.ts",
     "release": "node scripts/build-release.mjs",
     "parity": "node tools/parity/compare.mjs",
     "e2e": "node tests/e2e/auth-flow.mjs && node tests/e2e/admin-prompts.mjs && node tests/e2e/tiers.mjs && node tests/e2e/gallery.mjs && node tests/e2e/analytics.mjs && node tests/e2e/ingest.mjs"

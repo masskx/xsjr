@@ -26,5 +26,6 @@ dc up -d --no-deps --force-recreate app
 if [ -n "$(dc ps -q caddy)" ]; then caddy_reload; else dc up -d --no-deps caddy; fi
 
 wait_healthy app 60 || die "app not healthy after rollback"
+wait_caddy 30 || true
 bash "$target/infra/remote/smoke.sh" || die "smoke test failed after rollback (see rollback-static.sh)"
 log "ROLLED BACK to $(basename "$target")"

@@ -6,7 +6,7 @@
 //
 // Produces dist/rh-<timestamp>-<gitsha>.tar.gz containing:
 //   app/          Next.js standalone server (server.js, traced node_modules, .next/static)
-//   scripts/      migrate.mjs, import-content.mjs, create-admin.mjs (single-file esbuild bundles)
+//   scripts/      migrate.mjs, import-content.mjs, create-admin.mjs, bulk-import.mjs (single-file esbuild bundles)
 //   drizzle/      SQL migrations
 //   content/      the file-format content (imported on every deploy; idempotent)
 //   infra/        compose.yaml, Caddyfile(s), remote/*.sh
@@ -137,7 +137,7 @@ await selfTest(path.join(stage, "app"));
 
 console.log("==> bundle scripts/");
 const esbuild = await import("esbuild");
-for (const name of ["migrate", "import-content", "create-admin"]) {
+for (const name of ["migrate", "import-content", "create-admin", "bulk-import"]) {
   await esbuild.build({
     entryPoints: [path.join(root, "scripts", `${name}.ts`)],
     outfile: path.join(stage, "scripts", `${name}.mjs`),
