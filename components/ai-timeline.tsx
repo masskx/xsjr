@@ -13,15 +13,91 @@ const TONE: Record<Era["tone"], { wash: string; ink: string }> = {
 const COL = 212; // px per milestone
 
 /**
- * "人工智能简史": a horizontally scrolling ink-on-paper timeline. Each era is a soft colour wash
- * behind its milestones; cards alternate above and below a hand-drawn axis. Server-rendered,
- * readable without JavaScript (native horizontal scroll); the scroller only adds arrow buttons.
+ * "人工智能简史": an ink-on-paper timeline that flows past a fixed viewpoint.
+ *
+ * The track is rendered twice so the flow can wrap without a seam: the scroller advances it at a
+ * constant speed and, once one full copy has passed, subtracts that width. The duplicate is
+ * aria-hidden so screen readers hear each milestone once.
+ *
+ * Server-rendered and readable without JavaScript (native horizontal scroll); the scroller only
+ * adds the motion and the playback controls.
  */
 export function AiTimeline() {
   const eraCols = ERAS.map((e) => ({ era: e, count: MILESTONES.filter((m) => m.era === e.key).length }));
   const width = MILESTONES.length * COL + COL; // + the "you are here" column
   // a gently wavering brush line across the whole track
   const wave = Array.from({ length: Math.ceil(width / 80) + 1 }, (_, i) => `${i * 80},${50 + Math.sin(i * 1.7) * 2.2 + Math.cos(i * 0.6) * 1.4}`).join(" ");
+
+  const Track = ({ mirror = false }: { mirror?: boolean }) => (
+    <div
+      className="relative shrink-0"
+      style={{ width, height: 430 }}
+      data-tl-copy={mirror ? undefined : ""}
+      aria-hidden={mirror || undefined}
+    >
+      {/* era washes */}
+      <div aria-hidden className="absolute inset-y-6 left-0 flex">
+        {eraCols.map(({ era, count }) => (
+          <div key={era.key} className="relative h-full" style={{ width: count * COL }}>
+            <div className="absolute inset-0 rounded-[2px]" style={{ background: `linear-gradient(180deg, transparent, ${TONE[era.tone].wash} 30%, ${TONE[era.tone].wash} 70%, transparent)` }} />
+            <div className="absolute bottom-0 left-3 font-mono text-[10.5px] tracking-[0.16em] text-zinc-500">
+              {era.name} · {era.span}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* the axis: an ink line */}
+      <svg aria-hidden className="absolute left-0 top-[165px]" width={width} height="100" viewBox={`0 0 ${width} 100`} preserveAspectRatio="none">
+        <polyline points={wave} fill="none" stroke="oklch(13% 0 0 / 0.85)" strokeWidth="1.6" strokeLinecap="round" className={mirror ? undefined : "timeline-draw"} />
+      </svg>
+
+      <ol className="absolute inset-0 flex">
+        {MILESTONES.map((m, i) => {
+          const up = i % 2 === 0;
+          const era = ERAS.find((e) => e.key === m.era)!;
+          const tone = TONE[era.tone];
+          return (
+            <li
+              key={`${m.year}-${m.title}`}
+              data-tl-item
+              data-year={m.year}
+              data-title={m.title}
+              className="relative h-full shrink-0"
+              style={{ width: COL }}
+            >
+              {/* dot on the axis */}
+              <span
+                aria-hidden
+                className="tl-dot absolute left-6 top-[211px] -translate-x-1/2 rounded-full ring-4 ring-paper"
+                style={{ width: m.major ? 13 : 8, height: m.major ? 13 : 8, background: tone.ink }}
+              />
+              {/* stem */}
+              <span aria-hidden className="absolute left-6 w-px bg-zinc-300" style={up ? { top: 150, height: 58 } : { top: 222, height: 52 }} />
+              <div className={`absolute left-2 right-3 ${up ? "top-[34px]" : "top-[280px]"}`}>
+                <div className="font-display leading-none" style={{ color: tone.ink, fontSize: m.major ? 40 : 30, fontVariantNumeric: "oldstyle-nums" }}>
+                  {m.year}
+                </div>
+                <h3 className={`mt-2 text-[14.5px] leading-snug text-zinc-900 ${m.major ? "font-semibold" : "font-medium"}`}>{m.title}</h3>
+                <p className="mt-1 line-clamp-3 text-[12.5px] font-light leading-[1.65] text-zinc-600">{m.note}</p>
+              </div>
+            </li>
+          );
+        })}
+        <li data-tl-item data-year="今天" data-title="轮到你了" className="relative h-full shrink-0" style={{ width: COL }}>
+          <span aria-hidden className="tl-dot absolute left-6 top-[208px] h-3.5 w-3.5 -translate-x-1/2 rotate-45 bg-vermilion ring-4 ring-paper" />
+          <div className="absolute left-2 right-3 top-[34px]">
+            <div className="font-display text-[40px] leading-none text-vermilion">今天</div>
+            <h3 className="mt-2 text-[14.5px] font-semibold text-zinc-900">轮到你了</h3>
+            <p className="mt-1 text-[12.5px] font-light leading-[1.65] text-zinc-600">把这些工具用在你自己的研究里。</p>
+            <Link href="/skills/" className="link-line mt-2 inline-block text-[13px]">
+              从 Skills 开始 →
+            </Link>
+          </div>
+        </li>
+      </ol>
+    </div>
+  );
 
   return (
     <section aria-labelledby="timeline-h" className="relative overflow-hidden border-b border-rule">
@@ -59,69 +135,13 @@ export function AiTimeline() {
       </div>
 
       <TimelineScroller
-        label="人工智能发展时间线，可横向滚动，也可自动播放"
+        label="人工智能发展时间线，持续流动，可横向滚动"
         count={MILESTONES.length + 1}
+        step={COL}
       >
-        <div className="relative" style={{ width, height: 430 }}>
-          {/* era washes */}
-          <div aria-hidden className="absolute inset-y-6 left-0 flex">
-            {eraCols.map(({ era, count }) => (
-              <div key={era.key} className="relative h-full" style={{ width: count * COL }}>
-                <div className="absolute inset-0 rounded-[2px]" style={{ background: `linear-gradient(180deg, transparent, ${TONE[era.tone].wash} 30%, ${TONE[era.tone].wash} 70%, transparent)` }} />
-                <div className="absolute bottom-0 left-3 font-mono text-[10.5px] tracking-[0.16em] text-zinc-500">
-                  {era.name} · {era.span}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* the axis: an ink line */}
-          <svg aria-hidden className="absolute left-0 top-[165px]" width={width} height="100" viewBox={`0 0 ${width} 100`} preserveAspectRatio="none">
-            <polyline points={wave} fill="none" stroke="oklch(13% 0 0 / 0.85)" strokeWidth="1.6" strokeLinecap="round" className="timeline-draw" />
-          </svg>
-
-          <ol className="absolute inset-0 flex">
-            {MILESTONES.map((m, i) => {
-              const up = i % 2 === 0;
-              const era = ERAS.find((e) => e.key === m.era)!;
-              const tone = TONE[era.tone];
-              return (
-                <li
-                  key={`${m.year}-${m.title}`}
-                  data-tl-item
-                  className="relative h-full shrink-0"
-                  style={{ width: COL }}
-                >
-                  {/* dot on the axis */}
-                  <span
-                    aria-hidden
-                    className="tl-dot absolute left-6 top-[211px] -translate-x-1/2 rounded-full ring-4 ring-paper"
-                    style={{ width: m.major ? 13 : 8, height: m.major ? 13 : 8, background: tone.ink }}
-                  />
-                  {/* stem */}
-                  <span aria-hidden className="absolute left-6 w-px bg-zinc-300" style={up ? { top: 150, height: 58 } : { top: 222, height: 52 }} />
-                  <div className={`absolute left-2 right-3 ${up ? "top-[34px]" : "top-[280px]"}`}>
-                    <div className="font-display leading-none" style={{ color: tone.ink, fontSize: m.major ? 40 : 30, fontVariantNumeric: "oldstyle-nums" }}>
-                      {m.year}
-                    </div>
-                    <h3 className={`mt-2 text-[14.5px] leading-snug text-zinc-900 ${m.major ? "font-semibold" : "font-medium"}`}>{m.title}</h3>
-                    <p className="mt-1 line-clamp-3 text-[12.5px] font-light leading-[1.65] text-zinc-600">{m.note}</p>
-                  </div>
-                </li>
-              );
-            })}
-            <li data-tl-item className="relative h-full shrink-0" style={{ width: COL }}>
-              <span aria-hidden className="tl-dot absolute left-6 top-[208px] h-3.5 w-3.5 -translate-x-1/2 rotate-45 bg-vermilion ring-4 ring-paper" />
-              <div className="absolute left-2 right-3 top-[34px]">
-                <div className="font-display text-[40px] leading-none text-vermilion">今天</div>
-                <h3 className="mt-2 text-[14.5px] font-semibold text-zinc-900">轮到你了</h3>
-                <p className="mt-1 text-[12.5px] font-light leading-[1.65] text-zinc-600">把这些工具用在你自己的研究里。</p>
-                <Link href="/skills/" className="link-line mt-2 inline-block text-[13px]">
-                  从 Skills 开始 →
-                </Link>
-              </div>
-            </li>
-          </ol>
+        <div className="flex">
+          <Track />
+          <Track mirror />
         </div>
       </TimelineScroller>
     </section>

@@ -3,37 +3,46 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 
 /**
- * Horizontal timeline with a slow, looping "flow": one milestone every `dwellMs`, centred in the
- * viewport, wrapping back to the first item after the last one. Users can pause, step one item at
- * a time, or scroll freely — hovering or focusing the track holds the flow so it cannot move while
- * being read.
+ * Continuously flowing horizontal timeline.
  *
- * Without JavaScript the track is a plain horizontally scrollable list, and
- * `prefers-reduced-motion: reduce` disables the flow entirely.
+ * The track is rendered twice by the caller ([data-tl-copy]); the flow advances `scrollLeft` at a
+ * constant speed and, on passing exactly one copy width, subtracts that width — so the motion never
+ * stops, never jumps, and never runs out of content. The copy sitting in the middle of the viewport
+ * is highlighted, and its year travels along under the controls.
+ *
+ * Pausing: hovering, focusing or touching the track holds the flow; the button stops it entirely.
+ * `prefers-reduced-motion: reduce` keeps it stopped, and without JavaScript the track is a plain
+ * horizontally scrollable list containing every milestone.
  */
 export function TimelineScroller({
   children,
   label,
   count = 0,
+  step = 212,
+  speed = 34,
   autoplay = true,
-  dwellMs = 3000,
 }: {
   children: ReactNode;
   label: string;
+  /** number of milestones in ONE copy of the track */
   count?: number;
+  /** px per milestone, used by the previous/next buttons */
+  step?: number;
+  /** flow speed in px per second */
+  speed?: number;
   autoplay?: boolean;
-  dwellMs?: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [edges, setEdges] = useState({ start: true, end: false });
   const [active, setActive] = useState(0);
   const [playing, setPlaying] = useState(autoplay);
   const [reduced, setReduced] = useState(false);
-  const [tick, setTick] = useState(0);
-  const [ratio, setRatio] = useState(0);
+  const [now, setNow] = useState<{ year: string; title: string } | null>(null);
   const hold = useRef(false);
+  const raf = useRef<number | null>(null);
+  const lastFrame = useRef(0);
 
-  // Respect the OS "reduce motion" setting: no automatic flow, no smooth scrolling.
+  // Respect the OS setting: no flow at all, and no smooth scrolling.
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     const apply = () => {
@@ -50,59 +59,88 @@ export function TimelineScroller({
     [],
   );
 
-  /** Put item `i` in the middle of the viewport. */
-  const centreOn = useCallback(
-    (i: number) => {
-      const el = ref.current;
-      if (!el) return;
-      const item = nodes()[i];
-      if (!item) return;
-      const er = el.getBoundingClientRect();
-      const ir = item.getBoundingClientRect();
-      const left = el.scrollLeft + (ir.left - er.left) - (er.width - ir.width) / 2;
-      el.scrollTo({ left, behavior: reduced ? "auto" : "smooth" });
-    },
-    [nodes, reduced],
-  );
-
-  // Mark the current node so CSS can highlight it.
-  useEffect(() => {
-    nodes().forEach((el, i) => {
-      if (i === active) el.setAttribute("data-active", "true");
-      else el.removeAttribute("data-active");
-    });
-  }, [active, nodes]);
-
-  useEffect(() => {
-    centreOn(active);
-  }, [active, centreOn]);
-
-  // The flow itself: one step per dwell, wrapping at the end.
-  useEffect(() => {
-    if (!playing || reduced || count < 2) return;
-    const id = window.setTimeout(() => {
-      // While the pointer or keyboard focus is inside the track, keep the tick alive but do not move.
-      if (hold.current) {
-        setTick((t) => t + 1);
-        return;
+  /** Mark the milestone currently nearest the middle of the viewport. */
+  const track = useCallback(() => {
+    const el = ref.current;
+    if (!el || count < 1) return;
+    const list = nodes();
+    if (!list.length) return;
+    const box = el.getBoundingClientRect();
+    const centre = box.left + box.width / 2;
+    let best = 0;
+    let bestDistance = Infinity;
+    for (let i = 0; i < list.length; i++) {
+      const r = list[i].getBoundingClientRect();
+      const distance = Math.abs(r.left + r.width / 2 - centre);
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        best = i;
       }
-      setActive((i) => (i + 1) % count);
-    }, dwellMs);
-    return () => window.clearTimeout(id);
-  }, [playing, reduced, count, dwellMs, active, tick]);
+    }
+    const index = best % count;
+    setActive((current) => (current === index ? current : index));
+    const node = list[best];
+    const year = node.dataset.year ?? "";
+    const title = node.dataset.title ?? "";
+    setNow((current) => (current?.year === year && current?.title === title ? current : { year, title }));
+    list.forEach((n, i) => {
+      if (i === best) n.setAttribute("data-active", "true");
+      else n.removeAttribute("data-active");
+    });
+  }, [count, nodes]);
 
-  // Fading edges and progress readout.
+  // The flow. One rAF loop advances scrollLeft by speed * dt and wraps exactly one copy width.
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const update = () => {
+
+    const copy = el.querySelector<HTMLElement>("[data-tl-copy]");
+    if (!copy) return;
+
+    // Distance from the very start of the scroll content to the first copy, and one copy's width.
+    const box = el.getBoundingClientRect();
+    const start = copy.getBoundingClientRect().left - box.left + el.scrollLeft;
+    const width = copy.offsetWidth;
+    if (width <= 0) return;
+
+    let lastPaint = 0;
+
+    const frame = (t: number) => {
+      const dt = lastFrame.current ? Math.min(0.05, (t - lastFrame.current) / 1000) : 0;
+      lastFrame.current = t;
+
+      if (playing && !hold.current) {
+        el.scrollLeft += speed * dt;
+        // seamless wrap: past the end of copy one, subtract one copy
+        if (el.scrollLeft >= start + width) el.scrollLeft -= width;
+      }
+
+      // Tracking the centred node does not need 60 Hz.
+      if (t - lastPaint > 120) {
+        lastPaint = t;
+        track();
+      }
+
+      raf.current = requestAnimationFrame(frame);
+    };
+
+    raf.current = requestAnimationFrame(frame);
+    return () => {
+      if (raf.current !== null) cancelAnimationFrame(raf.current);
+      raf.current = null;
+      lastFrame.current = 0;
+    };
+  }, [playing, speed, track]);
+
+  // Fading edges.
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const update = () =>
       setEdges({
         start: el.scrollLeft < 8,
         end: el.scrollLeft + el.clientWidth > el.scrollWidth - 8,
       });
-      const max = el.scrollWidth - el.clientWidth;
-      setRatio(max > 8 ? Math.min(1, Math.max(0, el.scrollLeft / max)) : 1);
-    };
     update();
     el.addEventListener("scroll", update, { passive: true });
     window.addEventListener("resize", update);
@@ -112,7 +150,11 @@ export function TimelineScroller({
     };
   }, []);
 
-  const jump = (i: number) => setActive(Math.min(Math.max(i, 0), Math.max(count - 1, 0)));
+  const jump = (dir: number) => {
+    const el = ref.current;
+    if (!el) return;
+    el.scrollBy({ left: dir * step, behavior: reduced ? "auto" : "smooth" });
+  };
 
   const btn =
     "grid h-10 w-10 place-items-center rounded-full border border-rule bg-paper-raised text-zinc-800 shadow-md transition-opacity disabled:opacity-0";
@@ -132,6 +174,9 @@ export function TimelineScroller({
           }}
           onPointerLeave={() => {
             hold.current = false;
+          }}
+          onPointerDown={() => {
+            hold.current = true;
           }}
           onFocus={() => {
             hold.current = true;
@@ -169,7 +214,6 @@ export function TimelineScroller({
         </div>
       </div>
 
-      {/* Playback controls: pause/resume, one step at a time, and how far along we are. */}
       {count > 1 && (
         <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-2 px-4 pb-8 sm:px-6">
           <button
@@ -183,22 +227,21 @@ export function TimelineScroller({
             <span aria-hidden>{playing && !reduced ? "❙❙" : "▶"}</span>
             {playing && !reduced ? "暂停" : "播放"}
           </button>
-          <button type="button" onClick={() => jump(active - 1)} disabled={active === 0} className={ctl} aria-label="上一个节点">
+          <button type="button" onClick={() => jump(-1)} className={ctl} aria-label="上一条">
             ‹ 上一条
           </button>
-          <button type="button" onClick={() => jump(active + 1)} disabled={active >= count - 1} className={ctl} aria-label="下一个节点">
+          <button type="button" onClick={() => jump(1)} className={ctl} aria-label="下一条">
             下一条 ›
           </button>
 
-          <div className="mx-1 h-px min-w-16 flex-1 bg-rule">
-            <div
-              className="h-px bg-ink transition-[width] duration-300 ease-out"
-              style={{ width: `${Math.round(ratio * 100)}%` }}
-            />
-          </div>
+          <div className="mx-1 h-px min-w-16 flex-1 bg-rule" aria-hidden />
 
-          <span className="font-mono text-[11px] tabular-nums tracking-[0.08em] text-zinc-500" aria-live="off">
-            {String(active + 1).padStart(2, "0")} / {String(count).padStart(2, "0")}
+          <span className="flex items-baseline gap-2 font-mono text-[11.5px] tracking-[0.06em]">
+            <span className="tabular-nums text-zinc-900">{now?.year || "—"}</span>
+            <span className="max-w-[16rem] truncate text-zinc-500">{now?.title ?? ""}</span>
+          </span>
+          <span className="font-mono text-[11px] tabular-nums text-zinc-400">
+            {String(active + 1).padStart(2, "0")}/{String(count).padStart(2, "0")}
           </span>
         </div>
       )}
