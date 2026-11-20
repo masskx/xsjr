@@ -19,7 +19,7 @@ export function TimelineScroller({
   label,
   count = 0,
   step = 212,
-  speed = 34,
+  speed = 30,
   autoplay = true,
 }: {
   children: ReactNode;
@@ -41,6 +41,9 @@ export function TimelineScroller({
   const hold = useRef(false);
   const raf = useRef<number | null>(null);
   const lastFrame = useRef(0);
+  // scrollLeft is integer-only, so carry the sub-pixel remainder between frames; otherwise a
+  // 0.5px step per frame would round up to 1px and roughly double the perceived speed.
+  const carry = useRef(0);
 
   // Respect the OS setting: no flow at all, and no smooth scrolling.
   useEffect(() => {
@@ -110,9 +113,14 @@ export function TimelineScroller({
       lastFrame.current = t;
 
       if (playing && !hold.current) {
-        el.scrollLeft += speed * dt;
-        // seamless wrap: past the end of copy one, subtract one copy
-        if (el.scrollLeft >= start + width) el.scrollLeft -= width;
+        carry.current += speed * dt;
+        const px = Math.trunc(carry.current);
+        if (px > 0) {
+          carry.current -= px;
+          el.scrollLeft += px;
+          // seamless wrap: past the end of copy one, subtract one copy
+          if (el.scrollLeft >= start + width) el.scrollLeft -= width;
+        }
       }
 
       // Tracking the centred node does not need 60 Hz.
@@ -186,6 +194,7 @@ export function TimelineScroller({
           }}
           className="thin-scroll overflow-x-auto overscroll-x-contain px-4 pb-2 pt-4 sm:px-6 [scrollbar-width:thin]"
           style={{
+            scrollBehavior: "auto",
             maskImage: `linear-gradient(to right, ${edges.start ? "black" : "transparent"}, black 6%, black 94%, ${edges.end ? "black" : "transparent"})`,
           }}
         >
