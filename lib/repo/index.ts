@@ -164,3 +164,15 @@ export async function getModuleFiles(resource: Resource): Promise<{ path: string
   const rows = await loadAttachments(getDb(), resource.slug, maxRank);
   return rows.length ? rows : null;
 }
+
+const PREFIX_TYPE: Record<string, ResourceType> = { prompts: "PROMPT", skills: "SKILL", modules: "MODULE", directory: "SITE" };
+
+/** The published resource a detail-page path refers to (analytics), or null. */
+export async function resourceForPath(path: string): Promise<{ id: number; slug: string; tier: string; resource: Resource } | null> {
+  const m = /^\/(prompts|skills|modules|directory)\/([^/]+)\/$/.exec(path);
+  if (!m) return null;
+  const snap = await snapshot();
+  const r = snap.bySlug.get(m[2]);
+  if (!r || r.type !== PREFIX_TYPE[m[1]]) return null;
+  return { id: snap.ids.get(r.slug)!, slug: r.slug, tier: r.tier, resource: r };
+}

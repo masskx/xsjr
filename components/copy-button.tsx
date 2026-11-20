@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { track } from "./analytics";
 
 export function CopyButton({
   text,
@@ -36,6 +37,7 @@ export function CopyButton({
         document.body.removeChild(ta);
       }
       setState("done");
+      track("copy");
     } catch {
       setState("fail");
     }

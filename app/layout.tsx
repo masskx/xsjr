@@ -4,6 +4,7 @@ import "./globals.css";
 import { SITE_DESC, SITE_NAME, SITE_TAGLINE, SITE_URL, NAV } from "@/lib/site";
 import { HeaderSearch } from "@/components/header-search";
 import { AccountLink } from "@/components/account-link";
+import { Analytics } from "@/components/analytics";
 
 // Every page renders per request: content comes from PostgreSQL and SITE_URL (canonical URLs,
 // metadataBase) is runtime configuration, so nothing may be frozen at build time.
@@ -90,6 +91,7 @@ export default function RootLayout({
         </header>
 
         <main className="flex-1">{children}</main>
+        <Analytics />
 
         <footer className="mt-20 border-t border-zinc-200 bg-zinc-50">
           <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-[1.5fr_1fr_1fr]">

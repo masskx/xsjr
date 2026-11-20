@@ -16,6 +16,7 @@ import * as members from "./members";
 import * as resources from "./resources";
 import * as modules from "./modules";
 import * as skills from "./skills";
+import * as analytics from "../analytics/queries";
 
 export async function adminContext(): Promise<{ viewer: ActiveSession; ctx: AdminCtx }> {
   const viewer = await requireAdmin();
@@ -57,6 +58,21 @@ export const adminData = {
   moduleForEdit: (id: number) => modules.getModuleForEdit(getDb(), id),
   skillForEdit: (id: number) => skills.getSkillForEdit(getDb(), id),
   diagramOf: (id: number) => modules.diagramOf(getDb(), id),
+  analytics: async () => {
+    const db = getDb();
+    const [trend, copied, locked, viewed, searches, referrers, accounts, tiersDist, tierRows] = await Promise.all([
+      analytics.dailyTrend(db, 30),
+      analytics.topCopied(db),
+      analytics.topLocked(db),
+      analytics.topViewed(db),
+      analytics.topSearches(db),
+      analytics.topReferrers(db),
+      analytics.accountStats(db),
+      members.memberStats(db),
+      members.listTiers(db),
+    ]);
+    return { trend, summary: analytics.summarise(trend), copied, locked, viewed, searches, referrers, accounts, tiersDist, tierRows };
+  },
   statusCounts: async (type: "PROMPT" | "SKILL" | "MODULE" | "SITE") => {
     const rows = await getDb()
       .select({ status: s.resources.status, n: sql<number>`count(*)::int` })

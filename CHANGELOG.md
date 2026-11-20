@@ -2,6 +2,35 @@
 
 ## Unreleased
 
+### Phase 2, slice 6: first-party analytics
+
+Added
+- Events page_view (including client-side navigations), copy, search (the settled query, 1.2 s
+  after typing stops) from a tiny beacon (`POST /api/e`, sendBeacon, text/plain), and login /
+  register from the server actions. No third-party code, no cookies, no raw IPs.
+- Visitor identity: SHA-256 of IP + user agent with a random per-day salt that is deleted after
+  two days. Unique visitors are exact within a day; 7/30-day figures are labelled "visitor-days"
+  plus the daily average (the brief's daily-salted hash cannot link a person across days, by
+  design; resolved in favour of privacy, no cookie).
+- Not counted: bots and headless browsers, DNT / GPC, cross-site posts (Sec-Fetch-Site/Origin),
+  admin pages; per-IP beacon rate limit; the beacon always answers 204.
+- "Viewed but locked" flag computed server-side for members-only resources.
+- `/admin/analytics/`: traffic table, 30-day trend line (single series, hover + keyboard tooltip,
+  data table), top copied, top searches, top pages, referrers, locked views, registrations,
+  logins, tier distribution. 13-month retention.
+- Tests: 23 analytics tests (helpers, salt rotation, Shanghai day boundary, every dashboard number,
+  no stored IPs); `tests/e2e/analytics.mjs` (21 checks); `scripts/bench-analytics.ts`.
+
+Changed
+- Privacy policy describes the statistics (policy version 2026-11-19.2).
+- The search box on /search/ has an accessible name (it only had a placeholder).
+
+Verified
+- On 1,000,000 synthetic events: every query 1–70 ms (the summary was 188 ms with a global
+  DISTINCT and is now derived from the per-day trend).
+- Parity with production unchanged (the tracker renders nothing).
+
+
 ### Phase 2, slice 5: module gallery, structure diagrams, module and skill editors
 
 Added

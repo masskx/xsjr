@@ -11,7 +11,8 @@ import { LIMITS, hit } from "./rate-limit";
 import { createSession, revokeAllSessions, type Role } from "./sessions";
 import { base32Encode, newTotpSecret, otpauthUri, verifyTotp } from "./totp";
 
-export const CONSENT_VERSION = "2026-11-19";
+// bump whenever the privacy policy or terms change materially (2026-11-19.2: first-party statistics)
+export const CONSENT_VERSION = "2026-11-19.2";
 const SITE_NAME = "科研 AI 资源工作台";
 const VERIFY_TTL_MS = 24 * 3600_000;
 const RESET_TTL_MS = 3600_000;
@@ -160,6 +161,7 @@ export async function resendVerification(ctx: Ctx, userId: number): Promise<Resu
 // ── login ──
 
 export type LoginResult = Result<{
+  userId: number;
   token: string;
   expiresAt: Date;
   role: Role;
@@ -196,7 +198,7 @@ export async function login(ctx: Ctx, input: { email: string; password: string }
   await ctx.db.update(s.users).set({ failedLogins: 0, lockedUntil: null, lastLoginAt: now }).where(eq(s.users.id, user.id));
   const session = await createSession(ctx.db, { id: user.id, role: user.role }, { userAgent: ctx.userAgent, now });
   const next = user.role !== "ADMIN" ? "done" : user.totpEnabledAt ? "mfa" : "mfa-setup";
-  return { ok: true, ...session, role: user.role, next };
+  return { ok: true, userId: user.id, ...session, role: user.role, next };
 }
 
 // ── password reset (self-service needs working mail) ──

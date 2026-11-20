@@ -8,6 +8,7 @@ const ITEMS = [
   { href: "/admin/modules/", label: "模块" },
   { href: "/admin/skills/", label: "Skills" },
   { href: "/admin/users/", label: "用户" },
+  { href: "/admin/analytics/", label: "统计" },
 ];
 
 export function AdminNav() {

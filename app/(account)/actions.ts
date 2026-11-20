@@ -15,6 +15,7 @@ import {
   setSessionCookie,
 } from "@/lib/auth/server";
 import * as svc from "@/lib/auth/service";
+import { recordAccountEvent } from "@/lib/analytics/server";
 
 export interface FormState {
   ok?: boolean;
@@ -54,6 +55,7 @@ export async function loginAction(_: FormState, fd: FormData): Promise<FormState
   const r = await svc.login(await requestCtx(), { email: str(fd, "email"), password: str(fd, "password") });
   if (!r.ok) return failed(r, { email: str(fd, "email") });
   await setSessionCookie(r.token, r.expiresAt);
+  await recordAccountEvent("login", r.userId, "/login/");
   if (r.next === "mfa") redirect(`/login/mfa/?next=${encodeURIComponent(next)}`);
   if (r.next === "mfa-setup") redirect(`/account/mfa/?next=${encodeURIComponent(next)}`);
   redirect(next);
@@ -68,6 +70,7 @@ export async function registerAction(_: FormState, fd: FormData): Promise<FormSt
   if (password !== str(fd, "password2")) return { error: "两次输入的密码不一致", field: "password2", values };
   const r = await svc.register(ctx, { email, password, displayName: values.displayName, consent: fd.get("consent") === "on" });
   if (!r.ok) return failed(r, values);
+  await recordAccountEvent("register", r.userId, "/register/");
   const session = await svc.login(ctx, { email, password });
   if (!session.ok) redirect("/login/");
   await setSessionCookie(session.token, session.expiresAt);

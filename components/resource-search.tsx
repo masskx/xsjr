@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { track } from "./analytics";
 import type { SearchDoc } from "@/lib/search";
 import { TYPE_LABEL, type ResourceType } from "@/lib/types";
 import { TypeBadge } from "./resource-card";
@@ -54,6 +55,19 @@ export function ResourceSearch({ docs }: { docs: SearchDoc[] }) {
     setQ(params.get("q") ?? "");
   }, [params]);
 
+  // search analytics: the query the visitor settled on (1.2 s without typing), at least 2
+  // characters, not repeated
+  const lastLogged = useRef("");
+  useEffect(() => {
+    const v = q.trim();
+    if ([...v].length < 2 || v === lastLogged.current) return;
+    const timer = setTimeout(() => {
+      lastLogged.current = v;
+      track("search", { q: v });
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, [q]);
+
   const results = useMemo(() => {
     return docs
       .map((d) => ({ d, s: score(d, q.trim()) }))
@@ -81,6 +95,7 @@ export function ResourceSearch({ docs }: { docs: SearchDoc[] }) {
           </svg>
           <input
             autoFocus
+            aria-label="搜索全部资源"
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="输入中文、拼音或首字母，例如「审稿」「shengao」「sg」"
