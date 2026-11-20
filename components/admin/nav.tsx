@@ -7,6 +7,7 @@ const ITEMS = [
   { href: "/admin/prompts/", label: "提示词" },
   { href: "/admin/modules/", label: "模块" },
   { href: "/admin/skills/", label: "Skills" },
+  { href: "/admin/ingest/", label: "导入" },
   { href: "/admin/users/", label: "用户" },
   { href: "/admin/analytics/", label: "统计" },
 ];

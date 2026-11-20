@@ -13,11 +13,13 @@
     "content:import": "tsx --env-file-if-exists=.env.local scripts/import-content.ts",
     "release": "node scripts/build-release.mjs",
     "parity": "node tools/parity/compare.mjs",
-    "e2e": "node tests/e2e/auth-flow.mjs && node tests/e2e/admin-prompts.mjs && node tests/e2e/tiers.mjs && node tests/e2e/gallery.mjs && node tests/e2e/analytics.mjs"
+    "e2e": "node tests/e2e/auth-flow.mjs && node tests/e2e/admin-prompts.mjs && node tests/e2e/tiers.mjs && node tests/e2e/gallery.mjs && node tests/e2e/analytics.mjs && node tests/e2e/ingest.mjs"
   },
   "dependencies": {
+    "@mozilla/readability": "^0.6.0",
     "drizzle-orm": "^0.45.4",
     "hash-wasm": "^4.13.0",
+    "linkedom": "^0.18.15",
     "markdown-it": "^15.0.3",
     "next": "16.4.6",
     "nodemailer": "^10.6.0",
@@ -26,6 +28,7 @@
     "qrcode": "^1.5.4",
     "react": "19.3.0",
     "react-dom": "19.3.0",
+    "robots-parser": "^3.0.1",
     "server-only": "^0.0.1",
     "zod": "^4.6.7"
   },

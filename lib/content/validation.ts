@@ -48,11 +48,13 @@ export const baseMetaSchema = z.object({
   redistribution: z.boolean(),
   /** "PRO" is the Phase 1 spelling of the first paid tier; the importer maps it to EI */
   tier: z.enum(["FREE", "PRO", "EI", "SCI"], { message: "会员等级只能是 FREE、EI 或 SCI" }).optional(),
-  sourceUrl: z.string().trim().url("来源链接不是有效网址").optional(),
+  sourceUrl: z.string().trim().url("来源链接不是有效网址").refine((u) => /^https?:\/\//i.test(u), "来源链接必须以 http(s):// 开头").optional(),
   featured: z.boolean().optional(),
   updatedAt: isoDate("更新日期"),
   verifiedAt: isoDate("核验日期").optional(),
   applicableTasks: z.array(text("适用任务", 1, 80)).max(12, "适用任务最多 12 条").optional(),
+  /** admin editor only: "I checked the source licence allows redistribution" (never stored as such) */
+  licenseDeclared: z.boolean().optional(),
 });
 
 const shortList = (label: string, maxItems: number, maxLen: number) =>

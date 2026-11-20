@@ -17,6 +17,7 @@ import * as resources from "./resources";
 import * as modules from "./modules";
 import * as skills from "./skills";
 import * as analytics from "../analytics/queries";
+import * as ingest from "../ingest/jobs";
 
 export async function adminContext(): Promise<{ viewer: ActiveSession; ctx: AdminCtx }> {
   const viewer = await requireAdmin();
@@ -58,6 +59,10 @@ export const adminData = {
   moduleForEdit: (id: number) => modules.getModuleForEdit(getDb(), id),
   skillForEdit: (id: number) => skills.getSkillForEdit(getDb(), id),
   diagramOf: (id: number) => modules.diagramOf(getDb(), id),
+  ingestStatus: async () => ({ ...ingest.ingestStatus(), tokensToday: await ingest.tokensToday(getDb()) }),
+  ingestJobs: () => ingest.listJobs(getDb()),
+  ingestJob: (id: number) => ingest.getJob(getDb(), id),
+  provenance: (id: number) => ingest.provenanceOf(getDb(), id),
   analytics: async () => {
     const db = getDb();
     const [trend, copied, locked, viewed, searches, referrers, accounts, tiersDist, tierRows] = await Promise.all([

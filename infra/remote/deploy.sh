@@ -19,6 +19,11 @@ export RH_SCRIPT=deploy
 source "$(dirname "$(readlink -f "$0")")/lib.sh"
 
 tarball=${1:?usage: deploy.sh RELEASE.tar.gz}
+
+# The ingestion fetcher's test-only SSRF exemption must never reach production.
+if grep -Eq '^[[:space:]]*INGEST_TEST_ALLOW_PRIVATE_HOSTS=[^[:space:]]' "$RH_HOME/.env" 2>/dev/null; then
+  die "INGEST_TEST_ALLOW_PRIVATE_HOSTS is set in $RH_HOME/.env; remove it (test-only setting)"
+fi
 [ -f "$tarball" ] || die "no such file: $tarball"
 [ -f "$RH_HOME/.env" ] || die "$RH_HOME/.env missing: run bootstrap.sh first"
 for v in SITE_URL POSTGRES_PASSWORD; do [ -n "$(env_value $v)" ] || die "$v missing in .env"; done
@@ -62,7 +67,8 @@ RELEASE_DIR="$new" dc run --rm -T importer || die "content import reported error
 log "pre-flight: starting $id next to the live release"
 preflight=research-hub-preflight
 docker rm -f "$preflight" >/dev/null 2>&1 || true
-RELEASE_DIR="$new" dc run -d --rm --no-deps --name "$preflight" app >/dev/null
+# INGEST_WORKER=0: a release under test must never take ingestion jobs
+RELEASE_DIR="$new" dc run -d --rm --no-deps --name "$preflight" -e INGEST_WORKER=0 app >/dev/null
 ok=0
 for _ in $(seq 1 45); do
   if docker exec "$preflight" wget -qO /dev/null http://127.0.0.1:3000/robots.txt 2>/dev/null; then ok=1; break; fi

@@ -38,7 +38,7 @@ export default async function SkillDetail({
 
   const resource = r as SkillResource;
   const body = await getBody(resource);
-  const skillMd = await getAttachment(resource, "SKILL.md") ?? "";
+  const skillMd = resource.redistribution ? (await getAttachment(resource, "SKILL.md")) ?? "" : "";
 
   return (
     <DetailShell
@@ -135,29 +135,49 @@ export default async function SkillDetail({
         </section>
       )}
 
-      {/* SKILL.md 预览 */}
-      <section className="mt-8">
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-[15px] font-semibold text-zinc-900">
-            SKILL.md 预览
-          </h2>
-          {skillMd && (
-            <CopyButton
-              text={skillMd}
-              label="复制 SKILL.md"
-              variant="ghost"
-              className="!px-2.5 !py-1.5 !text-[12px]"
-            />
+      {/* SKILL.md 预览；仅索引的 Skill 不保存原文，只链接来源 */}
+      {resource.redistribution ? (
+        <section className="mt-8">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-[15px] font-semibold text-zinc-900">
+              SKILL.md 预览
+            </h2>
+            {skillMd && (
+              <CopyButton
+                text={skillMd}
+                label="复制 SKILL.md"
+                variant="ghost"
+                className="!px-2.5 !py-1.5 !text-[12px]"
+              />
+            )}
+          </div>
+          {skillMd ? (
+            <CodeBlock code={skillMd} filename="SKILL.md" maxHeight="28rem" />
+          ) : (
+            <p className="rounded-xl border border-dashed border-zinc-300 p-6 text-center text-[13px] text-zinc-400">
+              SKILL.md 内容待补充
+            </p>
           )}
-        </div>
-        {skillMd ? (
-          <CodeBlock code={skillMd} filename="SKILL.md" maxHeight="28rem" />
-        ) : (
-          <p className="rounded-xl border border-dashed border-zinc-300 p-6 text-center text-[13px] text-zinc-400">
-            SKILL.md 内容待补充
+        </section>
+      ) : (
+        <section className="mt-8 rounded-xl border border-zinc-200 bg-zinc-50 p-4 text-[13px] leading-6 text-zinc-600">
+          <h2 className="text-[15px] font-semibold text-zinc-900">获取原文</h2>
+          <p className="mt-1">
+            这个 Skill 的许可证不允许本站转载（或无法确认），本站只做索引。请到来源查看 SKILL.md
+            原文与使用条款。
           </p>
-        )}
-      </section>
+          {resource.sourceUrl && (
+            <a
+              href={resource.sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 inline-flex items-center gap-1 rounded-lg bg-zinc-900 px-3 py-2 text-[12.5px] font-medium text-white no-underline hover:bg-zinc-700"
+            >
+              前往来源查看原文 ↗
+            </a>
+          )}
+        </section>
+      )}
 
       {resource.dependencies && resource.dependencies.length > 0 && (
         <section className="mt-6">

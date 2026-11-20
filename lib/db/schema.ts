@@ -386,9 +386,17 @@ export const ingestionItems = pgTable(
     error: text("error"),
     createdAt: createdAt(),
     updatedAt: ts("updated_at").notNull().defaultNow(),
+    /** slice 7: retry back-off; a queued item is not claimed before this time */
+    nextAttemptAt: ts("next_attempt_at"),
+    /** slice 7: page title as extracted (for the status list before a draft exists) */
+    title: text("title"),
+    /** slice 7: what the deterministic licence detection matched (file name, tag, SPDX line) */
+    licenseEvidence: text("license_evidence"),
   },
   (t) => [
     index("ingestion_items_queue_idx").on(t.status, t.id).where(sql`${t.status} IN ('queued','running')`),
+    // the same source can only be in flight once (two jobs pasting the same URL)
+    uniqueIndex("ingestion_items_inflight_uq").on(t.sourceUrlNorm).where(sql`${t.status} IN ('queued','running')`),
   ],
 );
 

@@ -10,6 +10,7 @@ import type { Db } from "../db/client";
 import * as s from "../db/schema";
 import { notifyContentChanged, replaceTags, upsertCategory } from "../import/content-import";
 import { issuesByField, slugSchema } from "../content/validation";
+import { normalizeSourceUrl } from "../ingest/url";
 
 export interface AdminCtx {
   db: Db;
@@ -38,6 +39,8 @@ export interface CommonInput {
   verifiedAt?: string;
   applicableTasks?: string[];
   body: string;
+  /** the admin confirms the source licence allows redistribution (sets license_source ADMIN_DECLARED) */
+  licenseDeclared?: boolean;
 }
 
 export interface Adapter<I extends CommonInput> {
@@ -127,6 +130,8 @@ export interface ForEdit<I> {
   version: string;
   input: I;
   structureMediaId: number | null;
+  licenseSource: "PLATFORM" | "SPDX_DETECTED" | "PAGE_DECLARED" | "ADMIN_DECLARED" | "UNKNOWN";
+  origin: "FILE_IMPORT" | "ADMIN" | "INGESTION";
 }
 
 export async function getForEdit<I extends CommonInput>(db: Db, adapter: Adapter<I>, id: number): Promise<ForEdit<I> | null> {
@@ -167,6 +172,8 @@ export async function getForEdit<I extends CommonInput>(db: Db, adapter: Adapter
     requiredTier: r.requiredTier,
     version: row.version,
     structureMediaId: r.structureMediaId,
+    licenseSource: r.licenseSource,
+    origin: r.origin,
     input: { ...common, ...(await adapter.readDetails(db, id)) } as I,
   };
 }
@@ -272,6 +279,34 @@ export async function saveResource<I extends CommonInput>(
     if (Object.keys(problems).length) return { ok: false, errors: problems };
   }
 
+  // Licence: turning redistribution on for content whose licence the platform did not establish
+  // itself needs an explicit admin declaration (recorded as ADMIN_DECLARED and audited). The
+  // database refuses redistribution for UNKNOWN regardless.
+  let licenseSource = current.licenseSource;
+  const turningOn = input.redistribution && !current.input.redistribution;
+  if (turningOn && licenseSource !== "PLATFORM") {
+    if (!input.licenseDeclared) {
+      return { ok: false, errors: { redistribution: "来源许可证未被自动确认允许转载。核实来源许可证后，勾选“我已核实来源许可证允许转载”再保存。" } };
+    }
+    licenseSource = "ADMIN_DECLARED";
+  } else if (input.redistribution && licenseSource === "UNKNOWN") {
+    return { ok: false, errors: { redistribution: "许可证未知的内容不能转载" } };
+  } else if (input.license !== current.input.license && licenseSource !== "PLATFORM" && licenseSource !== "UNKNOWN") {
+    // the licence shown is no longer the one that was detected
+    if (input.redistribution && !input.licenseDeclared) {
+      return { ok: false, errors: { license: "修改转载内容的许可证需要勾选“我已核实来源许可证允许转载”" } };
+    }
+    licenseSource = "ADMIN_DECLARED";
+  }
+  const sourceUrlNorm = input.sourceUrl ? normalizeSourceUrl(input.sourceUrl) : null;
+  if (sourceUrlNorm) {
+    const [other] = await ctx.db
+      .select({ id: s.resources.id, title: s.resources.title })
+      .from(s.resources)
+      .where(and(eq(s.resources.sourceUrlNorm, sourceUrlNorm), ne(s.resources.id, id)));
+    if (other) return { ok: false, errors: { sourceUrl: `这个来源已被「${other.title}」收录` } };
+  }
+
   const now = ctx.now ?? new Date();
   const newVersion = await ctx.db.transaction(async (tx) => {
     const db = tx as unknown as Db;
@@ -290,7 +325,9 @@ export async function saveResource<I extends CommonInput>(
         license: input.license,
         licenseNote: input.licenseNote ?? null,
         redistribution: input.redistribution,
+        licenseSource,
         sourceUrl: input.sourceUrl ?? null,
+        sourceUrlNorm,
         contentUpdatedOn: input.updatedAt,
         verifiedOn: input.verifiedAt ?? null,
         updatedAt: now,
@@ -314,7 +351,10 @@ export async function saveResource<I extends CommonInput>(
     await snapshotVersion(ctx, adapter, id, "edit while published");
     await notifyContentChanged(ctx.db);
   }
-  await audit(ctx, "resource.update", id, { fields: changed });
+  if (licenseSource !== current.licenseSource) {
+    await audit(ctx, "resource.license_declared", id, { license: input.license, from: current.licenseSource, to: licenseSource, redistribution: input.redistribution });
+  }
+  await audit(ctx, "resource.update", id, { fields: changed.filter((k) => k !== "licenseDeclared") });
   return { ok: true, version: newVersion };
 }
 

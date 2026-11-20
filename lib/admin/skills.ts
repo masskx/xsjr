@@ -28,7 +28,9 @@ export const skillAdapter: R.Adapter<SkillInput> = {
   }),
   publishProblems(input): Record<string, string> {
     const p: Record<string, string> = {};
-    if (!input.skillMd.trim()) p.skillMd = "SKILL.md 不能为空";
+    // index-only skills (redistribution off) carry no copy of SKILL.md; the page links to the source
+    if (input.redistribution && !input.skillMd.trim()) p.skillMd = "SKILL.md 不能为空（或关闭“允许转载”，改为仅索引）";
+    if (!input.redistribution && !input.sourceUrl) p.sourceUrl = "仅索引的 Skill 必须填写来源链接";
     if (!input.compat.length) p.compat = "至少填写一行兼容性";
     return p;
   },
@@ -68,6 +70,8 @@ export const skillAdapter: R.Adapter<SkillInput> = {
       );
     }
     await db.delete(s.resourceFiles).where(and(eq(s.resourceFiles.resourceId, id), eq(s.resourceFiles.path, SKILL_FILE)));
+    // App-layer licence rule: redistribution = false => no resource_files rows (no copied body).
+    if (!input.redistribution || !input.skillMd.trim()) return;
     await db.insert(s.resourceFiles).values({
       resourceId: id,
       path: SKILL_FILE,

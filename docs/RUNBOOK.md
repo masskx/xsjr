@@ -310,6 +310,51 @@ psql "$TEST_DATABASE_URL" -c "INSERT INTO events (type, occurred_at, visitor_has
 BENCH_DATABASE_URL="$TEST_DATABASE_URL" npx tsx scripts/bench-analytics.ts
 ```
 
-## 14. DeepSeek 导入任务
+## 14. DeepSeek 导入任务（slice 7）
 
-Slice 7 实现，届时补充。
+后台 `/admin/ingest/`：贴入网址（每行一个，最多 20 个），或输入“搜索词 + 允许的域名”。服务器在后台逐条处理，
+页面每 3 秒刷新状态（排队中 / 处理中 / 失败 / 完成）。**结果一律是 Skill 草稿，不会自动发布**；
+在“已生成草稿”链接里审核、修改后再点“发布”。
+
+**开启**（服务器 `/opt/research-hub/.env`，改完执行 `sudo bash $RH/apply-config.sh`）：
+```
+DEEPSEEK_API_KEY=sk-...                 # 只在服务器上；不进仓库、不进浏览器
+DEEPSEEK_DAILY_TOKEN_LIMIT=2000000      # 当天用量到上限后暂停，次日 0 点（北京时间）自动继续
+# 可选：按搜索导入（DeepSeek 自己不能联网搜索）
+SEARCH_PROVIDER=bocha
+BOCHA_API_KEY=...
+```
+未填 `DEEPSEEK_API_KEY` 时导入页显示“未开启”，后台任务不运行。处理程序跑在 app 容器里（一次一条，内存开销很小）；
+部署预检的临时容器带 `INGEST_WORKER=0`，不会接任务。
+
+**每条网址的处理过程**
+1. 网址已收录（规范化后比较：忽略 http/https、www、末尾斜杠、`utm_*` 等跟踪参数、GitHub 大小写）→ 标记“重复”，不抓取、不花 token。
+2. 抓取：遵守 robots.txt（User-Agent `ResearchHubBot`），10 秒超时，最大 2 MB，最多 2 次重定向；每一跳都重新检查。
+   **拒绝内网/保留地址**（10/8、172.16/12、192.168/16、127/8、169.254/16（含腾讯云元数据）、100.64/10、IPv6 ULA/链路本地等），
+   连接固定到校验过的 IP，防 DNS 重绑定。不发送 Cookie 或任何凭据。
+   GitHub 网址读 `raw.githubusercontent.com` 上的 `SKILL.md`（没有则 `README.md`）和最近的 `LICENSE`。
+3. 只把提取出的正文（最多 2.4 万字）发给 DeepSeek（JSON 模式），返回内容按固定格式校验；网页里的“指令”一律当作数据。
+4. 标题与已有 Skill 相似（> 60%）→ 标记“重复”并链接到已有资源。
+5. 生成草稿，并记录来源、抓取时间、HTTP 状态、内容 SHA-256、许可证及其依据（“来源与许可证依据”面板）。
+
+**许可证规则（法律要求，不是偏好）**
+- 许可证只由程序确定：LICENSE 文件全文匹配、`SPDX-License-Identifier`、页面 `rel="license"`、SKILL.md 头部 `license:`。
+  **AI 对许可证的看法只显示给审核人，不作为转载依据。**
+- 只有 MIT、Apache-2.0、BSD、ISC、0BSD、Unlicense、CC0、CC BY 4.0，且来源本身就是 SKILL.md 时，才保存原文（原样，附版权行与出处）。
+- 其他情况（未声明、GPL、CC BY-SA/NC/ND、普通网页）一律**仅索引**：不保存原文，详情页显示“前往来源查看原文”。
+  数据库约束保证许可证“未知”的资源不能设为可转载。
+- 审核人确认来源许可允许转载时，在编辑页勾选“允许转载”并勾选“我已核实来源许可证允许转载”；
+  记为“管理员核实声明”，写入审计日志。
+
+**失败与重试**：网络错误、超时、5xx、DeepSeek 临时故障会自动重试（30 秒、2 分钟、10 分钟，共 3 次）；
+robots.txt 禁止、内网地址、4xx、超过 2 MB、DeepSeek key 无效（401）或余额不足（402）直接失败，条目旁有“重试”按钮。
+进程重启导致卡在“处理中”超过 10 分钟的条目会自动放回队列。
+
+**常见问题**
+- 全部失败、提示“DeepSeek 返回 HTTP 401/402”：key 错误或余额不足，到 DeepSeek 控制台处理，然后点“重试”。
+- GitHub 网址超时：国内服务器访问 `raw.githubusercontent.com` 不稳定，稍后重试，或改用 Gitee 等国内镜像页面的网址。
+- 网页“几乎没有可提取的正文”：页面需要登录或完全由脚本渲染，换成原始文件（如 SKILL.md 的 raw 链接）。
+- 查看后台处理日志：`docker compose ... logs app | grep ingest`。
+
+> 测试专用变量 `INGEST_TEST_ALLOW_PRIVATE_HOSTS` 会放开内网地址检查，**生产环境绝不能设置**；
+> 部署脚本发现 `.env` 里有它会拒绝部署。

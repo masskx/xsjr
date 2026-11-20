@@ -13,6 +13,7 @@ import * as members from "@/lib/admin/members";
 import * as R from "@/lib/admin/resources";
 import { moduleAdapter, removeDiagram, setDiagram } from "@/lib/admin/modules";
 import { skillAdapter } from "@/lib/admin/skills";
+import * as ingest from "@/lib/ingest/jobs";
 
 export interface AdminFormState {
   ok?: boolean;
@@ -257,4 +258,37 @@ export async function removeDiagramAction(fd: FormData): Promise<void> {
   const id = idOf(fd);
   await removeDiagram(ctx, id);
   redirect(`/admin/modules/${id}/?msg=diagram-removed`);
+}
+
+// ── ingestion (slice 7) ──
+
+export async function createUrlJobAction(_: AdminFormState, fd: FormData): Promise<AdminFormState> {
+  const { ctx } = await adminContext();
+  const values = { urls: str(fd, "urls").slice(0, 20_000) };
+  const r = await ingest.createUrlJob(ctx.db, ctx.actorId, values.urls);
+  if (!r.ok) {
+    const [field, error] = Object.entries(r.errors)[0];
+    return { error, field: field === "_form" ? undefined : field, values };
+  }
+  redirect(`/admin/ingest/${r.jobId}/?created=${r.queued}&skipped=${r.skipped.length}`);
+}
+
+export async function createQueryJobAction(_: AdminFormState, fd: FormData): Promise<AdminFormState> {
+  const { ctx } = await adminContext();
+  const values = { query: str(fd, "query").slice(0, 200), domains: str(fd, "domains").slice(0, 2000), limit: str(fd, "limit") };
+  const r = await ingest.createQueryJob(ctx.db, ctx.actorId, { query: values.query, domains: values.domains, limit: Number(values.limit) });
+  if (!r.ok) {
+    const [field, error] = Object.entries(r.errors)[0];
+    return { error, field: field === "_form" ? undefined : field, values };
+  }
+  redirect(`/admin/ingest/${r.jobId}/?created=query`);
+}
+
+export async function retryIngestItemAction(fd: FormData): Promise<void> {
+  const { ctx } = await adminContext();
+  const itemId = idOf(fd);
+  const jobId = Number(str(fd, "job"));
+  const r = await ingest.retryItem(ctx.db, ctx.actorId, itemId);
+  const q = r.ok ? "msg=retry" : `err=${encodeURIComponent(Object.values(r.errors).join("；"))}`;
+  redirect(`/admin/ingest/${Number.isInteger(jobId) && jobId > 0 ? `${jobId}/` : ""}?${q}`);
 }

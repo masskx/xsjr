@@ -36,7 +36,18 @@ interface SkillDraft extends CommonDraft {
   files: FileRow[];
   risks: string;
   dependencies: string;
+  sourceUrl: string;
+  redistribution: boolean;
+  licenseDeclared: boolean;
 }
+
+const LICENSE_SOURCE_LABEL: Record<string, string> = {
+  PLATFORM: "平台原创",
+  SPDX_DETECTED: "自动识别（LICENSE 文件）",
+  PAGE_DECLARED: "自动识别（页面声明）",
+  ADMIN_DECLARED: "管理员核实声明",
+  UNKNOWN: "未知",
+};
 
 const toDraft = (i: SkillInput): SkillDraft => ({
   ...commonToDraft(i),
@@ -45,6 +56,9 @@ const toDraft = (i: SkillInput): SkillDraft => ({
   files: i.files.map((f) => ({ path: f.path, size: f.size === undefined ? "" : String(f.size), desc: f.desc ?? "" })),
   risks: (i.risks ?? []).join("\n"),
   dependencies: (i.dependencies ?? []).join("\n"),
+  sourceUrl: i.sourceUrl ?? "",
+  redistribution: i.redistribution,
+  licenseDeclared: false,
 });
 
 function Rows<T>({
@@ -92,7 +106,9 @@ export function SkillEditor({
   save,
   preview,
   controls,
+  licenseSource = "PLATFORM",
 }: {
+  licenseSource?: string;
   id: number;
   initial: SkillInput;
   version: string;
@@ -109,6 +125,9 @@ export function SkillEditor({
     files: d.files.map((f) => ({ path: f.path.trim(), size: f.size.trim() ? Number(f.size) : undefined, desc: f.desc || undefined })),
     risks: lines(d.risks),
     dependencies: lines(d.dependencies),
+    sourceUrl: d.sourceUrl.trim() || undefined,
+    redistribution: d.redistribution,
+    licenseDeclared: d.licenseDeclared || undefined,
   });
   const ed = useEditor(toDraft(initial), version, id, save, toInput, controls.status === "PUBLISHED");
   const { draft, setDraft, errors } = ed;
@@ -123,7 +142,27 @@ export function SkillEditor({
         <MarkdownField value={draft.body} onChange={(v) => set("body", v)} error={errors.body} preview={preview} />
       </Card>
 
-      <Card title="SKILL.md" description="Skill 定义文件的完整内容，详情页可预览和复制。">
+      <Card title="来源与转载" description="第三方 Skill 必须填写来源。只有许可证允许时才能转载 SKILL.md 原文，否则仅做索引（详情页链接到来源）。">
+        <div className="space-y-3">
+          <Input label="来源链接（第三方 Skill 必填）" value={draft.sourceUrl} onChange={(v) => set("sourceUrl", v)} error={errors.sourceUrl} mono maxLength={500} />
+          <p className="text-[12.5px] text-zinc-600">
+            许可证来源：<span className="font-medium text-zinc-800">{LICENSE_SOURCE_LABEL[licenseSource] ?? licenseSource}</span>
+          </p>
+          <label className="flex items-start gap-2 text-[13px] text-zinc-800">
+            <input type="checkbox" className="mt-0.5" checked={draft.redistribution} onChange={(e) => set("redistribution", e.target.checked)} aria-invalid={errors.redistribution ? true : undefined} />
+            <span>允许转载 SKILL.md 原文（关闭 = 仅索引，不保存原文）</span>
+          </label>
+          {draft.redistribution && licenseSource !== "PLATFORM" && (!initial.redistribution || draft.license !== initial.license) && (
+            <label className="flex items-start gap-2 rounded-lg border border-amber-300 bg-amber-50 p-3 text-[13px] text-amber-900">
+              <input type="checkbox" className="mt-0.5" checked={draft.licenseDeclared} onChange={(e) => set("licenseDeclared", e.target.checked)} />
+              <span>我已核实来源许可证允许转载（会以“管理员核实声明”记录在审计日志中）</span>
+            </label>
+          )}
+          {errors.redistribution && <p className="text-[12.5px] text-rose-700">{errors.redistribution}</p>}
+        </div>
+      </Card>
+
+      <Card title="SKILL.md" description={draft.redistribution ? "Skill 定义文件的完整内容，详情页可预览和复制。" : "仅索引：保存时不会存储 SKILL.md 原文，详情页显示“前往来源查看原文”。"}>
         <TextArea label="SKILL.md" value={draft.skillMd} onChange={(v) => set("skillMd", v)} error={errors.skillMd} rows={14} mono />
       </Card>
 

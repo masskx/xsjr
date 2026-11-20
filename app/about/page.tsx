@@ -56,6 +56,21 @@ export default function AboutPage() {
         </p>
       </Section>
 
+      <Section title="关于 ResearchHubBot" anchor="bot">
+        <p className="text-[13.5px] leading-7 text-zinc-600">
+          管理员收录第三方资源时，本站服务器会读取管理员指定的网页，User-Agent 含
+          <code className="mx-1 rounded bg-zinc-100 px-1 py-0.5 text-[12.5px]">ResearchHubBot</code>
+          。它只在管理员操作时逐个访问指定网址，不会大规模抓取，遵守 robots.txt，不携带 Cookie
+          或登录信息。不希望被读取的网站可以在 robots.txt 中加入：
+        </p>
+        <pre className="mt-2 overflow-x-auto rounded-lg bg-zinc-50 px-3 py-2 text-[12.5px] text-zinc-700">
+          {"User-agent: ResearchHubBot\nDisallow: /"}
+        </pre>
+        <p className="mt-2 text-[13px] leading-6 text-zinc-500">
+          读取到的内容只用于生成待人工审核的资源草稿；许可证不允许或无法确认的，只保留摘要和原始链接。
+        </p>
+      </Section>
+
       <Section title="举报侵权与失效链接" anchor="report">
         <p className="text-[13.5px] leading-7 text-zinc-600">
           发现侵权内容、失效链接或危险脚本，请通过页脚的联系渠道反馈，并附上资源链接与具体情况。

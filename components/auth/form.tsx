@@ -102,6 +102,41 @@ export function Field({
   );
 }
 
+export function TextAreaField({ name, label, hint, rows = 5, maxLength, placeholder }: { name: string; label: string; hint?: string; rows?: number; maxLength?: number; placeholder?: string }) {
+  const state = useContext(StateContext);
+  const id = useId();
+  const invalid = state.field === name;
+  return (
+    <div>
+      <label htmlFor={id} className="mb-1.5 block text-[13px] font-medium text-zinc-800">
+        {label}
+      </label>
+      <textarea
+        id={id}
+        name={name}
+        rows={rows}
+        maxLength={maxLength}
+        placeholder={placeholder}
+        defaultValue={state.values?.[name]}
+        aria-invalid={invalid || undefined}
+        aria-describedby={invalid ? `${id}-err` : hint ? `${id}-hint` : undefined}
+        className={`block w-full rounded-lg border bg-white px-3 py-2 font-mono text-[13px] text-zinc-900 outline-none placeholder:text-zinc-400 focus-visible:ring-2 focus-visible:ring-zinc-900/20 ${
+          invalid ? "border-rose-400" : "border-zinc-300 focus-visible:border-zinc-500"
+        }`}
+      />
+      {invalid ? (
+        <p id={`${id}-err`} className="mt-1.5 text-[12.5px] text-rose-700">
+          {state.error}
+        </p>
+      ) : hint ? (
+        <p id={`${id}-hint`} className="mt-1.5 text-[12.5px] text-zinc-500">
+          {hint}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
 export function Checkbox({ name, children }: { name: string; children: ReactNode }) {
   const state = useContext(StateContext);
   const id = useId();

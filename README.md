@@ -40,6 +40,7 @@ lib/
   repo/                 页面唯一的数据入口（快照缓存、附件读取、slug 索引）
   db/                   Drizzle schema 与连接池
   import/               content/ → PostgreSQL 导入器
+  ingest/               DeepSeek 导入：抓取（SSRF/robots 防护）、许可证识别、抽取、去重、后台任务
   content-files.ts      content/ 文件格式的读取与校验（导入器使用）
   search.ts             搜索索引（拼音/首字母）
   markdown.ts           Markdown 渲染（html:false 防 XSS）
@@ -86,6 +87,7 @@ content/prompts/my-prompt/
 - 四类资源的专属字段见 `lib/types.ts`。
 - 导入规则：内容没变 → 跳过；后台改过的资源 → 不覆盖（需 `--force`）；文件被删 → 只报告，不删库。
 - 提示词可在后台 `/admin/prompts/` 编辑（RUNBOOK 第 10 节）；后台改过的资源以数据库为准，文件导入会跳过它。
+- 第三方 Skill 也可以在后台 `/admin/ingest/` 按网址导入成草稿（RUNBOOK 第 14 节）。
 
 ## 本地开发（Windows）
 
@@ -127,4 +129,5 @@ powershell -ExecutionPolicy Bypass -File infra/deploy.ps1
 - [ ] OG 图片：目前只有文本 metadata
 - [ ] Skill ZIP 打包下载：当前提供 SKILL.md 复制与安装说明
 - [ ] 开通账户功能：需要 HTTPS、运营者信息、法务审阅隐私政策与用户协议，见 RUNBOOK 第 9 节
-- [ ] Phase 2 后续切片：DeepSeek 导入（见 PLAN.md）；科研网站（导航）的后台编辑
+- [ ] DeepSeek 导入：在服务器 `.env` 填 `DEEPSEEK_API_KEY` 后开启（RUNBOOK 第 14 节）；按搜索导入另需博查 API key
+- [ ] 科研网站（导航）的后台编辑

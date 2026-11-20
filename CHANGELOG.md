@@ -2,6 +2,64 @@
 
 ## Unreleased
 
+### Phase 2, slice 7: DeepSeek-assisted ingestion
+
+Added
+- `/admin/ingest/`: import Agent Skills from a list of URLs (up to 20) or from a search query
+  restricted to allowed domains. Jobs run in the background with per-job and per-item status
+  (queued / running / failed / done), auto-refreshing pages and a retry button.
+- Worker inside the app process (`instrumentation.ts`, only when `DEEPSEEK_API_KEY` is set):
+  `FOR UPDATE SKIP LOCKED` claiming, back-off 30 s / 2 min / 10 min, 3 attempts, permanent vs
+  transient errors, stale-lock recovery, LISTEN/NOTIFY wake-ups, a daily token budget.
+- Fetcher (`lib/ingest/net.ts`): robots.txt on every hop (token `ResearchHubBot`), 10 s deadline,
+  2 MB cap on the decoded body, at most 2 redirects, SSRF guard (private, loopback, link-local
+  incl. 169.254/16, CGNAT, ULA, multicast, documentation ranges and IPv4-mapped / NAT64 / 6to4
+  forms) with the connection pinned to the validated address; no cookies or credentials.
+- Extraction: Readability + linkedom for HTML; GitHub directories read raw `SKILL.md` / `README.md`
+  and the nearest `LICENSE`.
+- DeepSeek (`deepseek-chat`, JSON mode) with a strict prompt that treats the page as untrusted
+  data; output validated and length-capped by zod; HTML in it is escaped on display.
+- Deterministic licence detection (LICENSE text, SPDX line, `rel="license"`, SKILL.md front
+  matter). Only permissive licences on an original SKILL.md produce a redistributable copy;
+  everything else is an index-only draft. The model's licence opinion is shown, never used.
+- Dedup by normalised source URL (before any fetch or token spend) and by title similarity
+  (pg_trgm plus a CJK-safe bigram check, > 0.6), linking to the existing resource.
+- Drafts carry `resource_provenance` (URL, time, HTTP status, SHA-256, licence, basis, evidence);
+  the skill editor shows a provenance panel and a "source and redistribution" card.
+- Query mode behind a `SearchProvider` interface; Bocha (博查) implemented.
+- Migration 0004: `ingestion_items.next_attempt_at`, `title`, `license_evidence`, and a partial
+  unique index so a URL cannot be in flight twice.
+- About page: what `ResearchHubBot` is and how to opt out via robots.txt.
+- Tests: 29 unit tests (incl. the real fetcher against a local server: redirects, robots,
+  private targets, size cap, gzip bomb, timeout, charset) and 12 database tests;
+  `tests/e2e/ingest.mjs` (27 checks).
+
+Changed
+- Licence rules in the admin save path (all resource types): turning redistribution on for content
+  whose licence the platform did not establish requires "I have checked the source licence",
+  recorded as `ADMIN_DECLARED` and audited; editing a source URL updates its dedup key and refuses
+  one already used by another resource.
+- Skills: index-only skills store no SKILL.md and publish without one (a source link is then
+  required); their public page links to the source instead of a preview.
+- Deploy pre-flight runs the new release with `INGEST_WORKER=0`; deploy refuses a `.env`
+  containing the test-only `INGEST_TEST_ALLOW_PRIVATE_HOSTS`.
+- Source links must be http(s) (the shared schema accepted any URL scheme, e.g. `javascript:`;
+  the field was not editable in the admin before this slice).
+
+Fixed
+- Release packaging: Next 16.4's standalone output omits a runtime file that start-up needs once
+  `instrumentation.ts` exists. On the build machine Node found it in the project's node_modules,
+  so only the packaged release failed (HTTP 500 on every request; deploy pre-flight would have
+  rejected it). `build-release.mjs` now adds the file and **boots every release from a directory
+  outside the project before packaging it**, failing on any missing module.
+
+Verified
+- 190 unit/DB tests; all six browser suites (155 checks) against the build, and the ingestion and
+  gallery suites against the extracted release tarball outside the project.
+- Parity: identical to slice 6 except the new ResearchHubBot section on /about/.
+- Not yet run against the real DeepSeek or Bocha APIs (no keys here); their request and response
+  formats follow the public documentation and are isolated in `lib/ingest/llm.ts` and `search.ts`.
+
 ### Phase 2, slice 6: first-party analytics
 
 Added

@@ -17,7 +17,9 @@ with estimates, (d) risks. Section E lists the decisions and inputs needed from 
 | 4. Tiers and gating | **Built and tested** (109 tests; 22 gating checks across anonymous / FREE / EI / SCI / expired / revoked, HTML and RSC). |
 | 5. Module gallery and diagrams | **Built and tested** (126 tests; 25 browser checks; other pages unchanged). Also admin editors for modules and skills. |
 | 6. Analytics | **Built and tested** (149 tests; 21 browser checks; 1M-event benchmark). Visitor uniqueness is per day by design (see CHANGELOG). |
-| 7 | Not started. |
+| 7. DeepSeek ingestion | **Built and tested** (190 tests; 27 browser checks against a local fixture site with fake DeepSeek and search endpoints). Needs `DEEPSEEK_API_KEY` on the server; query mode also needs `SEARCH_PROVIDER=bocha` + `BOCHA_API_KEY`. Not yet tried against the real DeepSeek or Bocha APIs. |
+
+Deviations made in slice 7: the worker runs **inside the app process** (started from `instrumentation.ts`, one item at a time) rather than as a separate `worker` service, which saves a container and ~100 MB; the fetcher uses `node:http(s)` with a pinned-address `lookup` instead of undici; GitHub licences come from the repo's raw `LICENSE` file (deterministic text match) instead of the GitHub licence API, so only `raw.githubusercontent.com` is contacted; a partial unique index stops the same URL being in flight twice.
 
 Deviations from this plan made during slice 1 (the sections below are otherwise unchanged):
 

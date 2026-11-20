@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ProvenancePanel } from "@/components/admin/provenance-panel";
 import { SkillEditor } from "@/components/admin/skill-editor";
 import { Notice, StatusBadge, btn } from "@/components/admin/ui";
 import { adminData } from "@/lib/admin/server";
@@ -24,7 +25,7 @@ const MESSAGES: Record<string, string> = {
 export default async function EditSkillPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ msg?: string; err?: string; created?: string }> }) {
   const id = Number((await params).id);
   if (!Number.isInteger(id) || id <= 0) notFound();
-  const [skill, versions] = await Promise.all([adminData.skillForEdit(id), adminData.versionCount(id)]);
+  const [skill, versions, provenance] = await Promise.all([adminData.skillForEdit(id), adminData.versionCount(id), adminData.provenance(id)]);
   if (!skill) notFound();
   const sp = await searchParams;
 
@@ -48,9 +49,15 @@ export default async function EditSkillPage({ params, searchParams }: { params: 
         {sp.msg && MESSAGES[sp.msg] && <Notice tone="ok">{MESSAGES[sp.msg]}</Notice>}
         {sp.err && <Notice tone="error">{sp.err}</Notice>}
       </div>
+      {provenance.records.length > 0 && (
+        <div className="mb-5">
+          <ProvenancePanel records={provenance.records} licenseSource={skill.licenseSource} />
+        </div>
+      )}
       <SkillEditor
         key={skill.version}
         id={id}
+        licenseSource={skill.licenseSource}
         initial={skill.input}
         version={skill.version}
         slugLocked={!!skill.publishedAt}

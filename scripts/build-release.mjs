@@ -83,6 +83,14 @@ if (fs.existsSync(path.join(root, "public"))) copy(path.join(root, "public"), pa
 for (const p of ["node_modules/sharp", "node_modules/@img"]) {
   fs.rmSync(path.join(stage, "app", p), { recursive: true, force: true });
 }
+// Next 16.4 tracing gap: with instrumentation.ts, the Turbopack server runtime loads the
+// app-route runtime at start-up but standalone output does not include it. On the build machine
+// Node silently finds it in the project's own node_modules one directory up; on the server the
+// app would fail to start. Copy it explicitly (the self-test below catches any further gaps).
+for (const rel of ["node_modules/next/dist/compiled/next-server/app-route-turbo.runtime.prod.js"]) {
+  const dest = path.join(stage, "app", rel);
+  if (!fs.existsSync(dest)) copy(path.join(root, rel), dest);
+}
 // Next writes its data cache here; compose mounts a tmpfs on it (the release is read-only).
 fs.mkdirSync(path.join(stage, "app", ".next", "cache"), { recursive: true });
 const natives = [];
@@ -121,6 +129,11 @@ const findEnv = (dir) => {
 };
 findEnv(path.join(stage, "app"));
 if (envFiles.length) throw new Error(`refusing to ship env files: ${envFiles.join(", ")}`);
+
+// Self-test: boot the assembled app from a directory OUTSIDE the project, where Node cannot
+// fall back to the project's node_modules, and fail on any missing module.
+console.log("==> self-test (boot outside the project)");
+await selfTest(path.join(stage, "app"));
 
 console.log("==> bundle scripts/");
 const esbuild = await import("esbuild");
@@ -165,3 +178,37 @@ if (Number(mb) > 15) {
   throw new Error(`release is ${mb} MB (budget 15 MB): something unexpected was packaged`);
 }
 fs.writeFileSync(path.join(outDir, "LATEST"), `${id}\n`);
+
+async function selfTest(appDir) {
+  const os = await import("node:os");
+  const net = await import("node:net");
+  const { spawn } = await import("node:child_process");
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "rh-selftest-"));
+  try {
+    copy(appDir, path.join(dir, "app"));
+    const port = await new Promise((resolve) => {
+      const srv = net.createServer().listen(0, "127.0.0.1", () => {
+        const p = srv.address().port;
+        srv.close(() => resolve(p));
+      });
+    });
+    let out = "";
+    const env = { PATH: process.env.PATH, SystemRoot: process.env.SystemRoot, NODE_ENV: "production", PORT: String(port), HOSTNAME: "127.0.0.1", SITE_URL: "http://127.0.0.1", NEXT_TELEMETRY_DISABLED: "1" };
+    const child = spawn(process.execPath, ["server.js"], { cwd: path.join(dir, "app"), env, stdio: ["ignore", "pipe", "pipe"] });
+    child.stdout.on("data", (d) => (out += d));
+    child.stderr.on("data", (d) => (out += d));
+    let status = 0;
+    for (let i = 0; i < 60 && !status; i++) {
+      await new Promise((r) => setTimeout(r, 250));
+      status = await fetch(`http://127.0.0.1:${port}/robots.txt`).then((r) => r.status, () => 0);
+    }
+    await new Promise((r) => setTimeout(r, 1000)); // let start-up hooks (instrumentation) finish
+    child.kill();
+    const missing = /Cannot find module|Failed to load external module|ERR_MODULE_NOT_FOUND/.test(out);
+    if (!status || missing) {
+      throw new Error(`release self-test failed (HTTP ${status || "no answer"}):\n${out.split("\n").slice(0, 15).join("\n")}`);
+    }
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+}
