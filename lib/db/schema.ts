@@ -171,8 +171,8 @@ export const media = pgTable(
     createdAt: createdAt(),
   },
   (t) => [
-    check("media_key_format", sql`${t.storageKey} ~ '^[a-z0-9/_-]+\\.(png|jpg|webp)$'`),
-    check("media_mime", sql`${t.mime} IN ('image/png','image/jpeg','image/webp')`),
+    check("media_key_format", sql`${t.storageKey} ~ '^[a-z0-9/_-]+\\.(png|jpg|webp|ico)$'`),
+    check("media_mime", sql`${t.mime} IN ('image/png','image/jpeg','image/webp','image/x-icon')`),
     check("media_bytes", sql`${t.bytes} BETWEEN 1 AND 2097152`),
   ],
 );
