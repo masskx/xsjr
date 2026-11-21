@@ -137,7 +137,7 @@ await selfTest(path.join(stage, "app"));
 
 console.log("==> bundle scripts/");
 const esbuild = await import("esbuild");
-for (const name of ["migrate", "import-content", "create-admin", "bulk-import"]) {
+for (const name of ["migrate", "import-content", "create-admin", "bulk-import", "fetch-site-icons"]) {
   await esbuild.build({
     entryPoints: [path.join(root, "scripts", `${name}.ts`)],
     outfile: path.join(stage, "scripts", `${name}.mjs`),

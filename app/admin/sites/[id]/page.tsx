@@ -13,6 +13,7 @@ import {
   saveSiteAction,
   uploadSiteIconAction,
   removeSiteIconAction,
+  fetchSiteIconAction,
   unpublishSiteAction,
 } from "../../actions";
 
@@ -49,7 +50,7 @@ export default async function EditSitePage({ params, searchParams }: { params: P
       </div>
       <p className="mt-1 text-[12.5px] text-zinc-500">已记录 {versions} 个发布版本 · 站点卡片对所有人可见</p>
       <div className="mt-5">
-        {sp.created && <Notice tone="ok">草稿已创建。填写网址、上传图标后即可发布。</Notice>}
+        {sp.created && <Notice tone="ok">草稿已创建。填写网址后离开输入框会自动抓取图标，也可以手动上传覆盖，然后发布。</Notice>}
         {sp.msg && MESSAGES[sp.msg] && <Notice tone="ok">{MESSAGES[sp.msg]}</Notice>}
         {sp.err && <Notice tone="error">{sp.err}</Notice>}
       </div>
@@ -70,6 +71,7 @@ export default async function EditSitePage({ params, searchParams }: { params: P
         icon={icon}
         uploadIcon={uploadSiteIconAction}
         removeIcon={removeSiteIconAction}
+        fetchIcon={fetchSiteIconAction}
       />
     </div>
   );

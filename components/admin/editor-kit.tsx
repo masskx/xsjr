@@ -24,7 +24,7 @@ export function Help({ id, error, hint }: { id: string; error?: string; hint?: s
   return null;
 }
 
-export function Input(props: { label: string; value: string; onChange: (v: string) => void; error?: string; hint?: string; maxLength?: number; type?: string; readOnly?: boolean; mono?: boolean }) {
+export function Input(props: { label: string; value: string; onChange: (v: string) => void; onBlur?: () => void; error?: string; hint?: string; maxLength?: number; type?: string; readOnly?: boolean; mono?: boolean }) {
   const id = useId();
   return (
     <div>
@@ -38,6 +38,7 @@ export function Input(props: { label: string; value: string; onChange: (v: strin
         maxLength={props.maxLength}
         readOnly={props.readOnly}
         onChange={(e) => props.onChange(e.target.value)}
+        onBlur={props.onBlur}
         aria-invalid={props.error ? true : undefined}
         aria-describedby={props.error ? `${id}-err` : props.hint ? `${id}-hint` : undefined}
         className={inputCls(props.error, props.mono)}

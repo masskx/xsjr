@@ -138,6 +138,8 @@ export interface FetchOptions {
   /** check robots.txt on every hop (default true) */
   robots?: boolean;
   resolve?: Resolver;
+  /** override the bot User-Agent (e.g. a browser UA when fetching a public favicon) */
+  userAgent?: string;
   /** 404 etc. are returned instead of thrown (used for optional files) */
   allowStatus?: (status: number) => boolean;
 }
@@ -147,7 +149,7 @@ function userAgent(): string {
   return `Mozilla/5.0 (compatible; ${USER_AGENT_TOKEN}/1.0${site ? `; +${site}/about/` : ""})`;
 }
 
-function requestOnce(url: URL, pinned: { address: string; family: number }, opts: Required<Pick<FetchOptions, "accept" | "maxBytes">>, signal: AbortSignal): Promise<{ status: number; headers: http.IncomingHttpHeaders; body: Buffer }> {
+function requestOnce(url: URL, pinned: { address: string; family: number }, opts: Required<Pick<FetchOptions, "accept" | "maxBytes">> & { userAgent?: string }, signal: AbortSignal): Promise<{ status: number; headers: http.IncomingHttpHeaders; body: Buffer }> {
   return new Promise((resolve, reject) => {
     const lib = url.protocol === "https:" ? https : http;
     const req = lib.request(
@@ -155,7 +157,7 @@ function requestOnce(url: URL, pinned: { address: string; family: number }, opts
       {
         method: "GET",
         signal,
-        headers: { "User-Agent": userAgent(), Accept: opts.accept, "Accept-Encoding": "gzip, deflate, br", "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8" },
+        headers: { "User-Agent": opts.userAgent ?? userAgent(), Accept: opts.accept, "Accept-Encoding": "gzip, deflate, br", "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8" },
         // connect to the address we validated, whatever DNS says now
         lookup: (_host, options, cb) => {
           if ((options as { all?: boolean }).all) (cb as unknown as (e: null, a: { address: string; family: number }[]) => void)(null, [pinned]);
@@ -224,6 +226,7 @@ export async function safeFetch(raw: string, options: FetchOptions = {}): Promis
     timeoutMs: options.timeoutMs ?? FETCH_LIMITS.timeoutMs,
     maxRedirects: options.maxRedirects ?? FETCH_LIMITS.maxRedirects,
     robots: options.robots ?? true,
+    userAgent: options.userAgent,
   };
   const signal = AbortSignal.timeout(opts.timeoutMs);
   const hops: string[] = [];

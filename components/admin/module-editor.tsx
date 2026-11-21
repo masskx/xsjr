@@ -170,13 +170,15 @@ export function DiagramCard({
   diagram,
   upload,
   remove,
+  accept = "image/png,image/jpeg,image/webp",
   labels = {},
 }: {
-  labels?: { title?: string; description?: string; empty?: string; placeholder?: string };
+  labels?: { title?: string; description?: string; empty?: string; placeholder?: string; removeLabel?: string };
   id: number;
   diagram: { src: string; width: number | null; height: number | null; alt: string | null; bytes: number } | null;
   upload: (state: AdminFormState, fd: FormData) => Promise<AdminFormState>;
   remove: (fd: FormData) => Promise<void>;
+  accept?: string;
 }) {
   const [state, action] = useActionState(upload, {});
   return (
@@ -200,7 +202,7 @@ export function DiagramCard({
         </label>
         <label className="text-[12.5px] font-medium text-zinc-700">
           文件
-          <input name="file" type="file" required accept="image/png,image/jpeg,image/webp" className="mt-1 block max-w-full text-[13px] font-normal" />
+          <input name="file" type="file" required accept={accept} className="mt-1 block max-w-full text-[13px] font-normal" />
         </label>
         <UploadButton />
       </form>
@@ -218,7 +220,7 @@ export function DiagramCard({
         <form action={remove} className="mt-3">
           <input type="hidden" name="id" value={id} />
           <button type="submit" className="text-[12.5px] text-rose-700 underline-offset-2 hover:underline">
-            删除结构图（改为显示文件结构）
+            {labels.removeLabel ?? "删除结构图（改为显示文件结构）"}
           </button>
         </form>
       )}

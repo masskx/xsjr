@@ -3,11 +3,11 @@
 // by file name or the browser's Content-Type), read their dimensions from the headers, and strip
 // JPEG metadata segments (EXIF can contain GPS coordinates). SVG is refused: it can carry script.
 
-export type ImageKind = "png" | "jpg" | "webp";
+export type ImageKind = "png" | "jpg" | "webp" | "ico";
 
 export interface ImageInfo {
   kind: ImageKind;
-  mime: "image/png" | "image/jpeg" | "image/webp";
+  mime: "image/png" | "image/jpeg" | "image/webp" | "image/x-icon";
   width: number;
   height: number;
   /** bytes to store (JPEG: metadata segments removed) */
@@ -39,7 +39,31 @@ function sniff(b: Buffer): ImageInfo {
   if (b.length > 4 && b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) return jpeg(b);
   // WebP: "RIFF" <size> "WEBP"
   if (b.length > 30 && b.toString("latin1", 0, 4) === "RIFF" && b.toString("latin1", 8, 12) === "WEBP") return webp(b);
-  throw new ImageError("只支持 PNG、JPEG、WebP 图片（不支持 SVG、GIF 等格式）");
+  // ICO: reserved=0, type=1, count entries; browsers render it directly (common favicon format)
+  if (b.length >= 6 && b.readUInt16LE(0) === 0 && b.readUInt16LE(2) === 1) return ico(b);
+  throw new ImageError("只支持 PNG、JPEG、WebP 或 ICO 图片（不支持 SVG、GIF 等格式）");
+}
+
+function ico(b: Buffer): ImageInfo {
+  const count = b.readUInt16LE(4);
+  if (count < 1 || count > 64) throw new ImageError("ICO 文件已损坏");
+  if (b.length < 6 + count * 16) throw new ImageError("ICO 文件已损坏");
+  let width = 0;
+  let height = 0;
+  for (let i = 0; i < count; i++) {
+    const o = 6 + i * 16;
+    const w = b[o] || 256;
+    const h = b[o + 1] || 256;
+    const size = b.readUInt32LE(o + 8);
+    const offset = b.readUInt32LE(o + 12);
+    if (size < 1 || offset < 6 + count * 16 || offset + size > b.length) throw new ImageError("ICO 文件已损坏");
+    if (w * h > width * height) {
+      width = w;
+      height = h;
+    }
+  }
+  if (!width || !height) throw new ImageError("ICO 文件缺少尺寸信息");
+  return { kind: "ico", mime: "image/x-icon", width, height, data: b };
 }
 
 /** Walk JPEG segments: find the frame size, drop APP1 (EXIF/XMP) and other metadata segments. */

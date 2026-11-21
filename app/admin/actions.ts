@@ -2,7 +2,10 @@
 // Admin actions. Each one starts with adminContext() (admin role + TOTP-verified session);
 // destructive ones also require a recent re-authentication.
 import { redirect } from "next/navigation";
+import { eq } from "drizzle-orm";
 import { renderMarkdown } from "@/lib/markdown";
+import * as schema from "@/lib/db/schema";
+import { fetchSiteIcon } from "@/lib/media/favicon";
 import { safeNextPath } from "@/lib/auth/next-path";
 import { markViewerSession, requestCtx } from "@/lib/auth/server";
 import { checkTotp, issueAccountLink } from "@/lib/auth/service";
@@ -11,7 +14,7 @@ import * as prompts from "@/lib/admin/prompts";
 import { auditUserAction } from "@/lib/admin/users";
 import * as members from "@/lib/admin/members";
 import * as R from "@/lib/admin/resources";
-import { moduleAdapter, removeDiagram, setDiagram } from "@/lib/admin/modules";
+import { diagramOf, moduleAdapter, removeDiagram, setDiagram } from "@/lib/admin/modules";
 import { skillAdapter } from "@/lib/admin/skills";
 import { siteAdapter } from "@/lib/admin/sites";
 import * as ingest from "@/lib/ingest/jobs";
@@ -358,6 +361,27 @@ export async function removeSiteIconAction(fd: FormData): Promise<void> {
   const id = idOf(fd);
   await removeDiagram(ctx, id);
   redirect(`/admin/sites/${id}/?msg=icon-removed`);
+}
+
+type SiteIconFetchResult =
+  | { ok: true; icon: { src: string; width: number | null; height: number | null; alt: string | null; bytes: number } }
+  | { ok: false; error: string };
+
+/** Fetch the site's own icon and save it as the navigation-card image. */
+export async function fetchSiteIconAction(id: number, url: string): Promise<SiteIconFetchResult> {
+  const { ctx } = await adminContext();
+  const [site] = await ctx.db
+    .select({ type: schema.resources.type, title: schema.resources.title })
+    .from(schema.resources)
+    .where(eq(schema.resources.id, id));
+  if (!site || site.type !== "SITE") return { ok: false, error: "站点不存在" };
+  const fetched = await fetchSiteIcon(url);
+  if (!fetched.ok) return fetched;
+  const saved = await setDiagram(ctx, id, fetched.image.data, `${site.title} 图标`.slice(0, 200));
+  if (!saved.ok) return saved;
+  const icon = await diagramOf(ctx.db, id);
+  if (!icon) return { ok: false, error: "图标已保存，但读取失败，请刷新页面" };
+  return { ok: true, icon };
 }
 
 // ── API tokens ──
