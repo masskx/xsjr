@@ -44,7 +44,6 @@ export default async function ModuleDetail({
     <DetailShell
       resource={resource}
       categoryHref={`/modules/?category=${encodeURIComponent(resource.category)}`}
-      linkTags={false}
       download={files ? { href: `/api/download/modules/${resource.slug}/`, label: "下载模块（ZIP）" } : undefined}
       extraMeta={[
         { label: "语言", value: resource.language },

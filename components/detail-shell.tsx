@@ -9,7 +9,6 @@ export async function DetailShell({
   extraMeta,
   download,
   categoryHref,
-  linkTags = true,
 }: {
   resource: Resource;
   children: React.ReactNode;
@@ -18,8 +17,6 @@ export async function DetailShell({
   download?: { href: string; label: string };
   /** Optional gallery link for the category; when omitted the category is plain text. */
   categoryHref?: string;
-  /** Tags are display-only when false (e.g. modules select by category only). */
-  linkTags?: boolean;
 }) {
   const [related, next, stats] = await Promise.all([getRelated(resource, 3), getNext(resource), recordViewAndGetStats(resource)]);
 
@@ -75,21 +72,11 @@ export async function DetailShell({
               {resource.category}
             </span>
           )}
-          {resource.tags.map((t) =>
-            linkTags ? (
-              <Link
-                key={t}
-                href={`/search/?q=${encodeURIComponent(t)}`}
-                className="rounded-[2px] border border-rule bg-paper-raised px-2 py-0.5 text-[12.5px] text-zinc-700 no-underline transition-shadow hover:shadow-md"
-              >
-                {t}
-              </Link>
-            ) : (
-              <span key={t} className="rounded-[2px] border border-rule bg-paper-raised px-2 py-0.5 text-[12.5px] text-zinc-700">
-                {t}
-              </span>
-            ),
-          )}
+          {resource.tags.map((t) => (
+            <span key={t} className="rounded-[2px] border border-rule bg-paper-raised px-2 py-0.5 text-[12.5px] text-zinc-700">
+              {t}
+            </span>
+          ))}
         </div>
       </header>
 
