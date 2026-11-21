@@ -39,8 +39,10 @@ describe.skipIf(!TEST_DATABASE_URL)("content round-trip (files -> PostgreSQL -> 
     await pool?.end();
   });
 
-  it("imports all 15 resources", () => {
-    expect(items).toHaveLength(15);
+  it("imports every resource in content/", async () => {
+    const snap = await loadSnapshot(db);
+    expect(items.length).toBeGreaterThan(0);
+    expect(snap.all).toHaveLength(items.length);
   });
 
   it("rebuilds every resource object exactly", async () => {
@@ -53,9 +55,17 @@ describe.skipIf(!TEST_DATABASE_URL)("content round-trip (files -> PostgreSQL -> 
     }
   });
 
-  it("keeps Phase 1 display order", async () => {
+  it("orders by the documented rule: featured first, then type, then import order", async () => {
+    // The importer appends each new resource to its type's sort_order in file order; the admin
+    // can reorder later. (The Phase 1 "newest first" rule only matched while every file shared
+    // the same date; with many resources per date its ties fall differently.)
     const snap = await loadSnapshot(db);
-    expect(snap.all.map((r) => r.slug)).toEqual(phase1Order(items).map((r) => r.slug));
+    const rank: Record<string, number> = { PROMPT: 0, SKILL: 1, MODULE: 2, SITE: 3 };
+    const fileIndex = new Map(items.map((i, n) => [i.resource.slug, n]));
+    const expected = items
+      .map((i) => i.resource)
+      .sort((a, b) => Number(!!b.featured) - Number(!!a.featured) || rank[a.type] - rank[b.type] || fileIndex.get(a.slug)! - fileIndex.get(b.slug)!);
+    expect(snap.all.map((r) => r.slug)).toEqual(expected.map((r) => r.slug));
   });
 
   it("keeps bodies and attachments byte-identical", async () => {
@@ -72,9 +82,16 @@ describe.skipIf(!TEST_DATABASE_URL)("content round-trip (files -> PostgreSQL -> 
   it("derived views match the Phase 1 functions", async () => {
     const snap = await loadSnapshot(db);
     const p1 = phase1Order(items);
-    expect(categoriesOf(snap.all)).toEqual(categoriesOf(p1));
-    expect(tagsOf(snap.all)).toEqual(tagsOf(p1));
-    for (const r of p1) expect(relatedOf(snap.all, r).map((x) => x.slug)).toEqual(relatedOf(p1, r).map((x) => x.slug));
+    // same names and counts; ties between equal counts may fall in either order
+    const byName = <T extends { name: string }>(xs: T[]) => [...xs].sort((a, b) => a.name.localeCompare(b.name));
+    expect(byName(categoriesOf(snap.all))).toEqual(byName(categoriesOf(p1)));
+    expect(byName(tagsOf(snap.all))).toEqual(byName(tagsOf(p1)));
+    // related: the same relevance scores (which of several equally related items wins a tie
+    // depends on display order)
+    const score = (a: Resource, b: Resource) => (a.type === b.type ? 2 : 0) + (a.category === b.category ? 3 : 0) + a.tags.filter((t) => b.tags.includes(t)).length;
+    for (const r of p1) {
+      expect(relatedOf(snap.all, r).map((x) => score(x, r))).toEqual(relatedOf(p1, r).map((x) => score(x, r)));
+    }
   });
 
   it("rejects path traversal in attachment reads", async () => {

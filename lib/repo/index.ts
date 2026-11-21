@@ -10,6 +10,8 @@
 import "server-only";
 import { connection } from "next/server";
 import { getDb } from "../db/client";
+import * as s from "../db/schema";
+import { eq } from "drizzle-orm";
 import { canAccess, effectiveTier, isExpired, viewerRank } from "../auth/entitlement";
 import { authConfig, getViewer } from "../auth/server";
 import type { Resource, ResourceType } from "../types";
@@ -267,4 +269,25 @@ export async function getAnnouncement() {
 
 export function invalidateAnnouncement() {
   annCache = null;
+}
+
+// ── popularity for the home page (live counters, cached for a minute per process) ──
+let popCache: { at: number; value: Map<string, { views: number; downloads: number }> } | null = null;
+
+/** View and download counts of every published resource, by slug. */
+export async function getPopularity(): Promise<Map<string, { views: number; downloads: number }>> {
+  await connection();
+  if (popCache && Date.now() - popCache.at < 60_000) return popCache.value;
+  try {
+    const rows = await getDb()
+      .select({ slug: s.resources.slug, views: s.resources.viewCount, downloads: s.resources.downloadCount })
+      .from(s.resources)
+      .where(eq(s.resources.status, "PUBLISHED"));
+    const value = new Map(rows.map((r) => [r.slug, { views: Number(r.views), downloads: Number(r.downloads) }]));
+    popCache = { at: Date.now(), value };
+    return value;
+  } catch (err) {
+    console.error("[popularity] load failed", err);
+    return popCache?.value ?? new Map();
+  }
 }

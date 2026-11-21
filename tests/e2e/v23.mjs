@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Release 2.3 end to end: brand Easter egg, AI timeline, external search, counters and ZIP
+// Release 2.3 end to end: brand Easter egg, dynamic home, external search, counters and ZIP
 // downloads, skill install guides, continue-browsing, changelog, daily announcement, icon
 // navigation, easier registration, and the bulk-upload API.
 //   BASE_URL=... DATABASE_URL=... ADMIN_EMAIL=... SHOTS=./shots node tests/e2e/v23.mjs
@@ -51,9 +51,19 @@ try {
   const tip = p.getByRole("tooltip");
   check("hovering 蒟蒻 shows pinyin and meaning", (await tip.isVisible()) && /jǔ/.test(await tip.textContent()) && /新手/.test(await tip.textContent()));
   await p.mouse.move(5, 500);
-  const timeline = p.getByRole("region", { name: /人工智能发展时间线/ });
-  check("timeline region with all milestones", (await timeline.locator("li h3").count()) >= 21);
-  check("timeline starts in 1943 and reaches 2025", (await timeline.textContent()).includes("1943") && (await timeline.textContent()).includes("2025"));
+  // dynamic home: auto-advancing showroom carousel, rankings with real counters, count-up stats
+  const carousel = p.getByRole("region", { name: "精选专区" });
+  const current = () => carousel.getByRole("status").or(carousel.locator("[aria-live=polite]")).textContent();
+  const first = await current();
+  await p.mouse.move(5, 5);
+  await p.waitForTimeout(5600);
+  check("showroom carousel advances by itself", (await current()) !== first, `${first} -> ${await current()}`);
+  await carousel.getByRole("button", { name: "下一张" }).click();
+  await p.waitForTimeout(900);
+  check("carousel arrow moves one card", /第 \d+ 张/.test(await current()));
+  const tabs = p.getByRole("tablist", { name: "榜单" });
+  await tabs.getByRole("tab", { name: "最新上架" }).click();
+  check("rankings switch tabs (热榜 / 最新 / Skills)", (await tabs.getByRole("tab", { name: "最新上架" }).getAttribute("aria-selected")) === "true" && (await p.locator("[role=tabpanel] ol li").count()) >= 2);
   if (SHOTS) {
     fs.mkdirSync(SHOTS, { recursive: true });
     await p.screenshot({ path: path.join(SHOTS, "v23-home.png"), fullPage: true });

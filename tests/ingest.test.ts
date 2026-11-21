@@ -92,7 +92,7 @@ describe.skipIf(!TEST_DATABASE_URL)("ingestion", () => {
 
   it("refuses to create jobs without a DeepSeek key, and validates input", async () => {
     delete process.env.DEEPSEEK_API_KEY;
-    expect(await createUrlJob(db, adminId, "https://a.test/x")).toMatchObject({ ok: false, errors: { _form: expect.stringContaining("DEEPSEEK_API_KEY") } });
+    expect(await createUrlJob(db, adminId, "https://a.test/x")).toMatchObject({ ok: false, errors: { _form: expect.stringContaining("API Key") } });
     process.env.DEEPSEEK_API_KEY = "sk-test-0000000000";
     expect(await createUrlJob(db, adminId, "ftp://a.test/x")).toMatchObject({ ok: false, errors: { urls: expect.any(String) } });
     expect(await createUrlJob(db, adminId, "  ")).toMatchObject({ ok: false });

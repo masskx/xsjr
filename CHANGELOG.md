@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+### 2.4: dynamic home page (SkillHub-style)
+
+Changed
+- `app/page.tsx` rewritten as a dynamic, white-canvas home built from live data: character-by-
+  character headline (CSS only) with the logo, a search pill whose placeholder types out real
+  categories, an auto-advancing infinite showroom carousel (modules, Skills, prompts, navigation,
+  external search, changelog; pauses on hover/focus/hidden tab, arrows + keyboard, aria-live), a
+  "discover" section with 人气热榜 (ranked by the real view/download counters), 最新上架 and a
+  Skills board (dark featured #1 card + numbered list), external search in a showcase card,
+  self-advancing "four steps" with progress bars, count-up statistics, a two-row category marquee
+  and a closing call to action. All motion stops under prefers-reduced-motion.
+- New components in `components/home/` (typed-title, rotating-search, carousel, discover, steps,
+  count-up); `components/home-discover.tsx` removed. `getPopularity()` in lib/repo (cached 60 s).
+
+Fixed (tests only)
+- Ingestion tests expected the old "DEEPSEEK_API_KEY" wording changed by 9d54c3d; the failed
+  assertion left the key unset for the rest of the file.
+- Content round-trip tests hard-coded the original 15 resources and Phase 1 tie order; they now
+  check the importer's documented order and compare counts/scores independent of tie order.
+- Gallery e2e: tags are display-only since 285d7eb.
+
 ### 2.3: 学术蒟蒻 (Academic Juruo)
 
 Added

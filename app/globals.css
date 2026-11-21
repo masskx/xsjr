@@ -378,3 +378,76 @@
     transition: none;
   }
 }
+
+/* ── home page motion (all disabled by the reduced-motion rule in @layer base) ── */
+@keyframes char-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.35em);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+.char-in {
+  opacity: 0;
+  animation: char-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.fade-up {
+  animation: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes step-progress {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+.step-progress {
+  animation: step-progress linear forwards;
+}
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.marquee {
+  animation: marquee var(--marquee-duration, 60s) linear infinite;
+}
+.marquee-reverse {
+  animation-direction: reverse;
+}
+.marquee-host:hover .marquee {
+  animation-play-state: paused;
+}
+@keyframes bob {
+  50% {
+    transform: translateY(-4px) rotate(-4deg);
+  }
+}
+.bob {
+  animation: bob 3.2s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .char-in {
+    opacity: 1;
+  }
+  .marquee,
+  .bob {
+    animation: none !important;
+  }
+}

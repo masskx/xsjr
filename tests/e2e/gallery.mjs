@@ -64,8 +64,8 @@ try {
   check("cards without a diagram show a code preview or file-tree thumbnail", (await pg1.locator("main a[href^='/modules/'] pre, main a[href^='/modules/'] [role=tree]").count()) === 3);
   await Promise.all([pg1.waitForURL(/category=/), pg1.getByRole("link", { name: /^统计方法/ }).click()]);
   check("category filter is a shareable URL and filters", (await pg1.locator("main a[href^='/modules/'] h3").count()) === 1 && pg1.url().includes("category="));
-  await Promise.all([pg1.waitForURL(/tag=/), pg1.getByRole("link", { name: /^APA 报告/ }).click()]);
-  check("tag filter combines with category", pg1.url().includes("category=") && pg1.url().includes("tag=") && (await pg1.locator("main a[href^='/modules/'] h3").count()) === 1);
+  // tags are display-only since 285d7eb (filtering is by category only)
+  check("tags are shown but are not filter links", (await pg1.locator("main a[href*='tag=']").count()) === 0);
   const noJs = await text(`${BASE}/modules/?category=${encodeURIComponent("科研绘图")}`);
   check("filtered gallery is server-rendered (no JS needed)", noJs.includes("出版级 Matplotlib 样式") && !noJs.includes("统计检验选择与执行工具包</h3>"));
 
