@@ -291,11 +291,12 @@ export const resourceSite = pgTable(
   {
     resourceId: ref("resource_id").primaryKey().references(() => resources.id, { onDelete: "cascade" }),
     url: text("url").notNull(),
-    pricing: text("pricing").notNull(),
-    region: text("region"),
-    loginRequired: boolean("login_required"),
-  },
-  (t) => [check("resource_site_url", sql`${t.url} ~ '^https?://'`)],
+      pricing: text("pricing").notNull(),
+      region: text("region"),
+      loginRequired: boolean("login_required"),
+      isPromotion: boolean("is_promotion").notNull().default(false),
+    },
+    (t) => [check("resource_site_url", sql`${t.url} ~ '^https?://'`)],
 );
 
 export const promptVariables = pgTable(

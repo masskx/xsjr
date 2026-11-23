@@ -1,0 +1,1 @@
+ALTER TABLE "resource_site" ADD COLUMN "is_promotion" boolean DEFAULT false NOT NULL;

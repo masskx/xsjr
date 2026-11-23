@@ -45,6 +45,9 @@ export default async function SiteDetail({
           label: "登录",
           value: resource.loginRequired ? "需要登录" : "无需登录",
         },
+        ...(resource.isPromotion
+          ? [{ label: "链接性质", value: <span className="tag-mono border-amber-300 bg-amber-50 text-amber-800">推广</span> }]
+          : []),
       ]}
     >
       {body && <Markdown source={body} />}
@@ -62,7 +65,7 @@ export default async function SiteDetail({
         <a
           href={resource.url}
           target="_blank"
-          rel="noopener noreferrer"
+          rel={resource.isPromotion ? "sponsored nofollow noopener noreferrer" : "noopener noreferrer"}
           className="btn-ink mt-4"
         >
           打开 {safeHost(resource.url)}
@@ -79,6 +82,9 @@ export default async function SiteDetail({
             <path d="M10 14 21 3" />
           </svg>
         </a>
+        {resource.isPromotion && (
+          <p className="mt-2 text-[12px] text-amber-800">该链接为推广链接。</p>
+        )}
         </div>
       </section>
     </DetailShell>

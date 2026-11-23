@@ -85,6 +85,8 @@ export interface SiteResource extends Base {
   region?: string;
   /** 官网可达性核对；docs 要求公开页展示 */
   loginRequired?: boolean;
+  /** 推广链接：公开页显示“推广”标识，外链使用 rel=sponsored */
+  isPromotion?: boolean;
 }
 
 export type Resource =

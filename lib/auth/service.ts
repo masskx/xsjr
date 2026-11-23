@@ -289,6 +289,7 @@ export async function deleteAccount(ctx: Ctx, userId: number, password: string):
 export async function beginTotpSetup(ctx: Ctx, userId: number): Promise<Result<{ secret: string; uri: string }>> {
   const [user] = await ctx.db.select().from(s.users).where(eq(s.users.id, userId));
   if (!user) return fail("账户不存在");
+  if (user.role !== "ADMIN") return fail("普通用户不需要两步验证");
   if (user.totpEnabledAt) return fail("已经启用了两步验证");
   const secret = newTotpSecret();
   await ctx.db
@@ -305,6 +306,7 @@ export async function checkTotp(ctx: Ctx, userId: number, code: string): Promise
   if (!rl.allowed) return fail("尝试次数过多，请稍后再试", undefined, rl.retryAfter);
   const [user] = await ctx.db.select().from(s.users).where(eq(s.users.id, userId));
   if (!user?.totpSecretEnc) return fail("尚未设置两步验证");
+  if (user.role !== "ADMIN") return fail("普通用户不需要两步验证");
   let secret: Buffer;
   try {
     secret = open(ctx.config.secret, "totp", user.totpSecretEnc);

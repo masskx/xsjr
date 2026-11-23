@@ -18,9 +18,12 @@ export function monogram(title: string): string {
 /** Site icon: the uploaded image (served from /media) or a generated monogram tile. */
 export function SiteIcon({ title, slug, icon, size = 48 }: { title: string; slug: string; icon: Diagram | null; size?: number }) {
   if (icon) {
+    // Bump the URL when bundled icon files change: a browser may have cached a previous 404/old
+    // media response for the same media key.
+    const src = `${icon.src}${icon.src.includes("?") ? "&" : "?"}v=20261123-icons`;
     return (
       // eslint-disable-next-line @next/next/no-img-element -- images.unoptimized; served by Caddy from /media
-      <img src={icon.src} alt="" width={size} height={size} loading="lazy" decoding="async" className="shrink-0 rounded-[10px] border border-rule bg-paper-raised object-contain p-1" style={{ width: size, height: size }} />
+      <img src={src} alt="" width={size} height={size} loading="lazy" decoding="async" className="shrink-0 rounded-[10px] border border-rule bg-paper-raised object-contain p-1" style={{ width: size, height: size }} />
     );
   }
   return (

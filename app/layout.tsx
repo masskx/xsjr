@@ -10,6 +10,7 @@ import { SITE_DESC, SITE_KIND, SITE_NAME, SITE_TAGLINE, SITE_URL, NAV, filingNum
 import { LogoMark } from "@/components/brand/logo-mark";
 import { NameEgg } from "@/components/brand/name-egg";
 import { HeaderSearch } from "@/components/header-search";
+import { GptPromoButton } from "@/components/gpt-promo-button";
 import { AccountLink } from "@/components/account-link";
 import { Analytics } from "@/components/analytics";
 import { SiteNav } from "@/components/site-nav";
@@ -73,6 +74,9 @@ export default async function RootLayout({
 
             <nav className="hidden items-center gap-1 md:ml-auto md:flex">
               <SiteNav />
+              <span className="ml-2">
+                <GptPromoButton />
+              </span>
             </nav>
 
             <div className="ml-auto flex items-center gap-3 md:ml-2">
@@ -82,7 +86,8 @@ export default async function RootLayout({
           </div>
 
           {/* 移动端导航：横向滚动，不做汉堡菜单 */}
-          <nav className="flex gap-1 overflow-x-auto border-t border-rule px-2 py-1.5 md:hidden">
+          <nav className="flex items-center gap-1 overflow-x-auto border-t border-rule px-2 py-1.5 md:hidden">
+            <GptPromoButton compact />
             <SiteNav mobile />
           </nav>
         </header>

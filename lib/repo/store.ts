@@ -232,6 +232,7 @@ export async function loadSnapshot(db: Db): Promise<Snapshot> {
           pricing: (t?.pricing ?? "免费") as SiteResource["pricing"],
           region: t?.region,
           loginRequired: t?.loginRequired,
+          isPromotion: t?.isPromotion ? true : undefined,
         }) as SiteResource;
       }
     }

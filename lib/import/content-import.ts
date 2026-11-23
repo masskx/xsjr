@@ -286,6 +286,7 @@ async function replaceDetails(db: Db, resourceId: number, item: LoadedResource) 
         pricing: t.pricing,
         region: t.region ?? null,
         loginRequired: t.loginRequired ?? null,
+        isPromotion: t.isPromotion ?? false,
       });
       break;
     }

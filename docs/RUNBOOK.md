@@ -476,7 +476,7 @@ curl -X POST "https://你的域名/api/admin/bulk/" -H "Authorization: Bearer rh
 **更新日志**：公开页 `/changelog/` 的内容在 `lib/changelog.ts`，发布新版本时在最前面加一条。
 
 **普通用户注册**：密码至少 8 位（常见密码表已覆盖 8–9 位的弱密码），邮箱验证可选（只在开通会员时需要），不需要两步验证；
-管理员仍是 14 位密码 + 两步验证。
+管理员同样只需至少 8 位密码，但必须使用两步验证；普通用户不需要两步验证。
 
 **草稿批次（办公技能 11 个、降重降AI 6 个、提示词 6 个）**：`tools/seed-batches/office-and-writing/`，用第 15 节的命令先检查再 `-Apply`，
 到后台审核后逐条发布。

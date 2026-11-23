@@ -92,6 +92,7 @@ export const siteFieldsSchema = z.object({
   pricing: z.enum(["免费", "部分免费", "付费", "机构订阅"], { message: "收费方式无效" }),
   region: optionalText("地区", 40),
   loginRequired: z.boolean().optional(),
+  isPromotion: z.boolean().optional(),
 });
 
 export const VAR_KEY_RE = /^[a-zA-Z_][a-zA-Z0-9_]{0,39}$/;

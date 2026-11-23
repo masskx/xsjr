@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import QRCode from "qrcode";
 import { ActionForm, Field, Submit } from "@/components/auth/form";
 import { AuthShell } from "@/components/auth/shell";
@@ -15,6 +15,7 @@ export const metadata: Metadata = { title: "设置两步验证" };
 // server as inline SVG, so the secret never reaches a third-party service.
 export default async function MfaSetupPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
   const viewer = await requireUser("/account/mfa/");
+  if (viewer.user.role !== "ADMIN") notFound();
   const { next } = await searchParams;
   if (viewer.user.totpEnabledAt) redirect(viewer.mfaVerifiedAt ? "/account/" : `/login/mfa/?next=${encodeURIComponent(safeNextPath(next))}`);
 
@@ -26,7 +27,7 @@ export default async function MfaSetupPage({ searchParams }: { searchParams: Pro
   return (
     <AuthShell
       title="设置两步验证"
-      subtitle={viewer.user.role === "ADMIN" ? "管理员账户必须启用两步验证后才能进入后台。" : "为账户增加一层保护。"}
+      subtitle="管理员账户必须启用两步验证后才能进入后台。"
     >
       <ol className="space-y-5 text-[13.5px] leading-6 text-zinc-700">
         <li>

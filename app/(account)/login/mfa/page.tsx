@@ -12,6 +12,7 @@ export default async function LoginMfaPage({ searchParams }: { searchParams: Pro
   if (!authConfig().available) notFound();
   const viewer = await getViewer();
   if (!viewer) redirect("/login/");
+  if (viewer.user.role !== "ADMIN") redirect("/account/");
   const { next } = await searchParams;
   if (!viewer.user.totpEnabledAt) redirect(`/account/mfa/?next=${encodeURIComponent(safeNextPath(next))}`);
   if (viewer.mfaVerifiedAt) redirect(safeNextPath(next, "/admin/"));

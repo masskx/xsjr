@@ -29,11 +29,12 @@ export const siteAdapter: R.Adapter<SiteInput> = {
       pricing: (row?.pricing ?? "免费") as SiteInput["pricing"],
       region: row?.region ?? undefined,
       loginRequired: row?.loginRequired ?? undefined,
+      isPromotion: row?.isPromotion ?? undefined,
     };
   },
   async writeDetails(db, id, input) {
     await db.delete(s.resourceSite).where(eq(s.resourceSite.resourceId, id));
-    await db.insert(s.resourceSite).values({ resourceId: id, url: input.url, pricing: input.pricing, region: input.region ?? null, loginRequired: input.loginRequired ?? null });
+    await db.insert(s.resourceSite).values({ resourceId: id, url: input.url, pricing: input.pricing, region: input.region ?? null, loginRequired: input.loginRequired ?? null, isPromotion: input.isPromotion ?? false });
   },
 };
 

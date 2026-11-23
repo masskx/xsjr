@@ -23,6 +23,7 @@ interface SiteDraft extends CommonDraft {
   pricing: SiteInput["pricing"];
   region: string;
   loginRequired: boolean;
+  isPromotion: boolean;
 }
 
 const PRICING: SiteInput["pricing"][] = ["免费", "部分免费", "付费", "机构订阅"];
@@ -56,7 +57,7 @@ export function SiteEditor({
   removeIcon: (fd: FormData) => Promise<void>;
   fetchIcon: (id: number, url: string) => Promise<SiteIconFetchResult>;
 }) {
-  const toDraft = (i: SiteInput): SiteDraft => ({ ...commonToDraft(i), url: i.url, pricing: i.pricing, region: i.region ?? "", loginRequired: !!i.loginRequired });
+  const toDraft = (i: SiteInput): SiteDraft => ({ ...commonToDraft(i), url: i.url, pricing: i.pricing, region: i.region ?? "", loginRequired: !!i.loginRequired, isPromotion: !!i.isPromotion });
   const toInput = (d: SiteDraft): unknown => ({
     ...initial,
     ...draftToCommon(d),
@@ -64,6 +65,7 @@ export function SiteEditor({
     pricing: d.pricing,
     region: d.region.trim() || undefined,
     loginRequired: d.loginRequired,
+    isPromotion: d.isPromotion,
   });
   const ed = useEditor(toDraft(initial), version, id, save, toInput, controls.status === "PUBLISHED");
   const { draft, setDraft, errors } = ed;
@@ -150,6 +152,13 @@ export function SiteEditor({
           <label className="flex items-center gap-2 self-end pb-2 text-[13px] text-zinc-800">
             <input type="checkbox" checked={draft.loginRequired} onChange={(e) => set("loginRequired", e.target.checked)} />
             需要登录才能使用
+          </label>
+          <label className="flex items-start gap-2 self-end pb-2 text-[13px] text-zinc-800 sm:col-span-2">
+            <input type="checkbox" className="mt-0.5" checked={draft.isPromotion} onChange={(e) => set("isPromotion", e.target.checked)} />
+            <span>
+              包含推广链接
+              <span className="block text-[12px] font-normal leading-5 text-zinc-500">开启后，导航卡片和详情页显示“推广”标识，外链使用 rel=sponsored；关闭后标识消失，链接本身不变。</span>
+            </span>
           </label>
         </div>
       </Card>

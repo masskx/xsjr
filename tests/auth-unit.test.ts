@@ -61,8 +61,8 @@ describe("passwords", () => {
     else expect(problem).toContain(expected);
   });
 
-  it("admins need 14 characters; email name is rejected", () => {
-    expect(passwordProblem("Tr0ub4dour&3x", { role: "ADMIN" })).toContain("14");
+  it("admins need 8 characters; email name is rejected", () => {
+    expect(passwordProblem("Kq7#mV", { role: "ADMIN" })).toContain("8");
     expect(passwordProblem("zhangsan-research-2026", { email: "zhangsan@example.com" })).toContain("邮箱");
   });
 });
