@@ -27,6 +27,7 @@ export const NAV = [
   { href: "/prompts", label: "提示词", desc: "参数化模板，填空即用" },
   { href: "/skills", label: "Skills", desc: "Agent 技能包" },
   { href: "/modules", label: "模块", desc: "可直接复用的代码" },
+  { href: "/drawing", label: "科研绘图", desc: "从架构图提取的配色方案" },
   { href: "/directory", label: "科研导航", desc: "数据集、工具与站点" },
 ] as const;
 
