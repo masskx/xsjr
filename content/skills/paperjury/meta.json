@@ -1,0 +1,25 @@
+{
+  "title": "PaperJury 论文审稿",
+  "summary": "模拟论文审稿流程的 skill，检查数据、基线和结论漏洞，并输出审稿意见。",
+  "category": "审稿",
+  "tags": [
+    "科研 Skill",
+    "社区收录",
+    "审稿"
+  ],
+  "author": "Spark-To-Paper-Skills",
+  "sourceUrl": "https://github.com/Spark-To-Paper-Skills/paperjury",
+  "license": "见原仓库",
+  "redistribution": false,
+  "tier": "FREE",
+  "updatedAt": "2026-11-24",
+  "compat": [
+    {
+      "tool": "generic",
+      "supportedRange": "仓库 README",
+      "installPath": "-",
+      "note": "按原仓库 README 安装；本平台不转载代码"
+    }
+  ],
+  "files": []
+}

@@ -1,4 +1,21 @@
+import hljs from "highlight.js/lib/common";
 import { CopyButton } from "./copy-button";
+
+function escapeHtml(value: string) {
+  return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+function highlightCode(code: string, language?: string) {
+  try {
+    const lang = language?.trim().toLowerCase();
+    if (lang && hljs.getLanguage(lang)) {
+      return hljs.highlight(code, { language: lang, ignoreIllegals: true }).value;
+    }
+    return hljs.highlightAuto(code).value;
+  } catch {
+    return escapeHtml(code);
+  }
+}
 
 export function CodeBlock({
   code,
@@ -28,7 +45,7 @@ export function CodeBlock({
         className="thin-scroll m-0 overflow-auto p-4 font-mono text-[12.5px] leading-6 text-zinc-200"
         style={{ maxHeight }}
       >
-        <code>{code}</code>
+        <code className="hljs" dangerouslySetInnerHTML={{ __html: highlightCode(code, language) }} />
       </pre>
     </div>
   );

@@ -1,0 +1,25 @@
+{
+  "title": "Aut Sci Write 科研检索",
+  "summary": "接入 OpenAlex 的科研检索与写作 skill，可按主题查找文献并辅助组织综述材料。",
+  "category": "文献检索",
+  "tags": [
+    "科研 Skill",
+    "社区收录",
+    "文献检索"
+  ],
+  "author": "ShZhao27208",
+  "sourceUrl": "https://github.com/ShZhao27208/Aut_Sci_Write",
+  "license": "见原仓库",
+  "redistribution": false,
+  "tier": "FREE",
+  "updatedAt": "2026-11-24",
+  "compat": [
+    {
+      "tool": "generic",
+      "supportedRange": "仓库 README",
+      "installPath": "-",
+      "note": "按原仓库 README 安装；本平台不转载代码"
+    }
+  ],
+  "files": []
+}

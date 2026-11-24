@@ -1,0 +1,25 @@
+{
+  "title": "Academic Research Skills",
+  "summary": "覆盖研究问题、文献核验和论文写作流程的综合科研 skill，强调 FINER 框架与引文回查。",
+  "category": "论文写作",
+  "tags": [
+    "科研 Skill",
+    "社区收录",
+    "论文写作"
+  ],
+  "author": "Imbad0202",
+  "sourceUrl": "https://github.com/Imbad0202/academic-research-skills",
+  "license": "见原仓库",
+  "redistribution": false,
+  "tier": "FREE",
+  "updatedAt": "2026-11-24",
+  "compat": [
+    {
+      "tool": "generic",
+      "supportedRange": "仓库 README",
+      "installPath": "-",
+      "note": "按原仓库 README 安装；本平台不转载代码"
+    }
+  ],
+  "files": []
+}

@@ -1,0 +1,25 @@
+{
+  "title": "SciPilot Figure Skill",
+  "summary": "面向期刊级科研绘图的 skill，可按数据生成图表；使用后应人工核对数据与标注。",
+  "category": "科研绘图",
+  "tags": [
+    "科研 Skill",
+    "社区收录",
+    "科研绘图"
+  ],
+  "author": "Haojae",
+  "sourceUrl": "https://github.com/Haojae/scipilot-figure-skill",
+  "license": "见原仓库",
+  "redistribution": false,
+  "tier": "FREE",
+  "updatedAt": "2026-11-24",
+  "compat": [
+    {
+      "tool": "generic",
+      "supportedRange": "仓库 README",
+      "installPath": "-",
+      "note": "按原仓库 README 安装；本平台不转载代码"
+    }
+  ],
+  "files": []
+}

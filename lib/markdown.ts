@@ -1,4 +1,9 @@
+import hljs from "highlight.js/lib/common";
 import MarkdownIt from "markdown-it";
+
+function escapeHtml(value: string) {
+  return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
 
 /**
  * html: false —— 正文中的原始 HTML 一律按文本转义。
@@ -9,6 +14,18 @@ const md = new MarkdownIt({
   linkify: true,
   breaks: false,
   typographer: false,
+  highlight: (str, lang) => {
+    const language = lang?.trim().toLowerCase();
+    try {
+      const value = language && hljs.getLanguage(language)
+        ? hljs.highlight(str, { language, ignoreIllegals: true }).value
+        : hljs.highlightAuto(str).value;
+      const className = language && hljs.getLanguage(language) ? `language-${language.replace(/[^a-z0-9+#-]/g, "")}` : "language-plaintext";
+      return `<pre class="hljs"><code class="${className}">${value}</code></pre>`;
+    } catch {
+      return `<pre class="hljs"><code>${escapeHtml(str)}</code></pre>`;
+    }
+  },
 });
 
 // 外链统一加 rel，避免反向 tabnabbing

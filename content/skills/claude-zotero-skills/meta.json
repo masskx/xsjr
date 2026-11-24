@@ -1,0 +1,25 @@
+{
+  "title": "Claude Zotero Skills",
+  "summary": "Zotero 文献管理 skill，支持导入、回读文献并导出 BibTeX，适合维护参考文献库。",
+  "category": "文献管理",
+  "tags": [
+    "科研 Skill",
+    "社区收录",
+    "文献管理"
+  ],
+  "author": "dougwyu",
+  "sourceUrl": "https://github.com/dougwyu/claude-zotero-skills",
+  "license": "见原仓库",
+  "redistribution": false,
+  "tier": "FREE",
+  "updatedAt": "2026-11-24",
+  "compat": [
+    {
+      "tool": "generic",
+      "supportedRange": "仓库 README",
+      "installPath": "-",
+      "note": "按原仓库 README 安装；本平台不转载代码"
+    }
+  ],
+  "files": []
+}

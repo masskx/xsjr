@@ -1,0 +1,25 @@
+{
+  "title": "Open Scholar Skill",
+  "summary": "开放的学术检索 skill，README 带有效果示例，适合文献发现和检索式设计。",
+  "category": "文献检索",
+  "tags": [
+    "科研 Skill",
+    "社区收录",
+    "文献检索"
+  ],
+  "author": "joshzyj",
+  "sourceUrl": "https://github.com/joshzyj/open-scholar-skill",
+  "license": "见原仓库",
+  "redistribution": false,
+  "tier": "FREE",
+  "updatedAt": "2026-11-24",
+  "compat": [
+    {
+      "tool": "generic",
+      "supportedRange": "仓库 README",
+      "installPath": "-",
+      "note": "按原仓库 README 安装；本平台不转载代码"
+    }
+  ],
+  "files": []
+}

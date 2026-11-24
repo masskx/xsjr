@@ -1,0 +1,25 @@
+{
+  "title": "LaTeX arXiv Skill",
+  "summary": "面向 arXiv 综述和 LaTeX 写作的 skill，可定制综述结构与排版流程。",
+  "category": "综述开题",
+  "tags": [
+    "科研 Skill",
+    "社区收录",
+    "综述开题"
+  ],
+  "author": "appautomaton",
+  "sourceUrl": "https://github.com/appautomaton/latex-arxiv-SKILL",
+  "license": "见原仓库",
+  "redistribution": false,
+  "tier": "FREE",
+  "updatedAt": "2026-11-24",
+  "compat": [
+    {
+      "tool": "generic",
+      "supportedRange": "仓库 README",
+      "installPath": "-",
+      "note": "按原仓库 README 安装；本平台不转载代码"
+    }
+  ],
+  "files": []
+}

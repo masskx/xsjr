@@ -4,6 +4,7 @@ import "@fontsource-variable/albert-sans";
 import "@fontsource-variable/alumni-sans";
 import "@fontsource-variable/jetbrains-mono";
 import "@fontsource-variable/source-serif-4";
+import "highlight.js/styles/github-dark-dimmed.css";
 import "./noto-serif-sc.css";
 import "./globals.css";
 import { SITE_DESC, SITE_KIND, SITE_NAME, SITE_TAGLINE, SITE_URL, NAV, filingNumbers } from "@/lib/site";

@@ -1,0 +1,25 @@
+{
+  "title": "Scientific Agent Skills",
+  "summary": "覆盖综述、数据分析和科研工作流的聚合 skill 库，适合搭建端到端科研流程。",
+  "category": "综合科研",
+  "tags": [
+    "科研 Skill",
+    "社区收录",
+    "综合科研"
+  ],
+  "author": "K-Dense-AI",
+  "sourceUrl": "https://github.com/K-Dense-AI/scientific-agent-skills",
+  "license": "见原仓库",
+  "redistribution": false,
+  "tier": "FREE",
+  "updatedAt": "2026-11-24",
+  "compat": [
+    {
+      "tool": "generic",
+      "supportedRange": "仓库 README",
+      "installPath": "-",
+      "note": "按原仓库 README 安装；本平台不转载代码"
+    }
+  ],
+  "files": []
+}
