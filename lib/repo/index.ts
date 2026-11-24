@@ -215,10 +215,12 @@ export function downloadable(resource: Resource): boolean {
 
 export type DownloadResult =
   | { ok: true; filename: string; bytes: Uint8Array }
-  | { ok: false; status: 403 | 404; reason: string };
+  | { ok: false; status: 401 | 403 | 404; reason: string };
 
 /** Build the ZIP for a resource the current viewer may download, counting the download first. */
 export async function downloadResource(type: string, slug: string): Promise<DownloadResult> {
+  const viewer = await getViewer();
+  if (!viewer) return { ok: false, status: 401, reason: "请先登录后再下载" };
   const snap = await snapshot();
   const r = snap.bySlug.get(slug);
   const want = type === "skills" ? "SKILL" : type === "modules" ? "MODULE" : null;

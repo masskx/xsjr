@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getAccess, getBody, getDiagram, getFileIndex, getModuleFiles, getResource } from "@/lib/repo";
+import { getViewer } from "@/lib/auth/server";
 import { LockedCode } from "@/components/locked-code";
 import { DetailShell } from "@/components/detail-shell";
+import { LoginGate } from "@/components/login-gate";
 import { Markdown } from "@/components/markdown";
 import { CodeTabs } from "@/components/code-tabs";
 import { StructureDiagram } from "@/components/structure-diagram";
+import { truncateCode } from "@/lib/content-preview";
 import type { ModuleResource } from "@/lib/types";
 
 export async function generateMetadata({
@@ -34,17 +37,23 @@ export default async function ModuleDetail({
   if (!r || r.type !== "MODULE") notFound();
 
   const resource = r as ModuleResource;
-  const [body, access, diagram, fileIndex] = await Promise.all([getBody(resource), getAccess(resource), getDiagram(resource), getFileIndex(resource)]);
+  const [body, access, diagram, fileIndex, viewer] = await Promise.all([getBody(resource), getAccess(resource), getDiagram(resource), getFileIndex(resource), getViewer()]);
   // Members-only code is only returned by the repo to an entitled viewer (checked there and in
-  // SQL); for everyone else `files` is null and the response contains no code at all.
+  // SQL); for everyone else `files` is null. Free module code is shown truncated to anonymous
+  // visitors, and the full source is never sent to the browser.
   const files = access.allowed ? await getModuleFiles(resource) : null;
+  const visibleFiles = files && !viewer
+    ? files.map((file) => ({ ...file, content: truncateCode(file.content) }))
+    : files;
+  const canDownload = !!viewer && !!files;
+  const loginHref = `/login/?next=${encodeURIComponent(`/modules/${resource.slug}/`)}`;
   const entry = resource.entry.replace(/^files\//, "");
 
   return (
     <DetailShell
       resource={resource}
       categoryHref={`/modules/?category=${encodeURIComponent(resource.category)}`}
-      download={files ? { href: `/api/download/modules/${resource.slug}/`, label: "下载模块（ZIP）" } : undefined}
+      download={canDownload ? { href: `/api/download/modules/${resource.slug}/`, label: "下载模块（ZIP）" } : undefined}
       extraMeta={[
         { label: "语言", value: resource.language },
         { label: "入口文件", value: entry },
@@ -85,13 +94,14 @@ export default async function ModuleDetail({
 
       {/* 4. code: one tab per file, copy per file; or the lock panel */}
       <section className="mt-8">
-        <h2 className="mb-3 text-[15px] font-semibold text-zinc-900">完整代码</h2>
+        <h2 className="mb-3 text-[15px] font-semibold text-zinc-900">代码</h2>
+        {!viewer && access.allowed && <LoginGate next={loginHref} />}
         {!access.allowed ? (
           <LockedCode access={access} returnTo={`/modules/${resource.slug}/`} />
-        ) : files ? (
-          <CodeTabs files={files} />
+        ) : visibleFiles ? (
+          <CodeTabs files={visibleFiles} allowCopy={!!viewer} />
         ) : (
-          <p className="rounded-xl border border-dashed border-zinc-300 p-6 text-center text-[13px] text-zinc-400">代码文件缺失</p>
+          <p className="rounded-xl border border-dashed border-zinc-300 p-6 text-center text-[13px] text-zinc-400">没有可展示的文件</p>
         )}
       </section>
 

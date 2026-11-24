@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { PromptVariable } from "@/lib/types";
 import { CopyButton } from "./copy-button";
@@ -23,9 +24,13 @@ function fill(
 export function PromptPlayground({
   template,
   variables,
+  canCopy = true,
+  loginHref = "/login/",
 }: {
   template: string;
   variables: PromptVariable[];
+  canCopy?: boolean;
+  loginHref?: string;
 }) {
   const [values, setValues] = useState<Record<string, string>>(() =>
     Object.fromEntries(
@@ -129,12 +134,23 @@ export function PromptPlayground({
           ))}
 
           <div className="flex flex-wrap items-center gap-2 border-t border-zinc-100 pt-4">
-            <CopyButton text={filled} label="复制最终文本" />
-            <CopyButton
-              text={template}
-              label="复制原始模板"
-              variant="ghost"
-            />
+            {canCopy ? (
+              <>
+                <CopyButton text={filled} label="复制当前提示词" />
+                <CopyButton
+                  text={template}
+                  label="复制原始模板"
+                  variant="ghost"
+                />
+              </>
+            ) : (
+              <Link
+                href={loginHref}
+                className="inline-flex h-9 items-center rounded-[3px] bg-zinc-900 px-3 text-[13px] font-medium text-white no-underline hover:bg-zinc-700"
+              >
+                登录后复制完整提示词
+              </Link>
+            )}
           </div>
 
           {missing.length > 0 && (

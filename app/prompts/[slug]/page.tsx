@@ -6,8 +6,11 @@ import {
   getResource,
 } from "@/lib/repo";
 import { DetailShell } from "@/components/detail-shell";
+import { LoginGate } from "@/components/login-gate";
 import { Markdown } from "@/components/markdown";
 import { PromptPlayground } from "@/components/prompt-playground";
+import { getViewer } from "@/lib/auth/server";
+import { truncateCode } from "@/lib/content-preview";
 import type { PromptResource } from "@/lib/types";
 
 export async function generateMetadata({
@@ -36,8 +39,13 @@ export default async function PromptDetail({
   if (!r || r.type !== "PROMPT") notFound();
 
   const resource = r as PromptResource;
-  const body = await getBody(resource);
-  const template = await getAttachment(resource, "template.md") ?? "";
+  const [body, fullTemplate, viewer] = await Promise.all([
+    getBody(resource),
+    getAttachment(resource, "template.md"),
+    getViewer(),
+  ]);
+  const template = viewer ? (fullTemplate ?? "") : truncateCode(fullTemplate ?? "");
+  const returnTo = `/prompts/${resource.slug}/`;
 
   return (
     <DetailShell
@@ -69,6 +77,8 @@ export default async function PromptDetail({
         </section>
       )}
 
+      {!viewer && <LoginGate next={returnTo} />}
+
       <section className="mt-8">
         <div className="mb-3 flex items-baseline justify-between">
           <h2 className="text-[15px] font-semibold text-zinc-900">提示词模板</h2>
@@ -85,7 +95,12 @@ export default async function PromptDetail({
         <h2 className="mb-3 text-[15px] font-semibold text-zinc-900">
           填写变量并生成最终文本
         </h2>
-        <PromptPlayground template={template} variables={resource.variables} />
+        <PromptPlayground
+          template={template}
+          variables={resource.variables}
+          canCopy={!!viewer}
+          loginHref={`/login/?next=${encodeURIComponent(returnTo)}`}
+        />
       </section>
     </DetailShell>
   );

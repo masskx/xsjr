@@ -10,11 +10,11 @@ export interface CodeFile {
   content: string;
 }
 
-export function CodeTabs({ files, maxHeight = "40rem" }: { files: CodeFile[]; maxHeight?: string }) {
+export function CodeTabs({ files, maxHeight = "40rem", allowCopy = true }: { files: CodeFile[]; maxHeight?: string; allowCopy?: boolean }) {
   const [active, setActive] = useState(0);
   const base = useId();
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);
-  if (files.length === 1) return <CodeBlock code={files[0].content} filename={files[0].path} language={files[0].language} maxHeight={maxHeight} />;
+  if (files.length === 1) return <CodeBlock code={files[0].content} filename={files[0].path} language={files[0].language} maxHeight={maxHeight} allowCopy={allowCopy} />;
 
   const focus = (i: number) => {
     const n = (i + files.length) % files.length;
@@ -53,7 +53,7 @@ export function CodeTabs({ files, maxHeight = "40rem" }: { files: CodeFile[]; ma
       </div>
       {files.map((f, i) => (
         <div key={f.path} role="tabpanel" id={`${base}-panel-${i}`} aria-labelledby={`${base}-tab-${i}`} hidden={active !== i} className="mt-3">
-          <CodeBlock code={f.content} filename={f.path} language={f.language} maxHeight={maxHeight} />
+          <CodeBlock code={f.content} filename={f.path} language={f.language} maxHeight={maxHeight} allowCopy={allowCopy} />
         </div>
       ))}
     </div>

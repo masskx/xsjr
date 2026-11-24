@@ -6,9 +6,12 @@ import {
   getResource,
 } from "@/lib/repo";
 import { DetailShell } from "@/components/detail-shell";
+import { LoginGate } from "@/components/login-gate";
 import { Markdown } from "@/components/markdown";
 import { CodeBlock } from "@/components/code-block";
 import { CopyButton } from "@/components/copy-button";
+import { getViewer } from "@/lib/auth/server";
+import { truncateCode } from "@/lib/content-preview";
 import { TOOL_LABEL, type SkillResource } from "@/lib/types";
 import { SkillInstall } from "@/components/skill-install";
 import { skillDirName } from "@/lib/stats/zip";
@@ -40,13 +43,20 @@ export default async function SkillDetail({
   if (!r || r.type !== "SKILL") notFound();
 
   const resource = r as SkillResource;
-  const body = await getBody(resource);
-  const skillMd = resource.redistribution ? (await getAttachment(resource, "SKILL.md")) ?? "" : "";
+  const [body, fullSkillMd, viewer] = await Promise.all([
+    getBody(resource),
+    resource.redistribution ? getAttachment(resource, "SKILL.md") : Promise.resolve(null),
+    getViewer(),
+  ]);
+  const rawSkillMd = fullSkillMd ?? "";
+  const skillMd = viewer ? rawSkillMd : rawSkillMd ? truncateCode(rawSkillMd) : "";
+  const canDownload = !!viewer && resource.redistribution && !!rawSkillMd;
+  const returnTo = `/skills/${resource.slug}/`;
 
   return (
     <DetailShell
       resource={resource}
-      download={resource.redistribution && skillMd ? { href: `/api/download/skills/${resource.slug}/`, label: "下载 Skill（ZIP）" } : undefined}
+      download={canDownload ? { href: `/api/download/skills/${resource.slug}/`, label: "下载 Skill（ZIP）" } : undefined}
       extraMeta={[
         {
           label: "兼容",
@@ -101,6 +111,8 @@ export default async function SkillDetail({
         </section>
       )}
 
+      {!viewer && rawSkillMd && <LoginGate next={returnTo} />}
+
       {/* SKILL.md 预览；仅索引的 Skill 不保存原文，只链接来源 */}
       {resource.redistribution ? (
         <section className="mt-8">
@@ -108,7 +120,7 @@ export default async function SkillDetail({
             <h2 className="text-[15px] font-semibold text-zinc-900">
               SKILL.md 预览
             </h2>
-            {skillMd && (
+            {skillMd && viewer && (
               <CopyButton
                 text={skillMd}
                 label="复制 SKILL.md"
@@ -118,7 +130,7 @@ export default async function SkillDetail({
             )}
           </div>
           {skillMd ? (
-            <CodeBlock code={skillMd} filename="SKILL.md" maxHeight="28rem" />
+            <CodeBlock code={skillMd} filename="SKILL.md" maxHeight="28rem" allowCopy={!!viewer} />
           ) : (
             <p className="rounded-xl border border-dashed border-zinc-300 p-6 text-center text-[13px] text-zinc-400">
               SKILL.md 内容待补充
@@ -148,7 +160,7 @@ export default async function SkillDetail({
       <SkillInstall
         resource={resource}
         skillDir={skillDirName(skillMd, resource.slug)}
-        zipUrl={resource.redistribution && skillMd ? `${SITE_URL}/api/download/skills/${resource.slug}/` : null}
+        zipUrl={canDownload ? `${SITE_URL}/api/download/skills/${resource.slug}/` : null}
       />
 
       {resource.dependencies && resource.dependencies.length > 0 && (
